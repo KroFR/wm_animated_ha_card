@@ -4,7 +4,9 @@
 
 An Oikos-inspired Lovelace card that turns a *dumb* washing machine on a smart plug into a beautiful, animated dashboard widget — no smart washer required.
 
-![Demo](media/demo.gif)
+![Demo](media/demo_en.gif)
+
+<sub>Russian UI demo (recorded on a real dashboard): [media/demo.gif](media/demo.gif) · [media/demo.mp4](media/demo.mp4)</sub>
 
 ## ✨ Features
 
