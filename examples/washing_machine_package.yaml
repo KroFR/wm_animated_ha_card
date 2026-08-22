@@ -1,0 +1,153 @@
+# =====================================================================
+# Washing machine on a smart plug — example Home Assistant package
+# Стиральная машина на умной розетке — пример пакета Home Assistant
+# ---------------------------------------------------------------------
+# Provides everything the card can display: running detection, cycle
+# start time, and last-cycle duration / energy / cost.
+# Даёт всё, что умеет показывать карточка: детект стирки, время старта
+# цикла, длительность / расход / стоимость последнего цикла.
+#
+# Install / Установка:
+#   1. Adjust the sensor.YOUR_PLUG_* entity ids below.
+#      Замените ниже сущности sensor.YOUR_PLUG_* на свои.
+#   2. Save as /config/packages/washing_machine.yaml and enable packages:
+#      Сохраните в /config/packages/washing_machine.yaml и включите пакеты:
+#        homeassistant:
+#          packages: !include_dir_named packages
+# =====================================================================
+
+template:
+  # Washing in progress: plug power above threshold.
+  # delay_off keeps the sensor on through mid-cycle pauses (soak, etc.)
+  # Идёт стирка: мощность розетки выше порога.
+  # delay_off не даёт паузам внутри цикла считаться окончанием.
+  - binary_sensor:
+      - unique_id: washing_in_progress
+        name: Washing in progress
+        delay_off: "00:03:00"
+        state: "{{ states('sensor.YOUR_PLUG_power') | float(0) > 10 }}"
+
+input_datetime:
+  wm_last_start:
+    name: Wash — cycle start
+    has_date: true
+    has_time: true
+    icon: mdi:clock-start
+
+input_number:
+  wm_energy_start:
+    name: Wash — meter reading at start
+    min: 0
+    max: 1000000
+    step: 0.001
+    mode: box
+    unit_of_measurement: kWh
+    icon: mdi:flash-outline
+  wm_last_duration:
+    name: Wash — last cycle duration
+    min: 0
+    max: 1440
+    step: 1
+    mode: box
+    unit_of_measurement: "min"
+    icon: mdi:timer-outline
+  wm_last_energy:
+    name: Wash — last cycle energy
+    min: 0
+    max: 100
+    step: 0.001
+    mode: box
+    unit_of_measurement: kWh
+    icon: mdi:washing-machine
+  wm_last_cost:
+    name: Wash — last cycle cost
+    min: 0
+    max: 10000
+    step: 0.01
+    mode: box
+    icon: mdi:cash
+  el_tarif:
+    name: Electricity tariff (per kWh)
+    min: 0
+    max: 100
+    step: 0.001
+    mode: box
+    icon: mdi:currency-usd
+
+automation:
+  # Capture the cycle start: meter reading + timestamp
+  # Фиксируем старт цикла: показание счётчика + время
+  - id: washing_capture_start
+    alias: "Wash — capture cycle start"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.washing_in_progress
+        from: "off"
+        to: "on"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ states('sensor.YOUR_PLUG_energy') not in
+             ['unknown', 'unavailable', 'none', ''] }}
+    action:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.wm_energy_start
+        data:
+          value: "{{ states('sensor.YOUR_PLUG_energy') | float(0) }}"
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.wm_last_start
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+    mode: single
+
+  # Cycle finished: store duration / energy / cost, notify
+  # Цикл завершён: сохраняем длительность / расход / стоимость, уведомляем
+  - id: washing_finished
+    alias: "Wash — cycle finished"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.washing_in_progress
+        from: "on"
+        to: "off"
+        for:
+          seconds: 120
+    variables:
+      meter_now: "{{ states('sensor.YOUR_PLUG_energy') | float(0) }}"
+      meter_start: "{{ states('input_number.wm_energy_start') | float(0) }}"
+      tariff: "{{ states('input_number.el_tarif') | float(0) }}"
+      # if the meter was reset (now < start) fall back to the current reading
+      energy: >-
+        {{ (meter_now - meter_start) if meter_now >= meter_start else meter_now }}
+      cost: "{{ (energy * tariff) | round(2) }}"
+      duration_min: >-
+        {% set st = states('input_datetime.wm_last_start') %}
+        {% if st not in ['unknown', 'unavailable', ''] %}
+          {{ ((now().timestamp() - as_timestamp(st, now().timestamp())) / 60) | int }}
+        {% else %}
+          0
+        {% endif %}
+    action:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.wm_last_duration
+        data:
+          value: "{{ duration_min }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.wm_last_energy
+        data:
+          value: "{{ energy | round(3) }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.wm_last_cost
+        data:
+          value: "{{ cost }}"
+      # Replace with your notify service / замените на свой сервис уведомлений
+      - action: persistent_notification.create
+        data:
+          title: "👕 Washing finished"
+          message: >-
+            ⏱ {{ duration_min }} min · ⚡ {{ energy | round(2) }} kWh · 💰 {{ cost }}
+    mode: single
