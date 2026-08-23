@@ -658,5 +658,5 @@ duration_entity: input_number.wm_last_duration   # cycle duration, minutes
 energy_entity: input_number.wm_last_energy  # kWh per cycle
 cost_entity: input_number.wm_last_cost      # cost per cycle
 currency: "€"
-language: en                                # en / ru (default: HA language)
+language: en                                # en / ru / de (default: HA language)
 ============================================================ */

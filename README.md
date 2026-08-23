@@ -1,6 +1,6 @@
 # 🧺 Washing Machine Animated Card for Home Assistant
 
-**English** | [Русский](README_RU.md)
+**English** | [Русский](README_RU.md) | [Deutsch](README_DE.md)
 
 An Oikos-inspired Lovelace card that turns a *dumb* washing machine on a smart plug into a beautiful, animated dashboard widget — no smart washer required.
 
