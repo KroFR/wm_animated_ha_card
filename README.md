@@ -14,7 +14,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washing machine on a smart p
 - **Live status** — a pulsing "RUNNING / IDLE" badge, an elapsed-time progress ring and a power gauge with automatic unit handling (`1950 W` is shown as `1.95 kW`; an ampere sensor is labelled "Current draw" automatically).
 - **Last cycle summary** — start time ("Today, 09:55"), duration, energy and cost, each column tappable for more-info.
 - **Quick actions** — header buttons toggle the smart plug and the finish-notification automation, and open the power history.
-- **Multilingual**: English, Russian and German labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de` explicitly.
+- **Multilingual**: English, Russian and German labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de | fr` explicitly.
 - **Zero dependencies** — a single vanilla-JS file with Shadow DOM. Every entity option except `status_entity` is optional: blocks without an entity are simply hidden. Responsive via CSS container queries.
 
 ## 📦 Installation
@@ -51,7 +51,7 @@ duration_entity: input_number.wm_last_duration     # cycle duration, minutes
 energy_entity: input_number.wm_last_energy         # kWh per cycle
 cost_entity: input_number.wm_last_cost             # cost per cycle
 currency: "€"
-language: en                                       # en / ru / de (default: HA language)
+language: en                                       # en / ru / de / fr (default: HA language)
 ```
 
 | Option | Required | Default | Description |
@@ -69,7 +69,7 @@ language: en                                       # en / ru / de (default: HA l
 | `cost_entity` | no | — | Cost per cycle. |
 | `currency` | no | `€` | Currency symbol for the cost column. |
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running". |
-| `language` | no | HA language | `en`, `ru` or `de`. |
+| `language` | no | HA language | `en`, `ru`, `de` or `fr`. |
 
 ## 🧠 How it works with a dumb machine
 
