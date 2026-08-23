@@ -1,0 +1,92 @@
+# =====================================================================
+# Smart washing machine / dryer, no smart plug needed
+# ---------------------------------------------------------------------
+# The card is built for a "dumb" machine on a metering plug, but it
+# works just as well with an appliance that already reports its own
+# state. Home Connect (Bosch / Siemens / Neff / Gaggenau), Miele@home,
+# LG ThinQ and SmartHQ all expose an operation state entity.
+#
+# You don't have to create anything for this. No template sensor, no
+# helpers, no automations. Point status_entity at the operation state
+# and you're done. A dryer works the same way, only the prefix changes.
+#
+#   type: custom:washing-machine-card
+#   name: Washing machine
+#   status_entity: sensor.washer_operation_state
+#   plug_entity: switch.washer_power     # header button toggles the appliance
+#   running_states: [run]                # see note (a)
+#
+#   type: custom:washing-machine-card
+#   name: Dryer
+#   status_entity: sensor.dryer_operation_state
+#   plug_entity: switch.dryer_power
+#   running_states: [run]
+#
+# The block below is the fuller version: the card plus the values it
+# has no options for. A smart appliance reports progress, finish time,
+# door and programme, so put those next to the card and the two halves
+# complement each other. Entity names follow Home Connect, adjust them
+# to your own.
+# =====================================================================
+
+type: grid
+cards:
+  - type: heading
+    heading: Washing machine
+    icon: mdi:washing-machine
+
+  - type: custom:washing-machine-card
+    name: Washing machine
+    status_entity: sensor.washer_operation_state
+    plug_entity: switch.washer_power
+    running_states: [run]
+
+  - type: tile
+    entity: sensor.washer_program_progress
+  - type: tile
+    entity: sensor.washer_program_finish_time
+  - type: tile
+    entity: sensor.washer_door
+
+  - type: entities
+    title: Programme & status
+    entities:
+      - select.washer_active_program
+      - binary_sensor.washer_remote_start
+      - switch.washer_child_lock
+
+# =====================================================================
+# Notes
+# ---------------------------------------------------------------------
+# (a) running_states
+#     The default list has "on" in it, which is meant for a plug switch.
+#     Home Connect operation states are inactive / ready / delayedstart /
+#     run / pause / finished / error, so cut the list down to just run.
+#     Otherwise pause, or an appliance that is powered but idle, reads
+#     as running. Miele uses in_use, LG uses RUNNING. Check your own
+#     values under Developer tools -> States.
+#
+# (b) "unavailable" is normal here
+#     Home Connect appliances drop every entity to unavailable when you
+#     switch them off at the mains or when they lose Wi-Fi. That's
+#     expected, not a broken integration. Everything comes back once the
+#     appliance is powered on again.
+#
+# (c) power gauge
+#     Smart appliances usually don't report wattage, so the red gauge
+#     stays empty. If you have a metering plug behind the appliance
+#     anyway, add power_entity and the gauge works next to the reported
+#     state.
+#
+# (d) "Last cycle" panel
+#     It's fed by input_datetime / input_number helpers that an
+#     automation fills on start and finish. A smart appliance doesn't
+#     give you those, so reuse the helpers and automations from
+#     washing_machine_package.yaml and trigger them off the operation
+#     state instead of the plug power.
+#
+# (e) dryer wording
+#     The running label is washer specific in English ("Washing"). The
+#     German and Russian strings read neutrally, the English one
+#     doesn't. Worth knowing until that label becomes configurable.
+# =====================================================================

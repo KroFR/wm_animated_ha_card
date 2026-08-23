@@ -14,7 +14,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washing machine on a smart p
 - **Live status** — a pulsing "RUNNING / IDLE" badge, an elapsed-time progress ring and a power gauge with automatic unit handling (`1950 W` is shown as `1.95 kW`; an ampere sensor is labelled "Current draw" automatically).
 - **Last cycle summary** — start time ("Today, 09:55"), duration, energy and cost, each column tappable for more-info.
 - **Quick actions** — header buttons toggle the smart plug and the finish-notification automation, and open the power history.
-- **Bilingual** — English and Russian labels out of the box; the language follows your Home Assistant profile, or set `language: en | ru` explicitly.
+- **Multilingual**: English, Russian and German labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de` explicitly.
 - **Zero dependencies** — a single vanilla-JS file with Shadow DOM. Every entity option except `status_entity` is optional: blocks without an entity are simply hidden. Responsive via CSS container queries.
 
 ## 📦 Installation
@@ -51,7 +51,7 @@ duration_entity: input_number.wm_last_duration     # cycle duration, minutes
 energy_entity: input_number.wm_last_energy         # kWh per cycle
 cost_entity: input_number.wm_last_cost             # cost per cycle
 currency: "€"
-language: en                                       # en / ru (default: HA language)
+language: en                                       # en / ru / de (default: HA language)
 ```
 
 | Option | Required | Default | Description |
@@ -69,7 +69,7 @@ language: en                                       # en / ru (default: HA langua
 | `cost_entity` | no | — | Cost per cycle. |
 | `currency` | no | `€` | Currency symbol for the cost column. |
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running". |
-| `language` | no | HA language | `en` or `ru`. |
+| `language` | no | HA language | `en`, `ru` or `de`. |
 
 ## 🧠 How it works with a dumb machine
 
@@ -78,7 +78,30 @@ The machine itself reports nothing — everything is derived from a smart plug w
 - a template `binary_sensor` (power above a threshold, with `delay_off` of a few minutes so inter-cycle pauses don't count as "finished") drives the status;
 - a small automation stores the cycle start into `input_datetime`, and on finish writes duration, energy and cost into `input_number` helpers which the card displays as the "Last cycle" panel.
 
-An example Home Assistant package with these sensors, helpers and automations is in [`examples/`](examples/).
+An example Home Assistant package with these sensors, helpers and automations is in [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml).
+
+## 🔌 Using it with a smart machine
+
+If your washer or dryer already reports its own state, you don't need the plug or
+any of the helpers. Home Connect (Bosch / Siemens / Neff / Gaggenau), Miele@home,
+LG ThinQ and SmartHQ all expose an operation state entity, so `status_entity` can
+point straight at it:
+
+```yaml
+type: custom:washing-machine-card
+name: Washing machine
+status_entity: sensor.washer_operation_state
+plug_entity: switch.washer_power
+running_states: [run]
+```
+
+A dryer is the same config with a different prefix. Narrow `running_states` to the
+one state that really means "running", otherwise a paused or powered-but-idle
+appliance reads as running.
+
+[`examples/smart_appliance.yaml`](examples/smart_appliance.yaml) has the full
+version, including the progress, finish time and door values the card has no
+options for, plus notes on what stays empty and why.
 
 ## 📄 License
 
