@@ -12,6 +12,8 @@
  * License: MIT
  * Version: 1.0.0
  *
+ * UI languages: en, ru, de (auto-detected from Home Assistant, or set `language:`).
+ *
  * Install / Установка:
  *   1. Copy to /config/www/washing-machine-card.js
  *   2. Add a dashboard resource / добавьте ресурс:
@@ -55,11 +57,27 @@ class WashingMachineCard extends HTMLElement {
       tip_notify: "Уведомление об окончании", tip_plug: "Розетка машины", tip_history: "История",
       locale: "ru-RU", decimal: ",",
     },
+    de: {
+      name: "Waschmaschine",
+      badge_running: "LÄUFT", badge_idle: "BEREIT", badge_nodata: "KEINE DATEN",
+      state_running: "Läuft", state_idle: "Bereit", state_nodata: "Keine Daten",
+      ring_running: "VERGANGEN", ring_idle: "BEREIT",
+      power: "Aktuelle Leistung", current: "Stromaufnahme",
+      last_cycle: "LETZTER DURCHGANG", start: "START", duration: "DAUER",
+      energy: "VERBRAUCH", cost: "KOSTEN",
+      min: "Min", kwh: "kWh", kw: "kW",
+      today: "Heute", yesterday: "Gestern",
+      tip_notify: "Benachrichtigung bei Ende", tip_plug: "Steckdose der Maschine", tip_history: "Verlauf",
+      locale: "de-DE", decimal: ",",
+    },
   };
 
   static DEFAULTS = {
     currency: "€",
-    running_states: ["стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse"],
+    running_states: [
+      "стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse",
+      "waschen", "läuft", "schleudern", "spülen", "trocknen",
+    ],
     power_threshold: 10,  // above this the machine counts as running (if power_entity is set)
     power_max: 2500,      // gauge maximum, in power_entity units
   };
@@ -104,7 +122,9 @@ class WashingMachineCard extends HTMLElement {
     const cfg = this._config?.language;
     if (cfg && S[cfg]) return S[cfg];
     const haLang = (this._hass?.locale?.language || this._hass?.language || "en").toLowerCase();
-    return haLang.startsWith("ru") ? S.ru : S.en;
+    // Match the full tag first ("pt-br"), then the base language ("pt"),
+    // so adding a new entry to STRINGS is all a new translation needs.
+    return S[haLang] || S[haLang.split(/[-_]/)[0]] || S.en;
   }
 
   _st(entityId) {
