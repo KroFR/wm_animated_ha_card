@@ -12,7 +12,7 @@
  * License: MIT
  * Version: 1.0.0
  *
- * UI languages: en, ru, de (auto-detected from Home Assistant, or set `language:`).
+ * UI languages: en, ru, de, fr (auto-detected from Home Assistant, or set `language:`).
  *
  * Install / Установка:
  *   1. Copy to /config/www/washing-machine-card.js
@@ -70,6 +70,19 @@ class WashingMachineCard extends HTMLElement {
       tip_notify: "Benachrichtigung bei Ende", tip_plug: "Steckdose der Maschine", tip_history: "Verlauf",
       locale: "de-DE", decimal: ",",
     },
+    fr: {
+        name: "Lave-linge",
+        badge_running: "EN MARCHE", badge_idle: "INACTIF", badge_nodata: "PAS DE DONNÉES",
+        state_running: "Lavage en cours", state_idle: "Inactif", state_nodata: "Pas de données",
+        ring_running: "ÉCOULÉ", ring_idle: "INACTIF",
+        power: "Puissance actuelle", current: "Courant instantané",
+        last_cycle: "DERNIER CYCLE", start: "DÉPART", duration: "DURÉE",
+        energy: "ÉNERGIE", cost: "COÛT",
+        min: "min", kwh: "kWh", kw: "kW",
+        today: "Aujourd'hui", yesterday: "Hier",
+        tip_notify: "Notification de fin", tip_plug: "Prise machine", tip_history: "Historique",
+        locale: "fr-FR", decimal: ",",
+    },
   };
 
   static DEFAULTS = {
@@ -77,6 +90,7 @@ class WashingMachineCard extends HTMLElement {
     running_states: [
       "стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse",
       "waschen", "läuft", "schleudern", "spülen", "trocknen",
+      "lavage", "en cours", "essorage", "rincage", "rinçage",
     ],
     power_threshold: 10,  // above this the machine counts as running (if power_entity is set)
     power_max: 2500,      // gauge maximum, in power_entity units
@@ -658,5 +672,5 @@ duration_entity: input_number.wm_last_duration   # cycle duration, minutes
 energy_entity: input_number.wm_last_energy  # kWh per cycle
 cost_entity: input_number.wm_last_cost      # cost per cycle
 currency: "€"
-language: en                                # en / ru / de (default: HA language)
+language: en                                # en / ru / de / fr (default: HA language)
 ============================================================ */
