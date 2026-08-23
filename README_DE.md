@@ -2,7 +2,7 @@
 
 [English](README.md) | [Русский](README_RU.md) | **Deutsch**
 
-Eine von Oikos inspirierte Lovelace-Karte, die aus einer *gewöhnlichen* Waschmaschine an einer smarten Steckdose ein schönes, animiertes Dashboard-Widget macht — ganz ohne smarte Waschmaschine.
+Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschine an einer schaltbaren Steckdose ein schönes, animiertes Dashboard-Widget macht, ganz ohne smarte Waschmaschine.
 
 ![Demo](media/demo_en.gif)
 
@@ -10,12 +10,12 @@ Eine von Oikos inspirierte Lovelace-Karte, die aus einer *gewöhnlichen* Waschma
 
 ## ✨ Funktionen
 
-- **Animierte Maschine** — während eines Durchgangs purzelt die Wäsche hinter dem Glas, blaue Bögen drehen sich um die Tür (eine Umdrehung in 3 s) und das Display an der Maschine zeigt die verstrichene Zeit. Die gesamte Animation ist reines CSS/SVG, ohne externe Dateien, und berücksichtigt `prefers-reduced-motion`.
-- **Live-Status** — ein pulsierendes „LÄUFT / BEREIT“-Badge, ein Ring mit der verstrichenen Zeit und eine Leistungsanzeige mit automatischer Einheitenwahl (`1950 W` wird als `1,95 kW` angezeigt; bei einem Stromsensor lautet die Beschriftung automatisch „Stromaufnahme“).
-- **Zusammenfassung des letzten Durchgangs** — Startzeit („Heute, 09:55“), Dauer, Verbrauch und Kosten; jede Spalte öffnet per Tippen den More-Info-Dialog.
-- **Schnellzugriffe** — Schaltflächen in der Kopfzeile schalten die smarte Steckdose und die Benachrichtigungs-Automatisierung und öffnen den Leistungsverlauf.
-- **Drei Sprachen** — Deutsch, Englisch und Russisch von Haus aus. Die Sprache folgt deinem Home-Assistant-Profil oder wird mit `language: de | en | ru` fest gesetzt.
-- **Ohne Abhängigkeiten** — eine einzige Vanilla-JS-Datei mit Shadow DOM. Alle Entity-Optionen außer `status_entity` sind optional: Blöcke ohne Entity werden einfach ausgeblendet. Responsiv über CSS Container Queries.
+- **Animierte Maschine** – während eines Durchgangs dreht sich die Wäsche hinter dem Bullauge, blaue Bögen kreisen um die Tür (eine Umdrehung alle 3 s) und das Display an der Maschine zeigt die verstrichene Zeit. Die ganze Animation ist reines CSS und SVG, ohne externe Dateien, und berücksichtigt `prefers-reduced-motion`.
+- **Live-Status** – ein pulsierendes „LÄUFT / BEREIT“-Badge, ein Ring mit der verstrichenen Zeit und eine Leistungsanzeige, die die Einheit selbst wählt (`1950 W` erscheint als `1,95 kW`; hängt ein Stromsensor dran, heißt die Beschriftung automatisch „Stromaufnahme“).
+- **Letzter Durchgang** – Startzeit („Heute, 09:55“), Dauer, Verbrauch und Kosten. Jede Spalte öffnet per Tippen den More-Info-Dialog.
+- **Schnellzugriffe** – die Buttons in der Kopfzeile schalten Steckdose und Benachrichtigungs-Automatisierung um und öffnen den Leistungsverlauf.
+- **Drei Sprachen** – Deutsch, Englisch und Russisch von Haus aus. Die Sprache folgt deinem Home-Assistant-Profil oder wird mit `language: de | en | ru` fest gesetzt.
+- **Keine Abhängigkeiten** – eine einzige Vanilla-JS-Datei mit Shadow DOM. Alle Entity-Optionen außer `status_entity` sind optional, Blöcke ohne Entity werden einfach ausgeblendet. Responsiv über CSS Container Queries.
 
 ## 📦 Installation
 
@@ -29,7 +29,7 @@ Eine von Oikos inspirierte Lovelace-Karte, die aus einer *gewöhnlichen* Waschma
    type: module
    ```
 
-   Erhöhe `?v=` nach jedem Update, um den Browser-Cache zu leeren.
+   Zähle `?v=` nach jedem Update hoch, damit der Browser die neue Datei lädt und nicht die alte aus dem Cache.
 
 ### HACS
 
@@ -40,52 +40,52 @@ Füge `https://github.com/sionetta/wm_animated_ha_card` als **benutzerdefinierte
 ```yaml
 type: custom:washing-machine-card
 name: Waschmaschine
-status_entity: binary_sensor.washing_in_progress   # ERFORDERLICH
-plug_entity: switch.washing_machine_plug           # Steckdosen-Button, Tippen = umschalten
-notify_entity: automation.washing_finished         # Benachrichtigungs-Button, Tippen = umschalten
-power_entity: sensor.washing_machine_power         # Anzeige + Laufterkennung
+status_entity: binary_sensor.washing_in_progress   # PFLICHT
+plug_entity: switch.washing_machine_plug           # Steckdosen-Button, Tippen schaltet um
+notify_entity: automation.washing_finished         # Benachrichtigungs-Button, Tippen schaltet um
+power_entity: sensor.washing_machine_power         # Skala und Erkennung, ob die Maschine läuft
 power_threshold: 10                                # darüber gilt die Maschine als laufend
-power_max: 2500                                    # Maximum der Anzeige
+power_max: 2500                                    # oberes Ende der Skala
 last_wash_entity: input_datetime.wm_last_start     # Startzeitpunkt des Durchgangs
-duration_entity: input_number.wm_last_duration     # Dauer des Durchgangs, Minuten
+duration_entity: input_number.wm_last_duration     # Dauer des Durchgangs in Minuten
 energy_entity: input_number.wm_last_energy         # kWh pro Durchgang
 cost_entity: input_number.wm_last_cost             # Kosten pro Durchgang
 currency: "€"
 language: de                                       # de / en / ru (Standard: HA-Sprache)
 ```
 
-| Option | Erforderlich | Standard | Beschreibung |
+| Option | Pflicht | Standard | Beschreibung |
 |---|---|---|---|
-| `status_entity` | **ja** | — | Entity, deren Zustand einen laufenden Durchgang kennzeichnet. Ein Template-`binary_sensor` auf Leistung oder Strom der Steckdose eignet sich bestens; Text-Zustände (`washing`, `schleudern`, …) werden über `running_states` erkannt. |
-| `name` | nein | lokalisiert | Titel der Karte. |
-| `plug_entity` | nein | — | Schalter der smarten Steckdose; erscheint als Button in der Kopfzeile, Tippen schaltet um. |
-| `notify_entity` | nein | — | Automatisierung / switch / input_boolean für die „Durchgang beendet“-Benachrichtigung; Tippen schaltet um. |
-| `power_entity` | nein | — | Leistungs- (W) oder Stromsensor (A): rote Anzeige, Wertanzeige und zweite Laufterkennung. |
+| `status_entity` | **ja** | – | Entity, deren Zustand einen laufenden Durchgang kennzeichnet. Ein Template-`binary_sensor` auf Leistung oder Strom der Steckdose eignet sich am besten. Textzustände (`washing`, `schleudern`, …) werden über `running_states` erkannt. |
+| `name` | nein | übersetzt | Titel der Karte. |
+| `plug_entity` | nein | – | Schalter der Steckdose. Erscheint als Button in der Kopfzeile, Tippen schaltet um. |
+| `notify_entity` | nein | – | Automatisierung, `switch` oder `input_boolean` für die Benachrichtigung „Durchgang beendet“. Tippen schaltet um. |
+| `power_entity` | nein | – | Sensor für Leistung (W) oder Strom (A): rote Skala, Wertanzeige, und er erkennt zusätzlich, ob die Maschine läuft. |
 | `power_threshold` | nein | `10` | Oberhalb dieses Werts gilt die Maschine als laufend. |
-| `power_max` | nein | `2500` | Maximum der Anzeige, in Einheiten von `power_entity`. |
-| `last_wash_entity` | nein | — | `input_datetime` mit dem Start des Durchgangs; daraus wird auch die verstrichene Zeit berechnet. |
-| `duration_entity` | nein | — | Dauer des letzten Durchgangs in Minuten. |
-| `energy_entity` | nein | — | Energie pro Durchgang, kWh. |
-| `cost_entity` | nein | — | Kosten pro Durchgang. |
-| `currency` | nein | `€` | Währungssymbol für die Kostenspalte. |
+| `power_max` | nein | `2500` | Oberes Ende der Skala, in der Einheit von `power_entity`. |
+| `last_wash_entity` | nein | – | `input_datetime` mit dem Start des Durchgangs. Daraus wird auch die verstrichene Zeit berechnet. |
+| `duration_entity` | nein | – | Dauer des letzten Durchgangs in Minuten. |
+| `energy_entity` | nein | – | Verbrauch pro Durchgang in kWh. |
+| `cost_entity` | nein | – | Kosten pro Durchgang. |
+| `currency` | nein | `€` | Währungszeichen für die Kostenspalte. |
 | `running_states` | nein | on, washing, waschen, run, schleudern, … | Zustände von `status_entity`, die als „laufend“ gelten. |
 | `language` | nein | HA-Sprache | `de`, `en` oder `ru`. |
 
-## 🧠 So funktioniert es mit einer gewöhnlichen Maschine
+## 🧠 So funktioniert es mit einer nicht smarten Maschine
 
-Die Maschine selbst meldet nichts — alles wird aus einer smarten Steckdose mit Leistungsmessung abgeleitet:
+Die Maschine selbst meldet gar nichts. Alles wird aus einer Steckdose mit Leistungsmessung abgeleitet:
 
-- ein Template-`binary_sensor` (Leistung über einem Schwellwert, mit `delay_off` von einigen Minuten, damit Pausen innerhalb des Durchgangs nicht als „beendet“ zählen) liefert den Status;
-- eine kleine Automatisierung speichert den Start des Durchgangs in `input_datetime` und schreibt am Ende Dauer, Verbrauch und Kosten in `input_number`-Helfer, die die Karte im Bereich „Letzter Durchgang“ anzeigt.
+- ein Template-`binary_sensor` liefert den Status. Er schaltet ein, sobald die Leistung über einem Schwellwert liegt, und hält mit `delay_off` ein paar Minuten nach, damit Pausen mitten im Durchgang nicht schon als „fertig“ zählen.
+- eine kleine Automatisierung merkt sich den Start in einem `input_datetime` und schreibt am Ende Dauer, Verbrauch und Kosten in `input_number`-Helfer. Genau die zeigt die Karte im Bereich „Letzter Durchgang“.
 
 Ein fertiges Home-Assistant-Package mit diesen Sensoren, Helfern und Automatisierungen liegt in [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml).
 
 ## 🔌 Verwendung mit einer smarten Maschine
 
-Wenn deine Wasch- oder Trocknermaschine ihren Zustand bereits selbst meldet, brauchst
-du weder die Steckdose noch die Helfer. Home Connect (Bosch / Siemens / Neff /
-Gaggenau), Miele@home, LG ThinQ und SmartHQ stellen eine Entity für den
-Betriebszustand bereit, sodass `status_entity` direkt darauf zeigen kann:
+Wenn deine Waschmaschine oder dein Trockner den eigenen Zustand schon selbst meldet,
+brauchst du weder die Steckdose noch die Helfer. Home Connect (Bosch / Siemens /
+Neff / Gaggenau), Miele@home, LG ThinQ und SmartHQ stellen alle eine Entity für den
+Betriebszustand bereit, `status_entity` kann also direkt darauf zeigen:
 
 ```yaml
 type: custom:washing-machine-card
@@ -95,14 +95,15 @@ plug_entity: switch.washer_power
 running_states: [run]
 ```
 
-Für einen Trockner ist die Konfiguration dieselbe, nur mit anderem Präfix. Grenze
-`running_states` auf den einen Zustand ein, der wirklich „läuft“ bedeutet, sonst
-gilt ein pausiertes oder eingeschaltetes, aber untätiges Gerät als laufend.
+Für einen Trockner sieht die Konfiguration genauso aus, nur mit anderem Präfix.
+Grenze `running_states` auf den einen Zustand ein, der wirklich „läuft“ bedeutet.
+Sonst gilt ein Gerät, das nur pausiert oder eingeschaltet herumsteht, schon als
+laufend.
 
-[`examples/smart_appliance.yaml`](examples/smart_appliance.yaml) enthält die
-ausführliche Variante — inklusive Fortschritt, Endzeit und Türzustand, für die die
-Karte keine eigenen Optionen hat, sowie Hinweise dazu, welche Bereiche leer bleiben
-und warum.
+In [`examples/smart_appliance.yaml`](examples/smart_appliance.yaml) steht die
+ausführliche Variante: dazu Fortschritt, Endzeit und Türzustand, für die die Karte
+keine eigenen Optionen hat, und Hinweise darauf, welche Bereiche in diesem Aufbau
+leer bleiben und warum.
 
 ## 📄 Lizenz
 
