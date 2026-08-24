@@ -1,12 +1,12 @@
 # 🧺 Washing Machine Animated Card for Home Assistant
 
-**English** | [Русский](README_RU.md) | [Deutsch](README_DE.md)
+**English** | [Русский](README_RU.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)
 
 An Oikos-inspired Lovelace card that turns a *dumb* washing machine on a smart plug into a beautiful, animated dashboard widget — no smart washer required.
 
 ![Demo](media/demo_en.gif)
 
-<sub>Russian UI demo (recorded on a real dashboard): [media/demo.gif](media/demo.gif) · [media/demo.mp4](media/demo.mp4)</sub>
+<sub>Demo in other UI languages: [Русский](media/demo.gif) · [Deutsch](media/demo_de.gif) · [Français](media/demo_fr.gif)</sub>
 
 ## ✨ Features
 
@@ -14,7 +14,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washing machine on a smart p
 - **Live status** — a pulsing "RUNNING / IDLE" badge, an elapsed-time progress ring and a power gauge with automatic unit handling (`1950 W` is shown as `1.95 kW`; an ampere sensor is labelled "Current draw" automatically).
 - **Last cycle summary** — start time ("Today, 09:55"), duration, energy and cost, each column tappable for more-info.
 - **Quick actions** — header buttons toggle the smart plug and the finish-notification automation, and open the power history.
-- **Multilingual**: English, Russian and German labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de | fr` explicitly.
+- **Multilingual** — English, Russian, German and French labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de | fr` explicitly.
 - **Zero dependencies** — a single vanilla-JS file with Shadow DOM. Every entity option except `status_entity` is optional: blocks without an entity are simply hidden. Responsive via CSS container queries.
 
 ## 📦 Installation
@@ -68,7 +68,7 @@ language: en                                       # en / ru / de / fr (default:
 | `energy_entity` | no | — | Energy per cycle, kWh. |
 | `cost_entity` | no | — | Cost per cycle. |
 | `currency` | no | `€` | Currency symbol for the cost column. |
-| `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running". |
+| `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German and French states are recognised). |
 | `language` | no | HA language | `en`, `ru`, `de` or `fr`. |
 
 ## 🧠 How it works with a dumb machine
