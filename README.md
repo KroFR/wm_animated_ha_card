@@ -2,7 +2,7 @@
 
 **English** | [Русский](README_RU.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)
 
-An Oikos-inspired Lovelace card that turns a *dumb* washing machine on a smart plug into a beautiful, animated dashboard widget — no smart washer required.
+An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer or dishwasher on a smart plug into a beautiful, animated dashboard widget — no smart appliance required.
 
 ![Demo](media/demo_en.gif)
 
@@ -39,6 +39,7 @@ Add `https://github.com/sionetta/wm_animated_ha_card` as a **custom repository**
 
 ```yaml
 type: custom:washing-machine-card
+appliance_type: washer                             # washer | dryer | dishwasher
 name: Washing machine
 status_entity: binary_sensor.washing_in_progress   # REQUIRED
 plug_entity: switch.washing_machine_plug           # plug button, tap = toggle
@@ -56,8 +57,9 @@ language: en                                       # en / ru / de / fr (default:
 
 | Option | Required | Default | Description |
 |---|---|---|---|
+| `appliance_type` | no | `washer` | Visual + labels: `washer`, `dryer` (alias `tumbler`) or `dishwasher`. |
 | `status_entity` | **yes** | — | Entity whose state marks a running cycle. A template `binary_sensor` on the plug's power/current works great; textual states (`washing`, `spin`, …) are matched via `running_states`. |
-| `name` | no | localized | Card title. |
+| `name` | no | localized | Card title (defaults depend on `appliance_type`). |
 | `plug_entity` | no | — | Smart plug switch; shown as a header button, tap toggles it. |
 | `notify_entity` | no | — | Automation/switch/input_boolean for the "cycle finished" notification; tap toggles it. |
 | `power_entity` | no | — | Power (W) or current (A) sensor: red gauge, value display and a second "running" detector. |
@@ -95,9 +97,9 @@ plug_entity: switch.washer_power
 running_states: [run]
 ```
 
-A dryer is the same config with a different prefix. Narrow `running_states` to the
-one state that really means "running", otherwise a paused or powered-but-idle
-appliance reads as running.
+A dryer is the same config with `appliance_type: dryer` (and usually a different
+entity prefix). Narrow `running_states` to the one state that really means
+"running", otherwise a paused or powered-but-idle appliance reads as running.
 
 [`examples/smart_appliance.yaml`](examples/smart_appliance.yaml) has the full
 version, including the progress, finish time and door values the card has no

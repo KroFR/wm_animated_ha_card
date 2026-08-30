@@ -39,6 +39,7 @@ Füge `https://github.com/sionetta/wm_animated_ha_card` als **benutzerdefinierte
 
 ```yaml
 type: custom:washing-machine-card
+appliance_type: washer                             # washer | dryer | dishwasher
 name: Waschmaschine
 status_entity: binary_sensor.washing_in_progress   # PFLICHT
 plug_entity: switch.washing_machine_plug           # Steckdosen-Button, Tippen schaltet um
@@ -56,8 +57,9 @@ language: de                                       # de / en / ru / fr (Standard
 
 | Option | Pflicht | Standard | Beschreibung |
 |---|---|---|---|
+| `appliance_type` | nein | `washer` | Optik + Texte: `washer`, `dryer` (Alias `tumbler`) oder `dishwasher`. |
 | `status_entity` | **ja** | – | Entity, deren Zustand einen laufenden Durchgang kennzeichnet. Ein Template-`binary_sensor` auf Leistung oder Strom der Steckdose eignet sich am besten. Textzustände (`washing`, `schleudern`, …) werden über `running_states` erkannt. |
-| `name` | nein | übersetzt | Titel der Karte. |
+| `name` | nein | übersetzt | Titel der Karte (Default hängt von `appliance_type` ab). |
 | `plug_entity` | nein | – | Schalter der Steckdose. Erscheint als Button in der Kopfzeile, Tippen schaltet um. |
 | `notify_entity` | nein | – | Automatisierung, `switch` oder `input_boolean` für die Benachrichtigung „Durchgang beendet“. Tippen schaltet um. |
 | `power_entity` | nein | – | Sensor für Leistung (W) oder Strom (A): rote Skala, Wertanzeige, und er erkennt zusätzlich, ob die Maschine läuft. |
@@ -95,7 +97,10 @@ plug_entity: switch.washer_power
 running_states: [run]
 ```
 
-Für einen Trockner sieht die Konfiguration genauso aus, nur mit anderem Präfix.
+Für einen Trockner dieselbe Config mit `appliance_type: dryer` (meist anderer
+Entity-Präfix). `running_states` eng halten auf den Zustand, der wirklich
+„läuft“ bedeutet — sonst wirkt eine pausierte oder nur eingeschaltete Maschine
+als laufend.
 Grenze `running_states` auf den einen Zustand ein, der wirklich „läuft“ bedeutet.
 Sonst gilt ein Gerät, das nur pausiert oder eingeschaltet herumsteht, schon als
 laufend.

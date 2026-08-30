@@ -1,35 +1,30 @@
 /**
  * Washing Machine Animated Card for Home Assistant
  * ================================================
- * An Oikos-style Lovelace card for a "dumb" washing machine on a smart plug:
- * animated machine illustration, live status, power gauge and last-cycle stats.
- *
- * Анимированная карточка стиральной машины в стиле Oikos для Home Assistant:
- * «глупая» машина на умной розетке — анимация, статус, шкала мощности
- * и итоги последнего цикла.
+ * An Oikos-style Lovelace card for a "dumb" appliance on a smart plug:
+ * animated illustration (washer / dryer / dishwasher), live status,
+ * power gauge and last-cycle stats.
  *
  * https://github.com/sionetta/wm_animated_ha_card
  * License: MIT
- * Version: 1.0.0
+ * Version: 1.1.0
  *
  * UI languages: en, ru, de, fr (auto-detected from Home Assistant, or set `language:`).
  *
- * Install / Установка:
+ * Install:
  *   1. Copy to /config/www/washing-machine-card.js
- *   2. Add a dashboard resource / добавьте ресурс:
- *        url: /local/washing-machine-card.js?v=1
+ *   2. Add a dashboard resource:
+ *        url: /local/washing-machine-card.js?v=2
  *        type: module
- *      (bump ?v= after every update to bust the browser cache /
- *       при обновлении файла увеличивайте ?v=, чтобы сбросить кэш)
- *   3. Add the card — full example at the bottom of this file /
- *      пример конфигурации — в конце файла.
+ *   3. Add the card — full example at the bottom of this file.
  *
  * Every entity option except status_entity is optional — blocks without
- * an entity are simply hidden. / Все entity-параметры кроме status_entity
- * необязательны: блоки без сущности не отображаются.
+ * an entity are simply hidden.
  */
 
 class WashingMachineCard extends HTMLElement {
+  static APPLIANCE_TYPES = ["washer", "dryer", "dishwasher"];
+
   static STRINGS = {
     en: {
       name: "Washing machine",
@@ -43,6 +38,11 @@ class WashingMachineCard extends HTMLElement {
       today: "Today", yesterday: "Yesterday",
       tip_notify: "Finish notification", tip_plug: "Machine plug", tip_history: "History",
       locale: "en-GB", decimal: ".",
+      types: {
+        washer: { name: "Washing machine", state_running: "Washing" },
+        dryer: { name: "Dryer", state_running: "Drying" },
+        dishwasher: { name: "Dishwasher", state_running: "Washing dishes" },
+      },
     },
     ru: {
       name: "Стиральная машина",
@@ -56,6 +56,11 @@ class WashingMachineCard extends HTMLElement {
       today: "Сегодня", yesterday: "Вчера",
       tip_notify: "Уведомление об окончании", tip_plug: "Розетка машины", tip_history: "История",
       locale: "ru-RU", decimal: ",",
+      types: {
+        washer: { name: "Стиральная машина", state_running: "Идёт стирка" },
+        dryer: { name: "Сушилка", state_running: "Сушка" },
+        dishwasher: { name: "Посудомойка", state_running: "Моет посуду" },
+      },
     },
     de: {
       name: "Waschmaschine",
@@ -69,6 +74,11 @@ class WashingMachineCard extends HTMLElement {
       today: "Heute", yesterday: "Gestern",
       tip_notify: "Benachrichtigung bei Ende", tip_plug: "Steckdose der Maschine", tip_history: "Verlauf",
       locale: "de-DE", decimal: ",",
+      types: {
+        washer: { name: "Waschmaschine", state_running: "Wäsche läuft" },
+        dryer: { name: "Tumbler", state_running: "Trocknet" },
+        dishwasher: { name: "Geschirrspüler", state_running: "Spült" },
+      },
     },
     fr: {
       name: "Lave-linge",
@@ -82,25 +92,44 @@ class WashingMachineCard extends HTMLElement {
       today: "Aujourd'hui", yesterday: "Hier",
       tip_notify: "Notification de fin", tip_plug: "Prise machine", tip_history: "Historique",
       locale: "fr-FR", decimal: ",",
+      types: {
+        washer: { name: "Lave-linge", state_running: "Lavage en cours" },
+        dryer: { name: "Sèche-linge", state_running: "Séchage" },
+        dishwasher: { name: "Lave-vaisselle", state_running: "Lavage vaisselle" },
+      },
     },
   };
 
   static DEFAULTS = {
+    appliance_type: "washer",
     currency: "€",
     running_states: [
       "стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse",
-      "waschen", "läuft", "schleudern", "spülen", "trocknen",
+      "waschen", "läuft", "schleudern", "spülen", "trocknen", "drying", "dry", "tumble",
       "lavage", "en cours", "essorage", "rincage", "rinçage",
     ],
-    power_threshold: 10,  // above this the machine counts as running (if power_entity is set)
-    power_max: 2500,      // gauge maximum, in power_entity units
+    power_threshold: 10,
+    power_max: 2500,
   };
+
+  static normalizeType(value) {
+    const raw = String(value || "washer").toLowerCase().trim();
+    if (raw === "tumbler" || raw === "tumble_dryer" || raw === "tumble-dryer") return "dryer";
+    if (raw === "washing_machine" || raw === "washing-machine") return "washer";
+    if (WashingMachineCard.APPLIANCE_TYPES.includes(raw)) return raw;
+    return "washer";
+  }
 
   setConfig(config) {
     if (!config.status_entity) {
       throw new Error("washing-machine-card: status_entity is required");
     }
-    this._config = { ...WashingMachineCard.DEFAULTS, ...config };
+    this._config = {
+      ...WashingMachineCard.DEFAULTS,
+      ...config,
+      appliance_type: WashingMachineCard.normalizeType(config.appliance_type),
+    };
+    this._uid = `a${Math.random().toString(36).slice(2, 9)}`;
     this._built = false;
   }
 
@@ -114,7 +143,38 @@ class WashingMachineCard extends HTMLElement {
     return 6;
   }
 
-  // Tick every 30 s so the elapsed time stays fresh without state changes
+  static getConfigForm() {
+    return {
+      schema: [
+        { name: "appliance_type", selector: { select: { options: [
+          { value: "washer", label: "Washer" },
+          { value: "dryer", label: "Dryer / Tumbler" },
+          { value: "dishwasher", label: "Dishwasher" },
+        ] } } },
+        { name: "name", selector: { text: {} } },
+        { name: "status_entity", required: true, selector: { entity: {} } },
+        { name: "plug_entity", selector: { entity: { domain: ["switch", "input_boolean"] } } },
+        { name: "notify_entity", selector: { entity: {} } },
+        { name: "power_entity", selector: { entity: { domain: "sensor" } } },
+        { name: "power_threshold", selector: { number: { min: 0, mode: "box" } } },
+        { name: "power_max", selector: { number: { min: 1, mode: "box" } } },
+        { name: "last_wash_entity", selector: { entity: { domain: "input_datetime" } } },
+        { name: "duration_entity", selector: { entity: { domain: "input_number" } } },
+        { name: "energy_entity", selector: { entity: { domain: "input_number" } } },
+        { name: "cost_entity", selector: { entity: { domain: "input_number" } } },
+        { name: "currency", selector: { text: {} } },
+        { name: "language", selector: { select: { options: ["en", "ru", "de", "fr"] } } },
+      ],
+    };
+  }
+
+  static getStubConfig() {
+    return {
+      appliance_type: "washer",
+      status_entity: "binary_sensor.washing_in_progress",
+    };
+  }
+
   connectedCallback() {
     if (this._timer) clearInterval(this._timer);
     this._timer = setInterval(() => {
@@ -129,16 +189,21 @@ class WashingMachineCard extends HTMLElement {
     }
   }
 
-  // ---------------------------------------------------------------- helpers
+  get _applianceType() {
+    return WashingMachineCard.normalizeType(this._config?.appliance_type);
+  }
 
   get _t() {
     const S = WashingMachineCard.STRINGS;
     const cfg = this._config?.language;
-    if (cfg && S[cfg]) return S[cfg];
-    const haLang = (this._hass?.locale?.language || this._hass?.language || "en").toLowerCase();
-    // Match the full tag first ("pt-br"), then the base language ("pt"),
-    // so adding a new entry to STRINGS is all a new translation needs.
-    return S[haLang] || S[haLang.split(/[-_]/)[0]] || S.en;
+    let base;
+    if (cfg && S[cfg]) base = S[cfg];
+    else {
+      const haLang = (this._hass?.locale?.language || this._hass?.language || "en").toLowerCase();
+      base = S[haLang] || S[haLang.split(/[-_]/)[0]] || S.en;
+    }
+    const typeStrings = base.types?.[this._applianceType] || {};
+    return { ...base, ...typeStrings };
   }
 
   _st(entityId) {
@@ -161,7 +226,6 @@ class WashingMachineCard extends HTMLElement {
   _parseDate(state) {
     if (!state || ["unknown", "unavailable", "none"].includes(String(state).toLowerCase()))
       return null;
-    // input_datetime returns "YYYY-MM-DD HH:MM:SS" — make it ISO
     const d = new Date(String(state).replace(" ", "T"));
     return isNaN(d) ? null : d;
   }
@@ -180,7 +244,6 @@ class WashingMachineCard extends HTMLElement {
     return d.toLocaleDateString(t.locale, { day: "numeric", month: "short" }) + `, ${time}`;
   }
 
-  // "1:23" — hours:minutes since the start date
   _fmtClock(fromDate) {
     const s = Math.max(0, Math.floor((Date.now() - fromDate.getTime()) / 1000));
     const h = Math.floor(s / 3600);
@@ -222,7 +285,275 @@ class WashingMachineCard extends HTMLElement {
     this._hass.callService(svcDomain, "toggle", { entity_id: entityId });
   }
 
-  // ---------------------------------------------------------------- build
+  _headerIcon() {
+    const type = this._applianceType;
+    if (type === "dryer") {
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
+          <circle cx="12" cy="12.2" r="4.4"/>
+          <circle cx="12" cy="12.2" r="1.5" fill="#f0a04b" stroke="none"/>
+          <line x1="7.2" y1="19.2" x2="16.8" y2="19.2"/>
+          <line x1="8" y1="20.4" x2="16" y2="20.4"/>
+        </svg>`;
+    }
+    if (type === "dishwasher") {
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
+          <rect x="6" y="7.2" width="12" height="10.5" rx="1.8"/>
+          <line x1="8" y1="4.6" x2="16" y2="4.6"/>
+          <line x1="9" y1="19.4" x2="15" y2="19.4"/>
+        </svg>`;
+    }
+    return `
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
+        <circle cx="12" cy="13" r="4.6"/>
+        <circle cx="12" cy="13" r="1.6" fill="#2f80ed" stroke="none"/>
+        <circle cx="7"  cy="6.2" r="1.05" fill="#2f80ed" stroke="none"/>
+      </svg>`;
+  }
+
+  _machineSvg() {
+    const type = this._applianceType;
+    const u = this._uid;
+    if (type === "dryer") return this._svgDryer(u);
+    if (type === "dishwasher") return this._svgDishwasher(u);
+    return this._svgWasher(u);
+  }
+
+  _svgChassis(u, opts = {}) {
+    const top = opts.topPanel || `
+      <rect x="42" y="20" width="34" height="13" rx="4" fill="#cfd7e0"/>
+      <rect x="42" y="20" width="34" height="6"  rx="3" fill="#dee5ec"/>
+      <rect x="88" y="18" width="70" height="18" rx="9" fill="#0d1526"/>
+      <text id="dispTime" x="116" y="31" text-anchor="middle"
+            font-family="ui-monospace, 'SF Mono', Consolas, monospace"
+            font-size="11.5" font-weight="700" fill="#e8f1ff" letter-spacing="1">--:--</text>
+      <circle id="dispDot" cx="149" cy="27" r="2.4" fill="#22b263"/>
+      <circle cx="176" cy="27" r="10" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.3"/>
+      <circle cx="176" cy="27" r="3.2" fill="#31415a"/>
+      <rect x="175.1" y="18.5" width="1.8" height="6.5" rx=".9" fill="#31415a"/>`;
+    return `
+      <ellipse cx="110" cy="222" rx="76" ry="8" fill="#20304a" opacity=".16"/>
+      <rect x="30" y="8" width="160" height="204" rx="18" fill="url(#${u}-body)"/>
+      <rect x="30" y="8" width="160" height="204" rx="18" fill="none" stroke="#c7cfda" stroke-width="1.4"/>
+      <rect x="48"  y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
+      <rect x="162" y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
+      ${top}`;
+  }
+
+  _svgWasher(u) {
+    return `
+      <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset=".55" stop-color="#f2f5f9"/>
+            <stop offset="1" stop-color="#d9e0e9"/>
+          </linearGradient>
+          <radialGradient id="${u}-glass" cx=".38" cy=".32" r=".95">
+            <stop offset="0" stop-color="#31456e"/>
+            <stop offset=".6" stop-color="#1e2c4d"/>
+            <stop offset="1" stop-color="#131d36"/>
+          </radialGradient>
+          <linearGradient id="${u}-ring" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#d5dce5"/>
+          </linearGradient>
+        </defs>
+        ${this._svgChassis(u)}
+        <circle cx="110" cy="128" r="58" fill="url(#${u}-ring)"/>
+        <circle cx="110" cy="128" r="58" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
+        <circle cx="110" cy="128" r="47" fill="#e3e9f0"/>
+        <circle cx="110" cy="128" r="42" fill="url(#${u}-glass)"/>
+        <g class="laundry">
+          <circle cx="100" cy="124" r="14"   fill="#ea4335"/>
+          <circle cx="119" cy="131" r="13.2" fill="#4285f4"/>
+          <circle cx="110" cy="115" r="11"   fill="#fbbc05"/>
+          <circle cx="103" cy="135" r="8"    fill="#f28b82" opacity=".9"/>
+        </g>
+        <ellipse cx="94" cy="106" rx="22" ry="13" fill="#ffffff" opacity=".14"
+                 transform="rotate(-24 94 106)"/>
+        <circle cx="110" cy="128" r="42" fill="none" stroke="#0d1526" stroke-width="2" opacity=".35"/>
+        <g class="arcs">
+          <circle cx="110" cy="128" r="53" fill="none" stroke="#2f80ed" stroke-width="5.5"
+                  stroke-linecap="round" stroke-dasharray="104 62.5" opacity=".95"/>
+        </g>
+      </svg>`;
+  }
+
+  _svgDryer(u) {
+    const top = `
+      <rect x="42" y="20" width="34" height="13" rx="4" fill="#cfd7e0"/>
+      <rect x="46" y="23" width="26" height="3.2" rx="1.4" fill="#9aa6b4"/>
+      <rect x="46" y="28" width="18" height="2.4" rx="1.1" fill="#b7c0cb"/>
+      <rect x="88" y="18" width="70" height="18" rx="9" fill="#0d1526"/>
+      <text id="dispTime" x="116" y="31" text-anchor="middle"
+            font-family="ui-monospace, 'SF Mono', Consolas, monospace"
+            font-size="11.5" font-weight="700" fill="#e8f1ff" letter-spacing="1">--:--</text>
+      <circle id="dispDot" cx="149" cy="27" r="2.4" fill="#22b263"/>
+      <circle cx="176" cy="27" r="10" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.3"/>
+      <circle cx="176" cy="27" r="3.2" fill="#31415a"/>
+      <rect x="175.1" y="18.5" width="1.8" height="6.5" rx=".9" fill="#31415a"/>`;
+    return `
+      <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset=".55" stop-color="#f2f5f9"/>
+            <stop offset="1" stop-color="#d9e0e9"/>
+          </linearGradient>
+          <radialGradient id="${u}-glass" cx=".38" cy=".32" r=".95">
+            <stop offset="0" stop-color="#4a3a2e"/>
+            <stop offset=".55" stop-color="#2a211c"/>
+            <stop offset="1" stop-color="#16110e"/>
+          </radialGradient>
+          <linearGradient id="${u}-ring" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#d5dce5"/>
+          </linearGradient>
+          <radialGradient id="${u}-heat" cx=".5" cy=".55" r=".7">
+            <stop offset="0" stop-color="#ffb347" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#ffb347" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        ${this._svgChassis(u, { topPanel: top })}
+        <circle cx="110" cy="128" r="58" fill="url(#${u}-ring)"/>
+        <circle cx="110" cy="128" r="58" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
+        <circle cx="110" cy="128" r="47" fill="#e3e9f0"/>
+        <circle cx="110" cy="128" r="42" fill="url(#${u}-glass)"/>
+        <circle class="heat" cx="110" cy="128" r="40" fill="url(#${u}-heat)" opacity=".35"/>
+        <g class="drum">
+          <circle cx="110" cy="128" r="36" fill="none" stroke="#8a7a6a" stroke-width="1.2" opacity=".55"/>
+          <g fill="#c4b5a5" opacity=".55">
+            <circle cx="92" cy="112" r="1.6"/><circle cx="104" cy="108" r="1.6"/>
+            <circle cx="116" cy="108" r="1.6"/><circle cx="128" cy="112" r="1.6"/>
+            <circle cx="88" cy="124" r="1.6"/><circle cx="132" cy="124" r="1.6"/>
+            <circle cx="90" cy="138" r="1.6"/><circle cx="130" cy="138" r="1.6"/>
+            <circle cx="100" cy="146" r="1.6"/><circle cx="120" cy="146" r="1.6"/>
+            <circle cx="110" cy="150" r="1.6"/>
+          </g>
+          <ellipse cx="102" cy="126" rx="15" ry="10" fill="#7aa2e3" transform="rotate(-18 102 126)"/>
+          <ellipse cx="120" cy="134" rx="13" ry="9" fill="#e8e0d4" transform="rotate(22 120 134)"/>
+          <ellipse cx="112" cy="118" rx="10" ry="7" fill="#d4a574" transform="rotate(-8 112 118)"/>
+        </g>
+        <ellipse cx="94" cy="106" rx="22" ry="13" fill="#ffffff" opacity=".12" transform="rotate(-24 94 106)"/>
+        <circle cx="110" cy="128" r="42" fill="none" stroke="#0d1526" stroke-width="2" opacity=".35"/>
+        <g class="arcs">
+          <circle cx="110" cy="128" r="53" fill="none" stroke="#f0a04b" stroke-width="5.5"
+                  stroke-linecap="round" stroke-dasharray="104 62.5" opacity=".95"/>
+        </g>
+        <rect x="72" y="194" width="76" height="12" rx="4" fill="#dfe5ec" stroke="#c2cbd6" stroke-width="1"/>
+        <g stroke="#b0bac6" stroke-width="1.3" stroke-linecap="round">
+          <line x1="80" y1="198" x2="140" y2="198"/>
+          <line x1="80" y1="202" x2="140" y2="202"/>
+          <line x1="80" y1="206" x2="140" y2="206"/>
+        </g>
+      </svg>`;
+  }
+
+  _svgDishwasher(u) {
+    const top = `
+      <rect x="42" y="18" width="136" height="22" rx="8" fill="#0d1526"/>
+      <text id="dispTime" x="100" y="33" text-anchor="middle"
+            font-family="ui-monospace, 'SF Mono', Consolas, monospace"
+            font-size="11.5" font-weight="700" fill="#e8f1ff" letter-spacing="1">--:--</text>
+      <circle id="dispDot" cx="148" cy="29" r="2.4" fill="#22b263"/>
+      <circle cx="162" cy="29" r="5.5" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1"/>
+      <circle cx="162" cy="29" r="1.8" fill="#31415a"/>`;
+    return `
+      <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset=".55" stop-color="#f2f5f9"/>
+            <stop offset="1" stop-color="#d9e0e9"/>
+          </linearGradient>
+          <radialGradient id="${u}-glass" cx=".4" cy=".28" r="1">
+            <stop offset="0" stop-color="#2f4a6e"/>
+            <stop offset=".6" stop-color="#1a2d4a"/>
+            <stop offset="1" stop-color="#101b2e"/>
+          </radialGradient>
+          <linearGradient id="${u}-frame" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#d5dce5"/>
+          </linearGradient>
+          <linearGradient id="${u}-mist" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#7eb6ff" stop-opacity="0"/>
+            <stop offset=".45" stop-color="#7eb6ff" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#7eb6ff" stop-opacity=".15"/>
+          </linearGradient>
+          <clipPath id="${u}-clip">
+            <rect x="56" y="60" width="108" height="120" rx="8"/>
+          </clipPath>
+        </defs>
+        ${this._svgChassis(u, { topPanel: top })}
+        <rect x="48" y="52" width="124" height="148" rx="12" fill="url(#${u}-frame)"/>
+        <rect x="48" y="52" width="124" height="148" rx="12" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
+        <rect x="56" y="60" width="108" height="120" rx="8" fill="url(#${u}-glass)"/>
+        <g clip-path="url(#${u}-clip)">
+          <g class="dw-dishes" opacity=".98">
+            <line x1="64" y1="92" x2="156" y2="92" stroke="#8fa0b5" stroke-width="1.6" opacity=".75"/>
+            <line x1="64" y1="92" x2="64" y2="86" stroke="#8fa0b5" stroke-width="1.4" opacity=".55"/>
+            <line x1="156" y1="92" x2="156" y2="86" stroke="#8fa0b5" stroke-width="1.4" opacity=".55"/>
+            <path d="M70 72 v14 c0 5 4 8 8 8 s8-3 8-8 V72 Z" fill="none" stroke="#e8f0fa" stroke-width="1.8"/>
+            <line x1="70" y1="72" x2="86" y2="72" stroke="#e8f0fa" stroke-width="1.8"/>
+            <path d="M90 70 v16 c0 5 3.5 7.5 7 7.5 s7-2.5 7-7.5 V70 Z" fill="none" stroke="#d7e3f4" stroke-width="1.8"/>
+            <line x1="90" y1="70" x2="104" y2="70" stroke="#d7e3f4" stroke-width="1.8"/>
+            <path d="M112 78 c0 8 5 12 12 12 s12-4 12-12" fill="none" stroke="#c9d7ea" stroke-width="2"/>
+            <ellipse cx="124" cy="78" rx="12" ry="3.2" fill="none" stroke="#c9d7ea" stroke-width="1.7"/>
+            <rect x="142" y="72" width="12" height="16" rx="2.5" fill="none" stroke="#e8f0fa" stroke-width="1.8"/>
+            <path d="M154 76 c4 0 5 3 5 5 s-1 5-5 5" fill="none" stroke="#e8f0fa" stroke-width="1.7"/>
+            <line x1="64" y1="138" x2="156" y2="138" stroke="#8fa0b5" stroke-width="1.6" opacity=".75"/>
+            <ellipse cx="80" cy="124" rx="14" ry="5.5" fill="none" stroke="#e8f0fa" stroke-width="2"/>
+            <ellipse cx="80" cy="128" rx="14" ry="5.5" fill="none" stroke="#d0dced" stroke-width="1.7" opacity=".85"/>
+            <ellipse cx="80" cy="132" rx="14" ry="5.5" fill="none" stroke="#b9c8dc" stroke-width="1.5" opacity=".7"/>
+            <ellipse cx="112" cy="126" rx="15" ry="5.8" fill="none" stroke="#e8f0fa" stroke-width="2"/>
+            <ellipse cx="112" cy="130" rx="15" ry="5.8" fill="none" stroke="#d0dced" stroke-width="1.7" opacity=".85"/>
+            <path d="M132 120 c0 10 6 15 14 15 s14-5 14-15" fill="none" stroke="#d7e3f4" stroke-width="2"/>
+            <ellipse cx="146" cy="120" rx="14" ry="3.4" fill="none" stroke="#d7e3f4" stroke-width="1.7"/>
+          </g>
+          <rect class="dw-wash" x="56" y="60" width="108" height="120" fill="url(#${u}-mist)"/>
+          <g stroke="#9fd0ff" stroke-width="1.6" stroke-linecap="round" opacity=".75">
+            <line class="dw-stream" x1="74" y1="64" x2="74" y2="172"/>
+            <line class="dw-stream" x1="92" y1="64" x2="92" y2="172"/>
+            <line class="dw-stream" x1="110" y1="64" x2="110" y2="172"/>
+            <line class="dw-stream" x1="128" y1="64" x2="128" y2="172"/>
+            <line class="dw-stream" x1="146" y1="64" x2="146" y2="172"/>
+          </g>
+          <g class="dw-arm">
+            <line x1="72" y1="166" x2="148" y2="166" stroke="#8ec2ff" stroke-width="3.2" stroke-linecap="round"/>
+            <circle cx="110" cy="166" r="3.4" fill="#b7dbff"/>
+            <g class="dw-jet" stroke="#a8d6ff" stroke-width="1.5" stroke-linecap="round">
+              <line x1="86" y1="166" x2="82" y2="148"/>
+              <line x1="86" y1="166" x2="90" y2="146"/>
+            </g>
+            <g class="dw-jet" stroke="#a8d6ff" stroke-width="1.5" stroke-linecap="round">
+              <line x1="134" y1="166" x2="130" y2="146"/>
+              <line x1="134" y1="166" x2="138" y2="148"/>
+            </g>
+          </g>
+          <g fill="#9fd0ff">
+            <circle class="dw-drop" cx="78" cy="96" r="1.8"/>
+            <circle class="dw-drop" cx="118" cy="90" r="2"/>
+            <circle class="dw-drop" cx="140" cy="102" r="1.6"/>
+            <circle class="dw-drop" cx="98" cy="108" r="1.7"/>
+          </g>
+        </g>
+        <rect x="62" y="66" width="36" height="18" rx="6" fill="#ffffff" opacity=".12"
+              transform="rotate(-12 80 75)"/>
+        <rect x="56" y="60" width="108" height="120" rx="8" fill="none" stroke="#0d1526" stroke-width="2" opacity=".3"/>
+        <rect class="dw-frame" x="52" y="56" width="116" height="140" rx="10" fill="none"
+              stroke="#2f80ed" stroke-width="4" stroke-linecap="round"
+              stroke-dasharray="90 70" opacity=".9"/>
+        <rect x="78" y="188" width="64" height="7" rx="3.5" fill="#cfd7e0" stroke="#b4bec9" stroke-width="1"/>
+      </svg>`;
+  }
 
   _build() {
     const c = this._config;
@@ -242,14 +573,11 @@ class WashingMachineCard extends HTMLElement {
           font-family: var(--paper-font-body1_-_font-family, inherit);
           box-shadow: var(--ha-card-box-shadow, 0 6px 20px rgba(38, 63, 97, .10));
         }
-        /* blue accent bar along the top edge, Oikos-style */
         ha-card::before {
           content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
           background: linear-gradient(90deg, #2f80ed, #56a8ff);
         }
         .wrap { container-type: inline-size; }
-
-        /* -------- header -------- */
         .header { display: flex; align-items: center; gap: 10px; }
         .h-icon {
           width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
@@ -269,7 +597,6 @@ class WashingMachineCard extends HTMLElement {
           padding: 6px 11px; border-radius: 999px;
           background: #e3e8ee; color: #6b7684; white-space: nowrap;
         }
-        /* in a narrow column the badge collapses to a dot so the title survives */
         @container (max-width: 430px) {
           #badgeText { display: none; }
           .badge { padding: 6px 8px; }
@@ -294,32 +621,89 @@ class WashingMachineCard extends HTMLElement {
         .h-btn ha-icon { --mdc-icon-size: 19px; }
         .h-btn.on { color: #2f80ed; border-color: #b9d4f6; background: #eaf3fe; }
 
-        /* -------- hero: the machine -------- */
         .hero { display: flex; justify-content: center; padding: 14px 0 6px; }
         .machine { width: 210px; max-width: 62%; cursor: pointer; }
-        /* rotation center = door center (110, 128) — keep CSS and SVG in sync */
-        .laundry { transform-origin: 110px 128px; }
-        .arcs    { transform-origin: 110px 128px; }
-        .running .arcs    { animation: spin 3s linear infinite; }        /* 1 turn per 3 s */
+
+        .laundry, .drum, .arcs {
+          transform-box: view-box;
+          transform-origin: 110px 128px;
+        }
+        .running .arcs    { animation: spin 3s linear infinite; }
         .running .laundry { animation: tumble 3s ease-in-out infinite; }
+        .running .drum    { animation: spin 2.4s linear infinite; }
+        .running .heat    { animation: heatPulse 2s ease-in-out infinite; }
+
+        .dw-stream, .dw-wash, .dw-drop, .dw-jet { opacity: 0; }
+        .dw-dishes { opacity: .98; }
+        .running .dw-wash { animation: washPulse 2.4s ease-in-out infinite; }
+        .running .dw-stream {
+          opacity: .75;
+          stroke-dasharray: 6 18;
+          animation: streamFall 1.1s linear infinite;
+        }
+        .running .dw-stream:nth-child(2) { animation-delay: .15s; }
+        .running .dw-stream:nth-child(3) { animation-delay: .35s; }
+        .running .dw-stream:nth-child(4) { animation-delay: .55s; }
+        .running .dw-stream:nth-child(5) { animation-delay: .25s; }
+        .running .dw-jet {
+          transform-box: view-box;
+          transform-origin: 110px 166px;
+          animation: jetPulse 1.6s ease-in-out infinite;
+        }
+        .running .dw-jet:nth-child(2) { animation-delay: .4s; }
+        .running .dw-drop { animation: dropFall 1.8s ease-in infinite; }
+        .running .dw-drop:nth-child(2) { animation-delay: .4s; }
+        .running .dw-drop:nth-child(3) { animation-delay: .9s; }
+        .running .dw-drop:nth-child(4) { animation-delay: 1.3s; }
+        .running .dw-arm {
+          transform-box: view-box;
+          transform-origin: 110px 166px;
+          animation: armSweep 3.2s ease-in-out infinite;
+        }
+        .running .dw-frame { animation: dash-crawl 2.4s linear infinite; }
+
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes tumble {
           0%, 100% { transform: rotate(-14deg); }
           50%      { transform: rotate(16deg); }
         }
+        @keyframes heatPulse {
+          0%, 100% { opacity: .2; }
+          50% { opacity: .55; }
+        }
+        @keyframes washPulse {
+          0%, 100% { opacity: .12; }
+          50% { opacity: .34; }
+        }
+        @keyframes streamFall { to { stroke-dashoffset: -24; } }
+        @keyframes jetPulse {
+          0%, 100% { opacity: .25; }
+          50% { opacity: .9; }
+        }
+        @keyframes dropFall {
+          0%   { opacity: 0; transform: translateY(0); }
+          15%  { opacity: .9; }
+          85%  { opacity: .55; }
+          100% { opacity: 0; transform: translateY(28px); }
+        }
+        @keyframes armSweep {
+          0%, 100% { transform: rotate(-18deg); }
+          50%      { transform: rotate(18deg); }
+        }
+        @keyframes dash-crawl { to { stroke-dashoffset: -160; } }
         @media (prefers-reduced-motion: reduce) {
-          .running .arcs, .running .laundry, .running .badge .b-dot, .running .ring-anim { animation: none; }
+          .running .arcs, .running .laundry, .running .drum, .running .heat,
+          .running .dw-wash, .running .dw-stream, .running .dw-jet,
+          .running .dw-drop, .running .dw-arm, .running .dw-frame,
+          .running .badge .b-dot, .running .ring-anim { animation: none; }
         }
 
-        /* -------- panels -------- */
         .panel {
           background: rgba(255,255,255,.72);
           border: 1px solid rgba(255,255,255,.9);
           border-radius: 18px; padding: 14px 16px; margin-top: 12px;
           box-shadow: 0 2px 10px rgba(38,63,97,.05);
         }
-
-        /* status: progress ring + power gauge */
         .status-panel { display: flex; align-items: center; gap: 16px; }
         .ring-box { position: relative; width: 96px; height: 96px; flex-shrink: 0; cursor: pointer; }
         .ring-box svg { width: 100%; height: 100%; }
@@ -354,8 +738,6 @@ class WashingMachineCard extends HTMLElement {
           transition: width .6s ease;
         }
         .idle .bar-fill { background: #c4cdd8; }
-
-        /* last cycle */
         .lc-title {
           font-size: 11px; font-weight: 800; letter-spacing: 1.4px; color: #8a95a3;
           margin-bottom: 10px;
@@ -375,17 +757,8 @@ class WashingMachineCard extends HTMLElement {
 
       <ha-card>
         <div class="wrap idle" id="wrap">
-
           <div class="header">
-            <div class="h-icon" id="hIcon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
-                <circle cx="12" cy="13" r="4.6"/>
-                <circle cx="12" cy="13" r="1.6" fill="#2f80ed" stroke="none"/>
-                <circle cx="7"  cy="6.2" r="1.05" fill="#2f80ed" stroke="none"/>
-              </svg>
-            </div>
+            <div class="h-icon" id="hIcon">${this._headerIcon()}</div>
             <div class="h-title" id="name"></div>
             <div class="badge"><span class="b-dot"></span><span id="badgeText"></span></div>
             <div class="h-spacer"></div>
@@ -400,75 +773,8 @@ class WashingMachineCard extends HTMLElement {
             </div>
           </div>
 
-          <div class="hero">
-            <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="wm-body" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#ffffff"/>
-                  <stop offset=".55" stop-color="#f2f5f9"/>
-                  <stop offset="1" stop-color="#d9e0e9"/>
-                </linearGradient>
-                <radialGradient id="wm-glass" cx=".38" cy=".32" r=".95">
-                  <stop offset="0" stop-color="#31456e"/>
-                  <stop offset=".6" stop-color="#1e2c4d"/>
-                  <stop offset="1" stop-color="#131d36"/>
-                </radialGradient>
-                <linearGradient id="wm-ring" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stop-color="#ffffff"/>
-                  <stop offset="1" stop-color="#d5dce5"/>
-                </linearGradient>
-              </defs>
+          <div class="hero" id="hero">${this._machineSvg()}</div>
 
-              <!-- floor shadow -->
-              <ellipse cx="110" cy="222" rx="76" ry="8" fill="#20304a" opacity=".16"/>
-
-              <!-- body -->
-              <rect x="30" y="8" width="160" height="204" rx="18" fill="url(#wm-body)"/>
-              <rect x="30" y="8" width="160" height="204" rx="18" fill="none" stroke="#c7cfda" stroke-width="1.4"/>
-              <!-- feet -->
-              <rect x="48"  y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
-              <rect x="162" y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
-
-              <!-- top panel -->
-              <rect x="42" y="20" width="34" height="13" rx="4" fill="#cfd7e0"/>
-              <rect x="42" y="20" width="34" height="6"  rx="3" fill="#dee5ec"/>
-              <rect x="88" y="18" width="70" height="18" rx="9" fill="#0d1526"/>
-              <text id="dispTime" x="116" y="31" text-anchor="middle"
-                    font-family="ui-monospace, 'SF Mono', Consolas, monospace"
-                    font-size="11.5" font-weight="700" fill="#e8f1ff" letter-spacing="1">--:--</text>
-              <circle id="dispDot" cx="149" cy="27" r="2.4" fill="#22b263"/>
-              <!-- timer knob -->
-              <circle cx="176" cy="27" r="10" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.3"/>
-              <circle cx="176" cy="27" r="3.2" fill="#31415a"/>
-              <rect x="175.1" y="18.5" width="1.8" height="6.5" rx=".9" fill="#31415a"/>
-
-              <!-- door -->
-              <circle cx="110" cy="128" r="58" fill="url(#wm-ring)"/>
-              <circle cx="110" cy="128" r="58" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
-              <circle cx="110" cy="128" r="47" fill="#e3e9f0"/>
-              <circle cx="110" cy="128" r="42" fill="url(#wm-glass)"/>
-
-              <!-- laundry (tumbles while washing) -->
-              <g class="laundry">
-                <circle cx="100" cy="124" r="14"   fill="#ea4335"/>
-                <circle cx="119" cy="131" r="13.2" fill="#4285f4"/>
-                <circle cx="110" cy="115" r="11"   fill="#fbbc05"/>
-                <circle cx="103" cy="135" r="8"    fill="#f28b82" opacity=".9"/>
-              </g>
-              <!-- glass highlight -->
-              <ellipse cx="94" cy="106" rx="22" ry="13" fill="#ffffff" opacity=".14"
-                       transform="rotate(-24 94 106)"/>
-              <circle cx="110" cy="128" r="42" fill="none" stroke="#0d1526" stroke-width="2" opacity=".35"/>
-
-              <!-- blue arcs around the door (spin while washing) -->
-              <g class="arcs" transform-origin="110 128">
-                <circle cx="110" cy="128" r="53" fill="none" stroke="#2f80ed" stroke-width="5.5"
-                        stroke-linecap="round" stroke-dasharray="104 62.5" opacity=".95"/>
-              </g>
-            </svg>
-          </div>
-
-          <!-- status -->
           <div class="panel status-panel">
             <div class="ring-box" id="ringBox">
               <svg viewBox="0 0 96 96">
@@ -493,7 +799,6 @@ class WashingMachineCard extends HTMLElement {
             </div>
           </div>
 
-          <!-- last cycle -->
           <div class="panel hidden" id="lastCycle">
             <div class="lc-title">${t.last_cycle}</div>
             <div class="lc-grid">
@@ -515,14 +820,12 @@ class WashingMachineCard extends HTMLElement {
               </div>
             </div>
           </div>
-
         </div>
       </ha-card>
     `;
 
     this._el = (id) => root.getElementById(id);
 
-    // handlers
     const mi = (ent) => () => this._moreInfo(ent);
     this._el("machine").addEventListener("click", mi(c.status_entity));
     this._el("hIcon").addEventListener("click", mi(c.status_entity));
@@ -546,8 +849,6 @@ class WashingMachineCard extends HTMLElement {
     this._built = true;
   }
 
-  // ---------------------------------------------------------------- update
-
   _update() {
     const c = this._config;
     const t = this._t;
@@ -557,7 +858,6 @@ class WashingMachineCard extends HTMLElement {
     wrap.classList.toggle("running", running);
     wrap.classList.toggle("idle", !running);
 
-    // header
     this._el("name").textContent = c.name || t.name;
     const status = this._st(c.status_entity);
     const noData = !status || ["unknown", "unavailable"].includes(status.state);
@@ -565,7 +865,6 @@ class WashingMachineCard extends HTMLElement {
       ? t.badge_nodata
       : running ? t.badge_running : t.badge_idle;
 
-    // machine display + progress ring: elapsed washing time
     const start = running ? this._startDate() : null;
     const clock = start ? this._fmtClock(start) : null;
     this._el("dispTime").textContent = running ? (clock || "0:00") : "--:--";
@@ -574,12 +873,10 @@ class WashingMachineCard extends HTMLElement {
     this._el("ringLabel").textContent = running ? t.ring_running : t.ring_idle;
     this._el("ringArc").style.display = running ? "" : "none";
 
-    // status text
     this._el("stState").textContent = noData
       ? t.state_nodata
       : running ? t.state_running : t.state_idle;
 
-    // power / current + gauge
     if (c.power_entity) {
       const ps = this._st(c.power_entity);
       const p = parseFloat(ps?.state);
@@ -592,14 +889,13 @@ class WashingMachineCard extends HTMLElement {
       let disp;
       if (isNaN(p)) disp = "—";
       else if (["w", "вт"].includes(unitL) && Math.abs(p) >= 1000)
-        disp = `${this._fmtNum(p / 1000, 2)} ${t.kw}`;   // 1950 W → "1.95 kW"
+        disp = `${this._fmtNum(p / 1000, 2)} ${t.kw}`;
       else disp = `${Math.abs(p) >= 10 ? Math.round(p) : this._fmtNum(p, 2)} ${unit}`;
       this._el("powerValue").textContent = disp;
       const frac = isNaN(p) ? 0 : Math.min(1, Math.max(0, p / (c.power_max || 1)));
       this._el("barFill").style.width = `${Math.max(running ? 4 : 2, frac * 100)}%`;
     }
 
-    // last cycle
     let anyLc = false;
     if (c.last_wash_entity) {
       const s = this._st(c.last_wash_entity);
@@ -633,7 +929,6 @@ class WashingMachineCard extends HTMLElement {
     }
     if (anyLc) this._el("lastCycle").classList.remove("hidden");
 
-    // toggle buttons
     if (c.notify_entity) {
       const on = this._st(c.notify_entity)?.state === "on";
       this._el("notifyBtn").classList.remove("hidden");
@@ -647,30 +942,42 @@ class WashingMachineCard extends HTMLElement {
   }
 }
 
-customElements.define("washing-machine-card", WashingMachineCard);
+if (!customElements.get("washing-machine-card")) {
+  customElements.define("washing-machine-card", WashingMachineCard);
+}
 
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "washing-machine-card",
   name: "Washing Machine Animated Card",
-  description: "Oikos-style animated washing machine card: live status, power gauge and last-cycle stats",
+  description:
+    "Oikos-style animated appliance card (washer / dryer / dishwasher): live status, power gauge and last-cycle stats",
 });
 
 /* ============================================================
-   Example configuration / Пример конфигурации:
+   Example configuration:
 
 type: custom:washing-machine-card
-name: Washing machine                       # card title / название
-status_entity: binary_sensor.washing_in_progress  # REQUIRED / обязательный
-plug_entity: switch.washing_machine_plug    # plug button, tap = toggle
-notify_entity: automation.washing_finished  # notification button, tap = toggle
-power_entity: sensor.washing_machine_power  # gauge + running detection
-power_threshold: 10                         # running above this value
-power_max: 2500                             # gauge maximum
-last_wash_entity: input_datetime.wm_last_start   # cycle start timestamp
-duration_entity: input_number.wm_last_duration   # cycle duration, minutes
-energy_entity: input_number.wm_last_energy  # kWh per cycle
-cost_entity: input_number.wm_last_cost      # cost per cycle
+appliance_type: washer                      # washer | dryer | dishwasher
+name: Washing machine
+status_entity: binary_sensor.washing_in_progress
+plug_entity: switch.washing_machine_plug
+notify_entity: automation.washing_finished
+power_entity: sensor.washing_machine_power
+power_threshold: 10
+power_max: 2500
+last_wash_entity: input_datetime.wm_last_start
+duration_entity: input_number.wm_last_duration
+energy_entity: input_number.wm_last_energy
+cost_entity: input_number.wm_last_cost
 currency: "€"
-language: en                                # en / ru / de / fr (default: HA language)
+language: en
+
+# Dryer / Tumbler:
+# appliance_type: dryer
+# name: Tumbler
+
+# Dishwasher:
+# appliance_type: dishwasher
+# name: Geschirrspüler
 ============================================================ */
