@@ -50,6 +50,7 @@ last_wash_entity: input_datetime.wm_last_start     # horodatage du début de cyc
 duration_entity: input_number.wm_last_duration     # durée du cycle, en minutes
 energy_entity: input_number.wm_last_energy         # kWh par cycle
 cost_entity: input_number.wm_last_cost             # coût par cycle
+hide_status_panel: true                            # Masquer le panneau de statut uniquement lorsque l'appareil est inactif (Par défaut : false)
 currency: "€"
 language: fr                                       # fr / en / ru / de (défaut : langue de HA)
 ```
@@ -69,6 +70,7 @@ language: fr                                       # fr / en / ru / de (défaut 
 | `cost_entity` | non | — | Coût par cycle. |
 | `currency` | non | `€` | Symbole monétaire de la colonne coût. |
 | `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche ». |
+| `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
 | `language` | non | langue de HA | `fr`, `en`, `ru` ou `de`. |
 
 ## 🧠 Comment ça marche avec une machine ordinaire
