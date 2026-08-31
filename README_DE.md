@@ -98,12 +98,9 @@ running_states: [run]
 ```
 
 Für einen Trockner dieselbe Config mit `appliance_type: dryer` (meist anderer
-Entity-Präfix). `running_states` eng halten auf den Zustand, der wirklich
+Entity-Präfix). Analog für `oven` und `microwave`. `running_states` eng halten auf den Zustand, der wirklich
 „läuft“ bedeutet — sonst wirkt eine pausierte oder nur eingeschaltete Maschine
 als laufend.
-Grenze `running_states` auf den einen Zustand ein, der wirklich „läuft“ bedeutet.
-Sonst gilt ein Gerät, das nur pausiert oder eingeschaltet herumsteht, schon als
-laufend.
 
 In [`examples/smart_appliance.yaml`](examples/smart_appliance.yaml) steht die
 ausführliche Variante: dazu Fortschritt, Endzeit und Türzustand, für die die Karte
