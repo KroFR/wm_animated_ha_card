@@ -191,7 +191,9 @@ class WashingMachineCard extends HTMLElement {
   _fmtNum(value, digits = 2) {
     const n = parseFloat(value);
     if (isNaN(n)) return null;
-    return n.toFixed(digits).replace(/\.?0+$/, "").replace(".", this._t.decimal);
+    let s = n.toFixed(digits);
+    if (digits > 0) s = s.replace(/0+$/, "").replace(/\.$/, "");
+    return s.replace(".", this._t.decimal);
   }
 
   _startDate() {
