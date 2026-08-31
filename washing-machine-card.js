@@ -2,12 +2,12 @@
  * Washing Machine Animated Card for Home Assistant
  * ================================================
  * An Oikos-style Lovelace card for a "dumb" appliance on a smart plug:
- * animated illustration (washer / dryer / dishwasher), live status,
+ * animated illustration (washer / dryer / dishwasher / oven / microwave), live status,
  * power gauge and last-cycle stats.
  *
  * https://github.com/sionetta/wm_animated_ha_card
  * License: MIT
- * Version: 1.1.0
+ * Version: 1.2.0
  *
  * UI languages: en, ru, de, fr (auto-detected from Home Assistant, or set `language:`).
  *
@@ -23,7 +23,7 @@
  */
 
 class WashingMachineCard extends HTMLElement {
-  static APPLIANCE_TYPES = ["washer", "dryer", "dishwasher"];
+  static APPLIANCE_TYPES = ["washer", "dryer", "dishwasher", "oven", "microwave"];
 
   static STRINGS = {
     en: {
@@ -42,6 +42,8 @@ class WashingMachineCard extends HTMLElement {
         washer: { name: "Washing machine", state_running: "Washing" },
         dryer: { name: "Dryer", state_running: "Drying" },
         dishwasher: { name: "Dishwasher", state_running: "Washing dishes" },
+        oven: { name: "Oven", state_running: "Baking" },
+        microwave: { name: "Microwave", state_running: "Heating" },
       },
     },
     ru: {
@@ -60,6 +62,8 @@ class WashingMachineCard extends HTMLElement {
         washer: { name: "Стиральная машина", state_running: "Идёт стирка" },
         dryer: { name: "Сушилка", state_running: "Сушка" },
         dishwasher: { name: "Посудомойка", state_running: "Моет посуду" },
+        oven: { name: "Духовка", state_running: "Выпечка" },
+        microwave: { name: "Микроволновка", state_running: "Разогрев" },
       },
     },
     de: {
@@ -78,6 +82,8 @@ class WashingMachineCard extends HTMLElement {
         washer: { name: "Waschmaschine", state_running: "Wäsche läuft" },
         dryer: { name: "Tumbler", state_running: "Trocknet" },
         dishwasher: { name: "Geschirrspüler", state_running: "Spült" },
+        oven: { name: "Backofen", state_running: "Backt" },
+        microwave: { name: "Mikrowelle", state_running: "Erwärmt" },
       },
     },
     fr: {
@@ -96,6 +102,8 @@ class WashingMachineCard extends HTMLElement {
         washer: { name: "Lave-linge", state_running: "Lavage en cours" },
         dryer: { name: "Sèche-linge", state_running: "Séchage" },
         dishwasher: { name: "Lave-vaisselle", state_running: "Lavage vaisselle" },
+        oven: { name: "Four", state_running: "Cuisson" },
+        microwave: { name: "Micro-ondes", state_running: "Chauffage" },
       },
     },
   };
@@ -107,6 +115,8 @@ class WashingMachineCard extends HTMLElement {
       "стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse",
       "waschen", "läuft", "schleudern", "spülen", "trocknen", "drying", "dry", "tumble",
       "lavage", "en cours", "essorage", "rincage", "rinçage",
+      "baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
+      "backen", "heizen", "erwärmen", "cuisson", "chauffage",
     ],
     power_threshold: 10,
     power_max: 2500,
@@ -116,6 +126,8 @@ class WashingMachineCard extends HTMLElement {
     const raw = String(value || "washer").toLowerCase().trim();
     if (raw === "tumbler" || raw === "tumble_dryer" || raw === "tumble-dryer") return "dryer";
     if (raw === "washing_machine" || raw === "washing-machine") return "washer";
+    if (raw === "backofen" || raw === "bakeoven" || raw === "bake-oven") return "oven";
+    if (raw === "mikrowelle" || raw === "micro-wave" || raw === "micro_wave") return "microwave";
     if (WashingMachineCard.APPLIANCE_TYPES.includes(raw)) return raw;
     return "washer";
   }
@@ -150,6 +162,8 @@ class WashingMachineCard extends HTMLElement {
           { value: "washer", label: "Washer" },
           { value: "dryer", label: "Dryer / Tumbler" },
           { value: "dishwasher", label: "Dishwasher" },
+          { value: "oven", label: "Oven" },
+          { value: "microwave", label: "Microwave" },
         ] } } },
         { name: "name", selector: { text: {} } },
         { name: "status_entity", required: true, selector: { entity: {} } },
@@ -308,6 +322,27 @@ class WashingMachineCard extends HTMLElement {
           <line x1="9" y1="19.4" x2="15" y2="19.4"/>
         </svg>`;
     }
+    if (type === "oven") {
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
+          <rect x="6" y="8" width="12" height="9.5" rx="1.5"/>
+          <circle cx="17.2" cy="5.4" r="1.3" fill="#f0a04b" stroke="none"/>
+          <line x1="8" y1="19.6" x2="16" y2="19.6"/>
+        </svg>`;
+    }
+    if (type === "microwave") {
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2.6"/>
+          <rect x="5" y="7.4" width="10.2" height="9.2" rx="1.4"/>
+          <circle cx="18.2" cy="9" r="1.2"/>
+          <line x1="17.2" y1="12.2" x2="19.2" y2="12.2"/>
+          <line x1="17.2" y1="14.4" x2="19.2" y2="14.4"/>
+        </svg>`;
+    }
     return `
       <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
            stroke-linecap="round" stroke-linejoin="round">
@@ -323,6 +358,8 @@ class WashingMachineCard extends HTMLElement {
     const u = this._uid;
     if (type === "dryer") return this._svgDryer(u);
     if (type === "dishwasher") return this._svgDishwasher(u);
+    if (type === "oven") return this._svgOven(u);
+    if (type === "microwave") return this._svgMicrowave(u);
     return this._svgWasher(u);
   }
 
@@ -555,6 +592,170 @@ class WashingMachineCard extends HTMLElement {
       </svg>`;
   }
 
+
+  _svgOven(u) {
+    const top = `
+      <rect x="42" y="40" width="88" height="22" rx="8" fill="#0d1526"/>
+      <text id="dispTime" x="78" y="55" text-anchor="middle"
+            font-family="ui-monospace, 'SF Mono', Consolas, monospace"
+            font-size="11.5" font-weight="700" fill="#e8f1ff" letter-spacing="1">--:--</text>
+      <circle id="dispDot" cx="148" cy="51" r="2.4" fill="#22b263"/>
+      <circle cx="172" cy="51" r="11" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.3"/>
+      <circle cx="172" cy="51" r="3.4" fill="#31415a"/>
+      <rect x="171" y="41.5" width="2" height="7" rx="1" fill="#f0a04b"/>`;
+    return `
+      <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset=".55" stop-color="#f2f5f9"/>
+            <stop offset="1" stop-color="#d9e0e9"/>
+          </linearGradient>
+          <radialGradient id="${u}-glass" cx=".4" cy=".28" r="1">
+            <stop offset="0" stop-color="#4a3428"/>
+            <stop offset=".55" stop-color="#2a1c16"/>
+            <stop offset="1" stop-color="#140e0b"/>
+          </radialGradient>
+          <linearGradient id="${u}-frame" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#d5dce5"/>
+          </linearGradient>
+          <radialGradient id="${u}-heat" cx=".5" cy=".75" r=".85">
+            <stop offset="0" stop-color="#ff8a3d" stop-opacity=".7"/>
+            <stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/>
+          </radialGradient>
+          <clipPath id="${u}-clip">
+            <rect x="52" y="80" width="116" height="102" rx="8"/>
+          </clipPath>
+        </defs>
+        <ellipse cx="110" cy="222" rx="76" ry="8" fill="#20304a" opacity=".16"/>
+        <rect x="30" y="30" width="160" height="182" rx="18" fill="url(#${u}-body)"/>
+        <rect x="30" y="30" width="160" height="182" rx="18" fill="none" stroke="#c7cfda" stroke-width="1.4"/>
+        <rect x="48" y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
+        <rect x="162" y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
+        ${top}
+        <rect x="44" y="72" width="132" height="128" rx="12" fill="url(#${u}-frame)"/>
+        <rect x="44" y="72" width="132" height="128" rx="12" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
+        <rect x="52" y="80" width="116" height="102" rx="8" fill="url(#${u}-glass)"/>
+        <g clip-path="url(#${u}-clip)">
+          <g opacity=".7" stroke="#8a7a6a" stroke-width="1.5">
+            <line x1="60" y1="104" x2="160" y2="104"/>
+            <line x1="60" y1="138" x2="160" y2="138"/>
+            <line x1="60" y1="164" x2="160" y2="164"/>
+          </g>
+          <g class="ov-food">
+            <ellipse cx="110" cy="134" rx="28" ry="7" fill="#c4783a"/>
+            <ellipse cx="110" cy="131" rx="28" ry="7" fill="#e8a45a"/>
+            <circle cx="98" cy="129" r="3.2" fill="#d4552a" opacity=".85"/>
+            <circle cx="116" cy="127" r="2.6" fill="#d4552a" opacity=".75"/>
+            <circle cx="124" cy="131" r="2.2" fill="#b83f1c" opacity=".7"/>
+            <ellipse cx="110" cy="131" rx="10" ry="3" fill="#f2c48a" opacity=".55"/>
+          </g>
+          <rect class="ov-glow" x="52" y="80" width="116" height="102" fill="url(#${u}-heat)"/>
+          <g stroke="#ffb070" stroke-width="1.4" stroke-linecap="round">
+            <line class="ov-shimmer" x1="70" y1="84" x2="70" y2="174"/>
+            <line class="ov-shimmer" x1="110" y1="84" x2="110" y2="174"/>
+            <line class="ov-shimmer" x1="150" y1="84" x2="150" y2="174"/>
+          </g>
+          <g class="ov-flame" fill="#ff8a3d">
+            <ellipse cx="88" cy="174" rx="10" ry="4" opacity=".5"/>
+            <ellipse cx="110" cy="175" rx="14" ry="5" opacity=".55"/>
+            <ellipse cx="132" cy="174" rx="10" ry="4" opacity=".5"/>
+          </g>
+        </g>
+        <rect x="58" y="86" width="34" height="16" rx="5" fill="#ffffff" opacity=".1"
+              transform="rotate(-10 75 94)"/>
+        <rect x="52" y="80" width="116" height="102" rx="8" fill="none" stroke="#0d1526" stroke-width="2" opacity=".3"/>
+        <rect class="ov-frame" x="48" y="76" width="124" height="120" rx="10" fill="none"
+              stroke="#f0a04b" stroke-width="4" stroke-linecap="round"
+              stroke-dasharray="90 70" opacity=".9"/>
+        <rect x="78" y="188" width="64" height="8" rx="4" fill="#cfd7e0" stroke="#b4bec9" stroke-width="1"/>
+      </svg>`;
+  }
+
+  _svgMicrowave(u) {
+    return `
+      <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset=".55" stop-color="#f2f5f9"/>
+            <stop offset="1" stop-color="#d9e0e9"/>
+          </linearGradient>
+          <radialGradient id="${u}-glass" cx=".38" cy=".3" r="1">
+            <stop offset="0" stop-color="#2a3a52"/>
+            <stop offset=".55" stop-color="#172233"/>
+            <stop offset="1" stop-color="#0c121c"/>
+          </radialGradient>
+          <linearGradient id="${u}-frame" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#d5dce5"/>
+          </linearGradient>
+          <radialGradient id="${u}-heat" cx=".45" cy=".55" r=".75">
+            <stop offset="0" stop-color="#ff8a3d" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/>
+          </radialGradient>
+          <clipPath id="${u}-clip">
+            <rect x="46" y="110" width="100" height="78" rx="8"/>
+          </clipPath>
+        </defs>
+        <ellipse cx="110" cy="222" rx="76" ry="8" fill="#20304a" opacity=".16"/>
+        <rect x="30" y="70" width="160" height="142" rx="16" fill="url(#${u}-body)"/>
+        <rect x="30" y="70" width="160" height="142" rx="16" fill="none" stroke="#c7cfda" stroke-width="1.4"/>
+        <rect x="48" y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
+        <rect x="162" y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
+        <rect x="42" y="80" width="100" height="18" rx="9" fill="#0d1526"/>
+        <text id="dispTime" x="84" y="93" text-anchor="middle"
+              font-family="ui-monospace, 'SF Mono', Consolas, monospace"
+              font-size="11.5" font-weight="700" fill="#e8f1ff" letter-spacing="1">--:--</text>
+        <circle id="dispDot" cx="128" cy="89" r="2.4" fill="#22b263"/>
+        <rect x="156" y="80" width="28" height="120" rx="8" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.2"/>
+        <circle cx="170" cy="98" r="8" fill="#fff" stroke="#c2cbd6" stroke-width="1.2"/>
+        <circle cx="170" cy="98" r="2.6" fill="#31415a"/>
+        <rect x="170" y="91" width="1.6" height="5" rx=".8" fill="#f0a04b"/>
+        <g class="mw-dots" fill="#9aa6b4">
+          <circle cx="163" cy="120" r="2.2"/><circle cx="170" cy="120" r="2.2"/><circle cx="177" cy="120" r="2.2"/>
+          <circle cx="163" cy="132" r="2.2"/><circle cx="170" cy="132" r="2.2"/><circle cx="177" cy="132" r="2.2"/>
+          <circle cx="163" cy="144" r="2.2"/><circle cx="170" cy="144" r="2.2"/><circle cx="177" cy="144" r="2.2"/>
+        </g>
+        <rect x="160" y="160" width="20" height="10" rx="3" fill="#dfe5ec" stroke="#c2cbd6" stroke-width="1"/>
+        <rect x="160" y="174" width="20" height="10" rx="3" fill="#dfe5ec" stroke="#c2cbd6" stroke-width="1"/>
+        <rect x="160" y="188" width="20" height="10" rx="3" fill="#f0a04b" opacity=".9"/>
+        <rect x="38" y="102" width="112" height="98" rx="12" fill="url(#${u}-frame)"/>
+        <rect x="38" y="102" width="112" height="98" rx="12" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
+        <rect x="46" y="110" width="100" height="78" rx="8" fill="url(#${u}-glass)"/>
+        <g clip-path="url(#${u}-clip)">
+          <rect class="mw-glow" x="46" y="110" width="100" height="78" fill="url(#${u}-heat)"/>
+          <g fill="none" stroke="#ffb070" stroke-width="1.5" stroke-linecap="round" opacity=".7">
+            <path class="mw-wave" d="M58 122 Q96 116 134 124"/>
+            <path class="mw-wave" d="M56 138 Q96 130 136 140"/>
+            <path class="mw-wave" d="M58 154 Q96 146 134 156"/>
+          </g>
+          <ellipse cx="100" cy="178" rx="34" ry="8" fill="#3a4a60" opacity=".5"/>
+          <ellipse cx="100" cy="170" rx="28" ry="8" fill="#e8eef6" opacity=".95"/>
+          <ellipse class="mw-rim" cx="100" cy="170" rx="28" ry="8" fill="none"
+                  stroke="#f0a04b" stroke-width="2.2"/>
+          <ellipse cx="100" cy="169" rx="14" ry="3.5" fill="#d5dde8" opacity=".65"/>
+          <g class="mw-mug">
+            <ellipse cx="108" cy="171" rx="2.4" ry="1.5" fill="#e25b2a" opacity=".9"/>
+            <ellipse cx="100" cy="170" rx="7" ry="2" fill="#2a3648" opacity=".3"/>
+            <rect x="93" y="152" width="14" height="16" rx="2.5" fill="#1a2433" opacity=".35"/>
+            <rect x="93" y="152" width="14" height="16" rx="2.5" fill="none" stroke="#f5ebe0" stroke-width="1.9"/>
+            <path d="M107 156 c4.5 0 5.5 2.6 5.5 5 s-1 5-5.5 5" fill="none" stroke="#f5ebe0" stroke-width="1.7"/>
+            <ellipse cx="100" cy="152" rx="7" ry="2" fill="none" stroke="#f5ebe0" stroke-width="1.5"/>
+            <ellipse cx="100" cy="159" rx="4.5" ry="1.4" fill="#ffb070" opacity=".4"/>
+          </g>
+        </g>
+        <rect x="52" y="116" width="28" height="14" rx="5" fill="#ffffff" opacity=".1"
+              transform="rotate(-12 66 123)"/>
+        <rect x="46" y="110" width="100" height="78" rx="8" fill="none" stroke="#0d1526" stroke-width="2" opacity=".3"/>
+        <rect class="mw-frame" x="42" y="106" width="108" height="86" rx="10" fill="none"
+              stroke="#f0a04b" stroke-width="4" stroke-linecap="round"
+              stroke-dasharray="70 55" opacity=".9"/>
+        <rect x="42" y="130" width="6" height="36" rx="3" fill="#cfd7e0" stroke="#b4bec9" stroke-width="1"/>
+      </svg>`;
+  }
+
   _build() {
     const c = this._config;
     const t = this._t;
@@ -662,6 +863,43 @@ class WashingMachineCard extends HTMLElement {
         }
         .running .dw-frame { animation: dash-crawl 2.4s linear infinite; }
 
+        .ov-glow, .ov-shimmer, .ov-flame, .ov-food { opacity: 0; }
+        .running .ov-food {
+          opacity: .95;
+          transform-box: view-box;
+          transform-origin: 110px 134px;
+          animation: foodSway 3.6s ease-in-out infinite;
+        }
+        .running .ov-glow { animation: heatPulse 2s ease-in-out infinite; }
+        .running .ov-shimmer {
+          opacity: .55;
+          stroke-dasharray: 8 14;
+          animation: streamFall 1.4s linear infinite;
+        }
+        .running .ov-flame { animation: flameFlicker 1.1s ease-in-out infinite; }
+        .running .ov-frame { animation: dash-crawl 2.4s linear infinite; }
+
+        .mw-wave, .mw-glow { opacity: 0; }
+        .running .mw-glow { animation: heatPulse 2.2s ease-in-out infinite; }
+        .running .mw-wave {
+          opacity: .55;
+          stroke-dasharray: 6 12;
+          animation: streamFall 2.2s linear infinite;
+        }
+        .running .mw-wave:nth-child(2) { animation-delay: .35s; }
+        .running .mw-wave:nth-child(3) { animation-delay: .7s; }
+        .running .mw-rim {
+          stroke-dasharray: 7 6;
+          animation: dash-crawl 12s linear infinite;
+        }
+        .running .mw-mug {
+          transform-box: view-box;
+          transform-origin: 100px 170px;
+          animation: mugOrbit 12s linear infinite;
+        }
+        .running .mw-frame { animation: dash-crawl 3.2s linear infinite; }
+        .running .mw-dots { animation: heatPulse 1.4s ease-in-out infinite; }
+
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes tumble {
           0%, 100% { transform: rotate(-14deg); }
@@ -691,10 +929,34 @@ class WashingMachineCard extends HTMLElement {
           50%      { transform: rotate(18deg); }
         }
         @keyframes dash-crawl { to { stroke-dashoffset: -160; } }
+        @keyframes flameFlicker {
+          0%, 100% { opacity: .25; transform: scaleY(1); }
+          40% { opacity: .7; transform: scaleY(1.08); }
+          70% { opacity: .4; transform: scaleY(.96); }
+        }
+        @keyframes foodSway {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-1.5px); }
+        }
+        @keyframes mugOrbit {
+          0%   { transform: translate(14px, 0px); }
+          12.5%{ transform: translate(10px, 4px); }
+          25%  { transform: translate(0px, 5.5px); }
+          37.5%{ transform: translate(-10px, 4px); }
+          50%  { transform: translate(-14px, 0px); }
+          62.5%{ transform: translate(-10px, -3.5px); }
+          75%  { transform: translate(0px, -5px); }
+          87.5%{ transform: translate(10px, -3.5px); }
+          100% { transform: translate(14px, 0px); }
+        }
         @media (prefers-reduced-motion: reduce) {
           .running .arcs, .running .laundry, .running .drum, .running .heat,
           .running .dw-wash, .running .dw-stream, .running .dw-jet,
           .running .dw-drop, .running .dw-arm, .running .dw-frame,
+          .running .ov-glow, .running .ov-shimmer, .running .ov-flame,
+          .running .ov-frame, .running .ov-food,
+          .running .mw-glow, .running .mw-wave, .running .mw-rim,
+          .running .mw-mug, .running .mw-frame, .running .mw-dots,
           .running .badge .b-dot, .running .ring-anim { animation: none; }
         }
 
