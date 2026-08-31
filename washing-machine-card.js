@@ -469,7 +469,7 @@ class WashingMachineCard extends HTMLElement {
           </div>
 
           <!-- status -->
-          <div class="panel status-panel">
+          <div class="panel status-panel" id="statusPanel">
             <div class="ring-box" id="ringBox">
               <svg viewBox="0 0 96 96">
                 <circle class="ring-track" cx="48" cy="48" r="39" fill="none" stroke-width="8"/>
@@ -579,6 +579,10 @@ class WashingMachineCard extends HTMLElement {
       ? t.state_nodata
       : running ? t.state_running : t.state_idle;
 
+    // hide status panel only when idle
+    const hideStatus = !!c.hide_status_panel && !running;
+    this._el("statusPanel").classList.toggle("hidden", hideStatus);
+    
     // power / current + gauge
     if (c.power_entity) {
       const ps = this._st(c.power_entity);
