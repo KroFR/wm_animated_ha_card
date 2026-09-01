@@ -838,7 +838,6 @@ class WashingMachineCard extends HTMLElement {
           content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
           background: linear-gradient(90deg, #2f80ed, #56a8ff);
         }
-        .wrap { container-type: inline-size; }
         .header { display: flex; align-items: center; gap: 10px; }
         .h-icon {
           width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
@@ -1071,10 +1070,6 @@ class WashingMachineCard extends HTMLElement {
         .lc-value { font-size: 14.5px; font-weight: 800; margin-top: 5px; overflow-wrap: break-word; }
         .lc-unit { font-size: 11px; font-weight: 700; color: var(--wm-accent); }
         .hidden { display: none !important; }
-        @container (max-width: 320px) {
-          .lc-grid { grid-template-columns: 1fr 1fr; row-gap: 12px; }
-          .lc-item:nth-child(3) { border-left: none; padding-left: 0; }
-        }
       </style>
 
       <ha-card>
