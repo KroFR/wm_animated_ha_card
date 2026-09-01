@@ -67,6 +67,7 @@ theme: auto                                        # auto / light / dark
 
 | Option | Required | Default | Description |
 |---|---|---|---|
+| `appliance_type` | no | `washer` | Visual + labels: `washer`, `dryer` (alias `tumbler`), `dishwasher`, `oven` or `microwave`. |
 | `status_entity` | **yes** | — | Entity whose state marks a running cycle. A template `binary_sensor` on the plug's power/current works great; textual states (`washing`, `spin`, …) are matched via `running_states`. |
 | `appliance_type` | no | `washer` | Visual + labels: `washer`, `dryer` (alias `tumbler`), `dishwasher`, `oven` or `microwave`. |
 | `name` | no | localized | Card title (defaults depend on `appliance_type`). |
