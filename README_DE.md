@@ -2,7 +2,7 @@
 
 [English](README.md) | [Русский](README_RU.md) | **Deutsch** | [Français](README_FR.md)
 
-Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschine an einer schaltbaren Steckdose ein schönes, animiertes Dashboard-Widget macht, ganz ohne smarte Waschmaschine.
+Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschine, Trockner, Geschirrspüler, Backofen oder Mikrowelle an einer schaltbaren Steckdose ein schönes, animiertes Dashboard-Widget macht.
 
 ![Demo](media/demo_de.gif)
 
@@ -39,6 +39,7 @@ Füge `https://github.com/sionetta/wm_animated_ha_card` als **benutzerdefinierte
 
 ```yaml
 type: custom:washing-machine-card
+appliance_type: washer                             # washer | dryer | dishwasher | oven | microwave
 name: Waschmaschine
 status_entity: binary_sensor.washing_in_progress   # PFLICHT
 plug_entity: switch.washing_machine_plug           # Steckdosen-Button, Tippen schaltet um
@@ -56,8 +57,9 @@ language: de                                       # de / en / ru / fr (Standard
 
 | Option | Pflicht | Standard | Beschreibung |
 |---|---|---|---|
+| `appliance_type` | nein | `washer` | Optik + Texte: `washer`, `dryer` (Alias `tumbler`), `dishwasher`, `oven` oder `microwave`. |
 | `status_entity` | **ja** | – | Entity, deren Zustand einen laufenden Durchgang kennzeichnet. Ein Template-`binary_sensor` auf Leistung oder Strom der Steckdose eignet sich am besten. Textzustände (`washing`, `schleudern`, …) werden über `running_states` erkannt. |
-| `name` | nein | übersetzt | Titel der Karte. |
+| `name` | nein | übersetzt | Titel der Karte (Default hängt von `appliance_type` ab). |
 | `plug_entity` | nein | – | Schalter der Steckdose. Erscheint als Button in der Kopfzeile, Tippen schaltet um. |
 | `notify_entity` | nein | – | Automatisierung, `switch` oder `input_boolean` für die Benachrichtigung „Durchgang beendet“. Tippen schaltet um. |
 | `power_entity` | nein | – | Sensor für Leistung (W) oder Strom (A): rote Skala, Wertanzeige, und er erkennt zusätzlich, ob die Maschine läuft. |
@@ -95,10 +97,10 @@ plug_entity: switch.washer_power
 running_states: [run]
 ```
 
-Für einen Trockner sieht die Konfiguration genauso aus, nur mit anderem Präfix.
-Grenze `running_states` auf den einen Zustand ein, der wirklich „läuft“ bedeutet.
-Sonst gilt ein Gerät, das nur pausiert oder eingeschaltet herumsteht, schon als
-laufend.
+Für einen Trockner dieselbe Config mit `appliance_type: dryer` (meist anderer
+Entity-Präfix). Analog für `oven` und `microwave`. `running_states` eng halten auf den Zustand, der wirklich
+„läuft“ bedeutet — sonst wirkt eine pausierte oder nur eingeschaltete Maschine
+als laufend.
 
 In [`examples/smart_appliance.yaml`](examples/smart_appliance.yaml) steht die
 ausführliche Variante: dazu Fortschritt, Endzeit und Türzustand, für die die Karte
