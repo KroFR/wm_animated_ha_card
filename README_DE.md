@@ -67,7 +67,6 @@ theme: auto                                        # auto / light / dark
 
 | Option | Pflicht | Standard | Beschreibung |
 |---|---|---|---|
-| `appliance_type` | nein | `washer` | Optik + Texte: `washer`, `dryer` (Alias `tumbler`), `dishwasher`, `oven` oder `microwave`. |
 | `status_entity` | **ja** | – | Entity, deren Zustand einen laufenden Durchgang kennzeichnet. Ein Template-`binary_sensor` auf Leistung oder Strom der Steckdose eignet sich am besten. Textzustände (`washing`, `schleudern`, …) werden über `running_states` erkannt. |
 | `appliance_type` | nein | `washer` | Optik + Texte: `washer`, `dryer` (Alias `tumbler`), `dishwasher`, `oven` oder `microwave`. |
 | `name` | nein | übersetzt | Titel der Karte (Default hängt von `appliance_type` ab). |
