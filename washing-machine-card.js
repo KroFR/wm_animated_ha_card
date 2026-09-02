@@ -123,6 +123,7 @@ class WashingMachineCard extends HTMLElement {
     ],
     power_threshold: 10,
     power_max: 2500,
+    hide_status_panel: false,
   };
 
   static normalizeType(value) {
@@ -161,27 +162,197 @@ class WashingMachineCard extends HTMLElement {
   static getConfigForm() {
     return {
       schema: [
-        { name: "appliance_type", selector: { select: { options: [
-          { value: "washer", label: "Washer" },
-          { value: "dryer", label: "Dryer / Tumbler" },
-          { value: "dishwasher", label: "Dishwasher" },
-          { value: "oven", label: "Oven" },
-          { value: "microwave", label: "Microwave" },
-        ] } } },
-        { name: "name", selector: { text: {} } },
-        { name: "status_entity", required: true, selector: { entity: {} } },
-        { name: "plug_entity", selector: { entity: { domain: ["switch", "input_boolean"] } } },
-        { name: "notify_entity", selector: { entity: {} } },
-        { name: "power_entity", selector: { entity: { domain: "sensor" } } },
-        { name: "power_threshold", selector: { number: { min: 0, mode: "box" } } },
-        { name: "power_max", selector: { number: { min: 1, mode: "box" } } },
-        { name: "last_wash_entity", selector: { entity: { domain: "input_datetime" } } },
-        { name: "duration_entity", selector: { entity: { domain: "input_number" } } },
-        { name: "energy_entity", selector: { entity: { domain: "input_number" } } },
-        { name: "cost_entity", selector: { entity: { domain: "input_number" } } },
-        { name: "currency", selector: { text: {} } },
-        { name: "language", selector: { select: { options: ["en", "ru", "de", "fr"] } } },
-        { name: "theme", selector: { select: { options: ["auto", "light", "dark"] } } },
+        // ---- Basics: always visible, no need to expand ----
+        {
+          type: "grid",
+          name: "",
+          column_min_width: "180px",
+          schema: [
+            {
+              name: "appliance_type",
+              label: "Appliance type",
+              selector: {
+                select: {
+                  mode: "dropdown",
+                  options: [
+                    { value: "washer", label: "Washer" },
+                    { value: "dryer", label: "Dryer / Tumbler" },
+                    { value: "dishwasher", label: "Dishwasher" },
+                    { value: "oven", label: "Oven" },
+                    { value: "microwave", label: "Microwave" },
+                  ],
+                },
+              },
+            },
+            { name: "name", label: "Card name", selector: { text: {} } },
+          ],
+        },
+        {
+          name: "status_entity",
+          label: "Status entity (required)",
+          required: true,
+          selector: { entity: {} },
+        },
+
+        // ---- Appearance & language ----
+        {
+          type: "expandable",
+          name: "",
+          title: "Appearance & language",
+          icon: "mdi:palette-outline",
+          schema: [
+            {
+              type: "grid",
+              name: "",
+              column_min_width: "160px",
+              schema: [
+                {
+                  name: "language",
+                  label: "Language",
+                  selector: {
+                    select: {
+                      mode: "dropdown",
+                      options: [
+                        { value: "en", label: "English" },
+                        { value: "fr", label: "Français" },
+                        { value: "de", label: "Deutsch" },
+                        { value: "ru", label: "Русский" },
+                      ],
+                    },
+                  },
+                },
+                {
+                  name: "theme",
+                  label: "Theme",
+                  selector: {
+                    select: {
+                      mode: "dropdown",
+                      options: [
+                        { value: "auto", label: "Auto (follow Home Assistant)" },
+                        { value: "light", label: "Light" },
+                        { value: "dark", label: "Dark" },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              name: "hide_status_panel",
+              label: "Hide status panel when idle",
+              selector: { boolean: {} },
+              default: false,
+            },
+          ],
+        },
+
+        // ---- Power monitoring ----
+        {
+          type: "expandable",
+          name: "",
+          title: "Power monitoring",
+          icon: "mdi:flash-outline",
+          schema: [
+            {
+              name: "power_entity",
+              label: "Power sensor",
+              selector: { entity: { domain: "sensor" } },
+            },
+            {
+              type: "grid",
+              name: "",
+              column_min_width: "160px",
+              schema: [
+                {
+                  name: "power_threshold",
+                  label: "Running threshold (W)",
+                  selector: { number: { min: 0, mode: "box" } },
+                },
+                {
+                  name: "power_max",
+                  label: "Gauge max (W)",
+                  selector: { number: { min: 1, mode: "box" } },
+                },
+              ],
+            },
+          ],
+        },
+
+        // ---- Controls & notifications ----
+        {
+          type: "expandable",
+          name: "",
+          title: "Controls & notifications",
+          icon: "mdi:tune-variant",
+          schema: [
+            {
+              type: "grid",
+              name: "",
+              column_min_width: "180px",
+              schema: [
+                {
+                  name: "plug_entity",
+                  label: "Plug / switch entity",
+                  selector: { entity: { domain: ["switch", "input_boolean"] } },
+                },
+                {
+                  name: "notify_entity",
+                  label: "Notification entity",
+                  selector: { entity: {} },
+                },
+              ],
+            },
+          ],
+        },
+
+        // ---- Last cycle stats ----
+        {
+          type: "expandable",
+          name: "",
+          title: "Last cycle stats",
+          icon: "mdi:history",
+          schema: [
+            {
+              name: "last_wash_entity",
+              label: "Last start time entity",
+              selector: { entity: { domain: "input_datetime" } },
+            },
+            {
+              type: "grid",
+              name: "",
+              column_min_width: "160px",
+              schema: [
+                {
+                  name: "duration_entity",
+                  label: "Duration entity",
+                  selector: { entity: { domain: "input_number" } },
+                },
+                {
+                  name: "energy_entity",
+                  label: "Energy entity",
+                  selector: { entity: { domain: "input_number" } },
+                },
+              ],
+            },
+            {
+              type: "grid",
+              name: "",
+              column_min_width: "160px",
+              schema: [
+                {
+                  name: "cost_entity",
+                  label: "Cost entity",
+                  selector: { entity: { domain: "input_number" } },
+                },
+                {
+                  name: "currency",
+                  label: "Currency symbol",
+                  selector: { text: {} },
+                },
+              ],
+            },
+          ],
+        },
       ],
     };
   }
@@ -190,6 +361,7 @@ class WashingMachineCard extends HTMLElement {
     return {
       appliance_type: "washer",
       status_entity: "binary_sensor.washing_in_progress",
+      hide_status_panel: false,
     };
   }
 
@@ -272,7 +444,9 @@ class WashingMachineCard extends HTMLElement {
   _fmtNum(value, digits = 2) {
     const n = parseFloat(value);
     if (isNaN(n)) return null;
-    return n.toFixed(digits).replace(/\.?0+$/, "").replace(".", this._t.decimal);
+    let s = n.toFixed(digits);
+    if (digits > 0) s = s.replace(/0+$/, "").replace(/\.$/, "");
+    return s.replace(".", this._t.decimal);
   }
 
   _startDate() {
@@ -1097,7 +1271,7 @@ class WashingMachineCard extends HTMLElement {
 
           <div class="hero" id="hero">${this._machineSvg()}</div>
 
-          <div class="panel status-panel">
+          <div class="panel status-panel" id="statusPanel">
             <div class="ring-box" id="ringBox">
               <svg viewBox="0 0 96 96">
                 <circle class="ring-track" cx="48" cy="48" r="39" fill="none" stroke-width="8"/>
@@ -1205,6 +1379,10 @@ class WashingMachineCard extends HTMLElement {
       ? t.state_nodata
       : running ? t.state_running : t.state_idle;
 
+    // hide status panel only when idle
+    const hideStatus = !!c.hide_status_panel && !running;
+    this._el("statusPanel").classList.toggle("hidden", hideStatus);
+
     if (c.power_entity) {
       const ps = this._st(c.power_entity);
       const p = parseFloat(ps?.state);
@@ -1301,6 +1479,7 @@ cost_entity: input_number.wm_last_cost
 currency: "€"
 language: en                                # en | ru | de | fr
 theme: auto                                 # auto | light | dark
+hide_status_panel: false                    # true hides the status panel while idle
 
 # Other appliances — same config, one line changed:
 # appliance_type: dryer        (alias: tumbler)
