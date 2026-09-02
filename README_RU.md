@@ -60,6 +60,7 @@ last_wash_entity: input_datetime.wm_last_start     # время старта ц�
 duration_entity: input_number.wm_last_duration     # длительность цикла, мин
 energy_entity: input_number.wm_last_energy         # кВт·ч за цикл
 cost_entity: input_number.wm_last_cost             # стоимость цикла
+hide_status_panel: true                            # Скрывать панель статуса только в режиме ожидания (По умолчанию: false)
 currency: "₾"
 language: ru                                       # ru / en / de / fr (по умолчанию — язык HA)
 theme: auto                                        # auto / light / dark
@@ -81,6 +82,7 @@ theme: auto                                        # auto / light / dark
 | `cost_entity` | нет | — | Стоимость цикла. |
 | `currency` | нет | `€` | Символ валюты для колонки стоимости. |
 | `running_states` | нет | on, washing, стирка, run, spin, … | Состояния `status_entity`, считающиеся «работает» (распознаются русские, английские, немецкие и французские). |
+| `hide_status_panel` | нет | false | Скрывать панель статуса только в режиме ожидания. |
 | `language` | нет | язык HA | `ru`, `en`, `de` или `fr`. |
 | `theme` | нет | `auto` | `auto` следует теме Home Assistant, `light` и `dark` фиксируют оформление. |
 
