@@ -162,31 +162,24 @@ class WashingMachineCard extends HTMLElement {
   static getConfigForm() {
     return {
       schema: [
-        // ---- Basics: always visible, no need to expand ----
+        // ---- Basics: always visible ----
         {
-          type: "grid",
-          name: "",
-          column_min_width: "180px",
-          schema: [
-            {
-              name: "appliance_type",
-              label: "Appliance type",
-              selector: {
-                select: {
-                  mode: "dropdown",
-                  options: [
-                    { value: "washer", label: "Washer" },
-                    { value: "dryer", label: "Dryer / Tumbler" },
-                    { value: "dishwasher", label: "Dishwasher" },
-                    { value: "oven", label: "Oven" },
-                    { value: "microwave", label: "Microwave" },
-                  ],
-                },
-              },
+          name: "appliance_type",
+          label: "Appliance type",
+          selector: {
+            select: {
+              mode: "dropdown",
+              options: [
+                { value: "washer", label: "Washer" },
+                { value: "dryer", label: "Dryer / Tumbler" },
+                { value: "dishwasher", label: "Dishwasher" },
+                { value: "oven", label: "Oven" },
+                { value: "microwave", label: "Microwave" },
+              ],
             },
-            { name: "name", label: "Card name", selector: { text: {} } },
-          ],
+          },
         },
+        { name: "name", label: "Card name", selector: { text: {} } },
         {
           name: "status_entity",
           label: "Status entity (required)",
@@ -202,40 +195,33 @@ class WashingMachineCard extends HTMLElement {
           icon: "mdi:palette-outline",
           schema: [
             {
-              type: "grid",
-              name: "",
-              column_min_width: "160px",
-              schema: [
-                {
-                  name: "language",
-                  label: "Language",
-                  selector: {
-                    select: {
-                      mode: "dropdown",
-                      options: [
-                        { value: "en", label: "English" },
-                        { value: "fr", label: "Français" },
-                        { value: "de", label: "Deutsch" },
-                        { value: "ru", label: "Русский" },
-                      ],
-                    },
-                  },
+              name: "language",
+              label: "Language",
+              selector: {
+                select: {
+                  mode: "dropdown",
+                  options: [
+                    { value: "en", label: "English" },
+                    { value: "fr", label: "Français" },
+                    { value: "de", label: "Deutsch" },
+                    { value: "ru", label: "Русский" },
+                  ],
                 },
-                {
-                  name: "theme",
-                  label: "Theme",
-                  selector: {
-                    select: {
-                      mode: "dropdown",
-                      options: [
-                        { value: "auto", label: "Auto (follow Home Assistant)" },
-                        { value: "light", label: "Light" },
-                        { value: "dark", label: "Dark" },
-                      ],
-                    },
-                  },
+              },
+            },
+            {
+              name: "theme",
+              label: "Theme",
+              selector: {
+                select: {
+                  mode: "dropdown",
+                  options: [
+                    { value: "auto", label: "Auto (follow Home Assistant)" },
+                    { value: "light", label: "Light" },
+                    { value: "dark", label: "Dark" },
+                  ],
                 },
-              ],
+              },
             },
             {
               name: "hide_status_panel",
@@ -259,21 +245,14 @@ class WashingMachineCard extends HTMLElement {
               selector: { entity: { domain: "sensor" } },
             },
             {
-              type: "grid",
-              name: "",
-              column_min_width: "160px",
-              schema: [
-                {
-                  name: "power_threshold",
-                  label: "Running threshold (W)",
-                  selector: { number: { min: 0, mode: "box" } },
-                },
-                {
-                  name: "power_max",
-                  label: "Gauge max (W)",
-                  selector: { number: { min: 1, mode: "box" } },
-                },
-              ],
+              name: "power_threshold",
+              label: "Running threshold (W)",
+              selector: { number: { min: 0, mode: "box" } },
+            },
+            {
+              name: "power_max",
+              label: "Gauge max (W)",
+              selector: { number: { min: 1, mode: "box" } },
             },
           ],
         },
@@ -286,21 +265,14 @@ class WashingMachineCard extends HTMLElement {
           icon: "mdi:tune-variant",
           schema: [
             {
-              type: "grid",
-              name: "",
-              column_min_width: "180px",
-              schema: [
-                {
-                  name: "plug_entity",
-                  label: "Plug / switch entity",
-                  selector: { entity: { domain: ["switch", "input_boolean"] } },
-                },
-                {
-                  name: "notify_entity",
-                  label: "Notification entity",
-                  selector: { entity: {} },
-                },
-              ],
+              name: "plug_entity",
+              label: "Plug / switch entity",
+              selector: { entity: { domain: ["switch", "input_boolean"] } },
+            },
+            {
+              name: "notify_entity",
+              label: "Notification entity",
+              selector: { entity: {} },
             },
           ],
         },
@@ -318,38 +290,24 @@ class WashingMachineCard extends HTMLElement {
               selector: { entity: { domain: "input_datetime" } },
             },
             {
-              type: "grid",
-              name: "",
-              column_min_width: "160px",
-              schema: [
-                {
-                  name: "duration_entity",
-                  label: "Duration entity",
-                  selector: { entity: { domain: "input_number" } },
-                },
-                {
-                  name: "energy_entity",
-                  label: "Energy entity",
-                  selector: { entity: { domain: "input_number" } },
-                },
-              ],
+              name: "duration_entity",
+              label: "Duration entity",
+              selector: { entity: { domain: "input_number" } },
             },
             {
-              type: "grid",
-              name: "",
-              column_min_width: "160px",
-              schema: [
-                {
-                  name: "cost_entity",
-                  label: "Cost entity",
-                  selector: { entity: { domain: "input_number" } },
-                },
-                {
-                  name: "currency",
-                  label: "Currency symbol",
-                  selector: { text: {} },
-                },
-              ],
+              name: "energy_entity",
+              label: "Energy entity",
+              selector: { entity: { domain: "input_number" } },
+            },
+            {
+              name: "cost_entity",
+              label: "Cost entity",
+              selector: { entity: { domain: "input_number" } },
+            },
+            {
+              name: "currency",
+              label: "Currency symbol",
+              selector: { text: {} },
             },
           ],
         },
