@@ -34,7 +34,7 @@ Une carte Lovelace inspirée d'Oikos qui transforme un lave-linge, sèche-linge,
 2. Ajoutez une ressource au tableau de bord (Paramètres → Tableaux de bord → Ressources, ou `lovelace: resources:` en mode YAML) :
 
    ```yaml
-   url: /local/washing-machine-card.js?v=3
+   url: /local/washing-machine-card.js?v=4
    type: module
    ```
 
@@ -60,6 +60,7 @@ last_wash_entity: input_datetime.wm_last_start     # horodatage du début de cyc
 duration_entity: input_number.wm_last_duration     # durée du cycle, en minutes
 energy_entity: input_number.wm_last_energy         # kWh par cycle
 cost_entity: input_number.wm_last_cost             # coût par cycle
+hide_status_panel: true                            # Masquer le panneau de statut uniquement lorsque l'appareil est inactif (défaut : false)
 currency: "€"
 language: fr                                       # fr / en / ru / de (défaut : langue de HA)
 theme: auto                                        # auto / light / dark
@@ -81,6 +82,7 @@ theme: auto                                        # auto / light / dark
 | `cost_entity` | non | — | Coût par cycle. |
 | `currency` | non | `€` | Symbole monétaire de la colonne coût. |
 | `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche » (les états français, anglais, russes et allemands sont reconnus). |
+| `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
 | `language` | non | langue de HA | `fr`, `en`, `ru` ou `de`. |
 | `theme` | non | `auto` | `auto` suit le thème de Home Assistant, `light` et `dark` le figent. |
 

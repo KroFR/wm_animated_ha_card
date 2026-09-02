@@ -34,7 +34,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 2. Add a dashboard resource (Settings → Dashboards → Resources, or `lovelace: resources:` in YAML mode):
 
    ```yaml
-   url: /local/washing-machine-card.js?v=3
+   url: /local/washing-machine-card.js?v=4
    type: module
    ```
 
@@ -60,6 +60,7 @@ last_wash_entity: input_datetime.wm_last_start     # cycle start timestamp
 duration_entity: input_number.wm_last_duration     # cycle duration, minutes
 energy_entity: input_number.wm_last_energy         # kWh per cycle
 cost_entity: input_number.wm_last_cost             # cost per cycle
+hide_status_panel: true                            # Hide status panel only when idle (Default: false)
 currency: "€"
 language: en                                       # en / ru / de / fr (default: HA language)
 theme: auto                                        # auto / light / dark
@@ -81,6 +82,7 @@ theme: auto                                        # auto / light / dark
 | `cost_entity` | no | — | Cost per cycle. |
 | `currency` | no | `€` | Currency symbol for the cost column. |
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German and French states are recognised). |
+| `hide_status_panel` | no | false | Hide status panel only when idle. |
 | `language` | no | HA language | `en`, `ru`, `de` or `fr`. |
 | `theme` | no | `auto` | `auto` follows the Home Assistant theme, `light` and `dark` pin it. |
 

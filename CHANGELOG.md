@@ -4,6 +4,31 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] — 2026-09-02
+
+### Fixed
+- **Cycle duration was displayed incorrectly when it ended in a zero** — a
+  30-minute cycle showed as `3 min`, 60 as `6 min`, 100 as `1 min`, and a zero
+  duration rendered as an empty string. The trailing-zero trimming in
+  `_fmtNum()` used an optional decimal point, so on whole numbers it stripped
+  the number's own zeros. Trimming now runs only when there is a fractional
+  part, leaving energy and cost formatting untouched.
+  Reported and fixed by [@KroFR](https://github.com/KroFR) (#9, #16).
+
+### Added
+- **`hide_status_panel`** — when `true`, the status panel (elapsed-time ring and
+  power gauge) is hidden while the appliance is idle and reappears as soon as a
+  cycle starts. Useful for keeping idle appliances compact on a dashboard.
+  Documented in all four languages. Thanks to
+  [@KroFR](https://github.com/KroFR) (#16).
+
+### Changed
+- **Visual editor reorganized** — the flat fourteen-field form is now grouped
+  into collapsible sections (Appliance, Power monitoring, Controls &
+  notifications, Last cycle, Appearance), and the language and theme selectors
+  show readable labels ("English", "Русский", "Auto (follow Home Assistant)")
+  instead of raw codes. Thanks to [@KroFR](https://github.com/KroFR) (#16).
+
 ## [1.2.0] — 2026-08-24
 
 ### Added
