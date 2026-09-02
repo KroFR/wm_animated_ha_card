@@ -60,6 +60,7 @@ last_wash_entity: input_datetime.wm_last_start     # Startzeitpunkt des Durchgan
 duration_entity: input_number.wm_last_duration     # Dauer des Durchgangs, Minuten
 energy_entity: input_number.wm_last_energy         # kWh pro Durchgang
 cost_entity: input_number.wm_last_cost             # Kosten pro Durchgang
+hide_status_panel: true                            # Statusanzeige nur ausblenden, wenn inaktiv (Standard: false)
 currency: "€"
 language: de                                       # de / en / ru / fr (Standard: HA-Sprache)
 theme: auto                                        # auto / light / dark
@@ -81,6 +82,7 @@ theme: auto                                        # auto / light / dark
 | `cost_entity` | nein | – | Kosten pro Durchgang. |
 | `currency` | nein | `€` | Währungssymbol für die Kostenspalte. |
 | `running_states` | nein | on, washing, waschen, run, schleudern, … | Zustände von `status_entity`, die als „laufend“ gelten (deutsche, englische, russische und französische Zustände werden erkannt). |
+| `hide_status_panel` | nein | false | Statusanzeige nur ausblenden, wenn inaktiv. |
 | `language` | nein | HA-Sprache | `de`, `en`, `ru` oder `fr`. |
 | `theme` | nein | `auto` | `auto` folgt dem Home-Assistant-Theme, `light` und `dark` legen es fest. |
 
