@@ -83,6 +83,7 @@ theme: auto
 | `currency` | nein | `€` | Währungssymbol für die Kostenspalte. |
 | `running_states` | nein | on, washing, waschen, run, schleudern, … | Zustände von `status_entity`, die als „laufend“ gelten (deutsche, englische, russische und französische Zustände werden erkannt). |
 | `hide_status_panel` | nein | false | Statusanzeige nur ausblenden, wenn inaktiv. |
+| `duration_format` | nein | minutes | `minutes`, `hhmm`. Formatteert de duur van de laatste cyclus. Wanneer `duration_format` is ingesteld op `hhmm` en de duur 60 minuten of langer is, wordt de waarde weergegeven in het formaat HHhMM (bijvoorbeeld 1h05). |
 | `language` | nein | auto | `de`, `en`, `ru` oder `fr`. |
 | `theme` | nein | `auto` | `auto` folgt dem Home Assistant Oikos-Theme, `light` und `dark` legen es fest. Das Theme `Home Assistant` ersetzt das Oikos-Design durch ein nativeres Farbschema. |
 
