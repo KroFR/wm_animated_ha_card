@@ -111,6 +111,27 @@ class WashingMachineCard extends HTMLElement {
                 microwave: { name: "Micro-ondes", state_running: "Chauffage" },
             },
         },
+		nl: {
+			name: "Wasmachine",
+			badge_running: "ACTIEF", badge_idle: "INACTIEF", badge_off: "UIT", badge_nodata: "GEEN GEGEVENS",
+			state_running: "Wassen", state_idle: "Inactief", state_off: "Uit", state_nodata: "Geen gegevens",
+			ring_running: "VERSTREKEN", ring_idle: "INACTIEF", ring_off: "UIT",
+			power: "Huidig vermogen", current: "Huidige stroom",
+			last_cycle: "LAATSTE CYCLUS", start: "START", duration: "DUUR",
+			energy: "ENERGIE", cost: "KOSTEN",
+			min: "min", kwh: "kWh", kw: "kW",
+			today: "Vandaag", yesterday: "Gisteren",
+			tip_notify: "Melding bij voltooiing", tip_plug: "Stekker van apparaat", tip_history: "Geschiedenis",
+			confirm_plug_off: "De stekker uitschakelen? Hierdoor kan de huidige cyclus worden onderbroken.",
+			decimal: ",",
+			types: {
+				washer: { name: "Wasmachine", state_running: "Wassen" },
+				dryer: { name: "Droger", state_running: "Drogen" },
+				dishwasher: { name: "Vaatwasser", state_running: "Afwassen" },
+				oven: { name: "Oven", state_running: "Bakken" },
+				microwave: { name: "Magnetron", state_running: "Verwarmen" },
+			},
+		},
     };
 
     static DEFAULTS = {
@@ -118,13 +139,22 @@ class WashingMachineCard extends HTMLElement {
         language: "auto",
         theme: "auto",
         currency: "€",
-        running_states: [
-            "стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse",
-            "waschen", "läuft", "schleudern", "spülen", "trocknen", "drying", "dry", "tumble",
-            "lavage", "en cours", "essorage", "rincage", "rinçage",
-            "baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
-            "backen", "heizen", "erwärmen", "cuisson", "chauffage",
-        ],
+		running_states: [
+			// English
+			"washing", "running", "run", "wash", "on", "spin", "rinse",
+			"drying", "dry", "tumble",
+			"baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
+			// Russian
+			"стирка", "отжим", "полоскание",
+			// German
+			"waschen", "läuft", "schleudern", "spülen", "trocknen",
+			"backen", "heizen", "erwärmen",
+			// French
+			"lavage", "en cours", "essorage", "rincage", "rinçage",
+			"cuisson", "chauffage",
+			// Dutch
+			"wassen", "loopt", "centrifugeren", "spoelen", "drogen",
+		],
         power_threshold: 10,
         power_max: 2500,
         hide_status_panel: false,
