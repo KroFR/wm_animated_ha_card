@@ -83,6 +83,7 @@ theme: auto
 | `currency` | no | `€` | Currency symbol for the cost column. |
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German and French states are recognised). |
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
+| `duration_format` | no | minutes | `minutes`, `hhmm`. Formats the last cycle duration. When `duration_format` is set to `hhmm` and the duration is 60 minutes or longer, the value is displayed in HHhMM format (for example, 1h05). |
 | `language` | no | auto | `auto`, `en`, `ru`, `de` or `fr`. |
 | `theme` | no | `auto` | `auto` follows the Home Assistant Oikos theme, `light` and `dark` pin it. The `Home Assistant` theme replaces the Oikos styling with a more native color scheme. |
 
