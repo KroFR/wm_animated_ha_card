@@ -50,20 +50,20 @@ Add `https://github.com/sionetta/wm_animated_ha_card` as a **custom repository**
 type: custom:washing-machine-card
 appliance_type: washer                             # washer | dryer | dishwasher | oven | microwave
 name: Washing machine
-status_entity: binary_sensor.washing_in_progress   # REQUIRED
-plug_entity: switch.washing_machine_plug           # plug button, tap = toggle
-notify_entity: automation.washing_finished         # notification button, tap = toggle
-power_entity: sensor.washing_machine_power         # gauge + running detection
-power_threshold: 10                                # running above this value
-power_max: 2500                                    # gauge maximum
-last_wash_entity: input_datetime.wm_last_start     # cycle start timestamp
-duration_entity: input_number.wm_last_duration     # cycle duration, minutes
-energy_entity: input_number.wm_last_energy         # kWh per cycle
-cost_entity: input_number.wm_last_cost             # cost per cycle
-hide_status_panel: true                            # Hide status panel only when idle (Default: false)
+status_entity: binary_sensor.washing_in_progress
+plug_entity: switch.washing_machine_plug
+notify_entity: automation.washing_finished
+power_entity: sensor.washing_machine_power
+power_threshold: 10
+power_max: 2500
+last_wash_entity: input_datetime.wm_last_start
+duration_entity: input_number.wm_last_duration
+energy_entity: input_number.wm_last_energy
+cost_entity: input_number.wm_last_cost
+hide_status_panel: false
 currency: "€"
-language: en                                       # en / ru / de / fr (default: HA language)
-theme: auto                                        # auto / light / dark
+language: auto
+theme: auto
 ```
 
 | Option | Required | Default | Description |
@@ -83,8 +83,8 @@ theme: auto                                        # auto / light / dark
 | `currency` | no | `€` | Currency symbol for the cost column. |
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German and French states are recognised). |
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
-| `language` | no | HA language | `en`, `ru`, `de` or `fr`. |
-| `theme` | no | `auto` | `auto` follows the Home Assistant theme, `light` and `dark` pin it. |
+| `language` | no | auto | `auto`, `en`, `ru`, `de` or `fr`. |
+| `theme` | no | `auto` | `auto` follows the Home Assistant Oikos theme, `light` and `dark` pin it. The `Home Assistant` theme replaces the Oikos styling with a more native color scheme. |
 
 ## 🧺 Appliance types
 
