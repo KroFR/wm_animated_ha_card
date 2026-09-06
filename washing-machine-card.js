@@ -25,420 +25,379 @@
  */
 
 class WashingMachineCard extends HTMLElement {
-  static APPLIANCE_TYPES = ["washer", "dryer", "dishwasher", "oven", "microwave"];
+    static APPLIANCE_TYPES = ["washer", "dryer", "dishwasher", "oven", "microwave"];
 
-  static STRINGS = {
-    en: {
-      name: "Washing machine",
-      badge_running: "RUNNING", badge_idle: "IDLE", badge_nodata: "NO DATA",
-      state_running: "Washing", state_idle: "Idle", state_nodata: "No data",
-      ring_running: "ELAPSED", ring_idle: "IDLE",
-      power: "Current power", current: "Current draw",
-      last_cycle: "LAST CYCLE", start: "START", duration: "DURATION",
-      energy: "ENERGY", cost: "COST",
-      min: "min", kwh: "kWh", kw: "kW",
-      today: "Today", yesterday: "Yesterday",
-      tip_notify: "Finish notification", tip_plug: "Machine plug", tip_history: "History",
-      locale: "en-GB", decimal: ".",
-      types: {
-        washer: { name: "Washing machine", state_running: "Washing" },
-        dryer: { name: "Dryer", state_running: "Drying" },
-        dishwasher: { name: "Dishwasher", state_running: "Washing dishes" },
-        oven: { name: "Oven", state_running: "Baking" },
-        microwave: { name: "Microwave", state_running: "Heating" },
-      },
-    },
-    ru: {
-      name: "Стиральная машина",
-      badge_running: "В РАБОТЕ", badge_idle: "ОЖИДАНИЕ", badge_nodata: "НЕТ ДАННЫХ",
-      state_running: "Идёт стирка", state_idle: "Ожидание", state_nodata: "Нет данных",
-      ring_running: "ПРОШЛО", ring_idle: "ОЖИДАНИЕ",
-      power: "Текущая мощность", current: "Текущий ток",
-      last_cycle: "ПОСЛЕДНИЙ ЦИКЛ", start: "СТАРТ", duration: "ДЛИТЕЛЬН.",
-      energy: "РАСХОД", cost: "СТОИМОСТЬ",
-      min: "мин", kwh: "кВт·ч", kw: "кВт",
-      today: "Сегодня", yesterday: "Вчера",
-      tip_notify: "Уведомление об окончании", tip_plug: "Розетка машины", tip_history: "История",
-      locale: "ru-RU", decimal: ",",
-      types: {
-        washer: { name: "Стиральная машина", state_running: "Идёт стирка" },
-        dryer: { name: "Сушилка", state_running: "Сушка" },
-        dishwasher: { name: "Посудомойка", state_running: "Моет посуду" },
-        oven: { name: "Духовка", state_running: "Выпечка" },
-        microwave: { name: "Микроволновка", state_running: "Разогрев" },
-      },
-    },
-    de: {
-      name: "Waschmaschine",
-      badge_running: "LÄUFT", badge_idle: "BEREIT", badge_nodata: "KEINE DATEN",
-      state_running: "Läuft", state_idle: "Bereit", state_nodata: "Keine Daten",
-      ring_running: "VERGANGEN", ring_idle: "BEREIT",
-      power: "Aktuelle Leistung", current: "Stromaufnahme",
-      last_cycle: "LETZTER DURCHGANG", start: "START", duration: "DAUER",
-      energy: "VERBRAUCH", cost: "KOSTEN",
-      min: "Min", kwh: "kWh", kw: "kW",
-      today: "Heute", yesterday: "Gestern",
-      tip_notify: "Benachrichtigung bei Ende", tip_plug: "Steckdose der Maschine", tip_history: "Verlauf",
-      locale: "de-DE", decimal: ",",
-      types: {
-        washer: { name: "Waschmaschine", state_running: "Wäsche läuft" },
-        dryer: { name: "Tumbler", state_running: "Trocknet" },
-        dishwasher: { name: "Geschirrspüler", state_running: "Spült" },
-        oven: { name: "Backofen", state_running: "Backt" },
-        microwave: { name: "Mikrowelle", state_running: "Erwärmt" },
-      },
-    },
-    fr: {
-      name: "Lave-linge",
-      badge_running: "EN MARCHE", badge_idle: "INACTIF", badge_nodata: "PAS DE DONNÉES",
-      state_running: "Lavage en cours", state_idle: "Inactif", state_nodata: "Pas de données",
-      ring_running: "ÉCOULÉ", ring_idle: "INACTIF",
-      power: "Puissance actuelle", current: "Courant instantané",
-      last_cycle: "DERNIER CYCLE", start: "DÉPART", duration: "DURÉE",
-      energy: "ÉNERGIE", cost: "COÛT",
-      min: "min", kwh: "kWh", kw: "kW",
-      today: "Aujourd'hui", yesterday: "Hier",
-      tip_notify: "Notification de fin", tip_plug: "Prise machine", tip_history: "Historique",
-      locale: "fr-FR", decimal: ",",
-      types: {
-        washer: { name: "Lave-linge", state_running: "Lavage en cours" },
-        dryer: { name: "Sèche-linge", state_running: "Séchage" },
-        dishwasher: { name: "Lave-vaisselle", state_running: "Lavage vaisselle" },
-        oven: { name: "Four", state_running: "Cuisson" },
-        microwave: { name: "Micro-ondes", state_running: "Chauffage" },
-      },
-    },
-  };
-
-  static DEFAULTS = {
-    appliance_type: "washer",
-    theme: "auto",          // auto (по теме Home Assistant) | light | dark
-    currency: "€",
-    running_states: [
-      "стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse",
-      "waschen", "läuft", "schleudern", "spülen", "trocknen", "drying", "dry", "tumble",
-      "lavage", "en cours", "essorage", "rincage", "rinçage",
-      "baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
-      "backen", "heizen", "erwärmen", "cuisson", "chauffage",
-    ],
-    power_threshold: 10,
-    power_max: 2500,
-    hide_status_panel: false,
-  };
-
-  static normalizeType(value) {
-    const raw = String(value || "washer").toLowerCase().trim();
-    if (raw === "tumbler" || raw === "tumble_dryer" || raw === "tumble-dryer") return "dryer";
-    if (raw === "washing_machine" || raw === "washing-machine") return "washer";
-    if (raw === "backofen" || raw === "bakeoven" || raw === "bake-oven") return "oven";
-    if (raw === "mikrowelle" || raw === "micro-wave" || raw === "micro_wave") return "microwave";
-    if (WashingMachineCard.APPLIANCE_TYPES.includes(raw)) return raw;
-    return "washer";
-  }
-
-  setConfig(config) {
-    if (!config.status_entity) {
-      throw new Error("washing-machine-card: status_entity is required");
-    }
-    this._config = {
-      ...WashingMachineCard.DEFAULTS,
-      ...config,
-      appliance_type: WashingMachineCard.normalizeType(config.appliance_type),
-    };
-    this._uid = `a${Math.random().toString(36).slice(2, 9)}`;
-    this._built = false;
-  }
-
-  set hass(hass) {
-    this._hass = hass;
-    if (!this._built) this._build();
-    this._update();
-  }
-
-  getCardSize() {
-    return 6;
-  }
-
-  static getConfigForm() {
-    return {
-      schema: [
-        // ---- Basics: always visible ----
-        {
-          name: "appliance_type",
-          label: "Appliance type",
-          selector: {
-            select: {
-              mode: "dropdown",
-              options: [
-                { value: "washer", label: "Washer" },
-                { value: "dryer", label: "Dryer / Tumbler" },
-                { value: "dishwasher", label: "Dishwasher" },
-                { value: "oven", label: "Oven" },
-                { value: "microwave", label: "Microwave" },
-              ],
+    static STRINGS = {
+        en: {
+            name: "Washing machine",
+            badge_running: "RUNNING", badge_idle: "IDLE", badge_off: "OFF", badge_nodata: "NO DATA",
+            state_running: "Washing", state_idle: "Idle", state_off: "Off", state_nodata: "No data",
+            ring_running: "ELAPSED", ring_idle: "IDLE", ring_off: "OFF",
+            power: "Current power", current: "Current draw",
+            last_cycle: "LAST CYCLE", start: "START", duration: "DURATION",
+            energy: "ENERGY", cost: "COST",
+            min: "min", kwh: "kWh", kw: "kW",
+            today: "Today", yesterday: "Yesterday",
+            tip_notify: "Finish notification", tip_plug: "Machine plug", tip_history: "History",
+            confirm_plug_off: "Turn off the plug? This may interrupt the current cycle.",
+            decimal: ".",
+            types: {
+                washer: { name: "Washing machine", state_running: "Washing" },
+                dryer: { name: "Dryer", state_running: "Drying" },
+                dishwasher: { name: "Dishwasher", state_running: "Washing dishes" },
+                oven: { name: "Oven", state_running: "Baking" },
+                microwave: { name: "Microwave", state_running: "Heating" },
             },
-          },
         },
-        { name: "name", label: "Card name", selector: { text: {} } },
-        {
-          name: "status_entity",
-          label: "Status entity (required)",
-          required: true,
-          selector: { entity: {} },
+        ru: {
+            name: "Стиральная машина",
+            badge_running: "В РАБОТЕ", badge_idle: "ОЖИДАНИЕ", badge_off: "ВЫКЛ", badge_nodata: "НЕТ ДАННЫХ",
+            state_running: "Идёт стирка", state_idle: "Ожидание", state_off: "Выключено", state_nodata: "Нет данных",
+            ring_running: "ПРОШЛО", ring_idle: "ОЖИДАНИЕ", ring_off: "ВЫКЛ",
+            power: "Текущая мощность", current: "Текущий ток",
+            last_cycle: "ПОСЛЕДНИЙ ЦИКЛ", start: "СТАРТ", duration: "ДЛИТЕЛЬН.",
+            energy: "РАСХОД", cost: "СТОИМОСТЬ",
+            min: "мин", kwh: "кВт·ч", kw: "кВт",
+            today: "Сегодня", yesterday: "Вчера",
+            tip_notify: "Уведомление об окончании", tip_plug: "Розетка машины", tip_history: "История",
+            confirm_plug_off: "Выключить розетку? Это может прервать текущий цикл.",
+            decimal: ",",
+            types: {
+                washer: { name: "Стиральная машина", state_running: "Идёт стирка" },
+                dryer: { name: "Сушилка", state_running: "Сушка" },
+                dishwasher: { name: "Посудомойка", state_running: "Моет посуду" },
+                oven: { name: "Духовка", state_running: "Выпечка" },
+                microwave: { name: "Микроволновка", state_running: "Разогрев" },
+            },
         },
+        de: {
+            name: "Waschmaschine",
+            badge_running: "LÄUFT", badge_idle: "BEREIT", badge_off: "AUS", badge_nodata: "KEINE DATEN",
+            state_running: "Läuft", state_idle: "Bereit", state_off: "Aus", state_nodata: "Keine Daten",
+            ring_running: "VERGANGEN", ring_idle: "BEREIT", ring_off: "AUS",
+            power: "Aktuelle Leistung", current: "Stromaufnahme",
+            last_cycle: "LETZTER DURCHGANG", start: "START", duration: "DAUER",
+            energy: "VERBRAUCH", cost: "KOSTEN",
+            min: "Min", kwh: "kWh", kw: "kW",
+            today: "Heute", yesterday: "Gestern",
+            tip_notify: "Benachrichtigung bei Ende", tip_plug: "Steckdose der Maschine", tip_history: "Verlauf",
+            confirm_plug_off: "Steckdose ausschalten? Der laufende Durchgang könnte dadurch unterbrochen werden.",
+            decimal: ",",
+            types: {
+                washer: { name: "Waschmaschine", state_running: "Wäsche läuft" },
+                dryer: { name: "Tumbler", state_running: "Trocknet" },
+                dishwasher: { name: "Geschirrspüler", state_running: "Spült" },
+                oven: { name: "Backofen", state_running: "Backt" },
+                microwave: { name: "Mikrowelle", state_running: "Erwärmt" },
+            },
+        },
+        fr: {
+            name: "Lave-linge", badge_running: "EN MARCHE", badge_idle: "EN PAUSE", badge_off: "ÉTEINT", badge_nodata: "PAS DE DONNÉES",
+            state_running: "Lavage en cours", state_idle: "En pause", state_off: "Éteint", state_nodata: "Pas de données",
+            ring_running: "ÉCOULÉ", ring_idle: "PAUSE", ring_off: "ÉTEINT",
+            power: "Puissance actuelle", current: "Courant instantané",
+            last_cycle: "DERNIER CYCLE", start: "DÉPART", duration: "DURÉE",
+            energy: "ÉNERGIE", cost: "COÛT",
+            min: "min", kwh: "kWh", kw: "kW",
+            today: "Aujourd'hui", yesterday: "Hier",
+            tip_notify: "Notification de fin", tip_plug: "Prise machine", tip_history: "Historique",
+            confirm_plug_off: "Éteindre la prise ? Cela peut interrompre le cycle en cours.",
+            decimal: ",",
+            types: {
+                washer: { name: "Lave-linge", state_running: "Lavage en cours" },
+                dryer: { name: "Sèche-linge", state_running: "Séchage en cours" },
+                dishwasher: { name: "Lave-vaisselle", state_running: "Lavage vaisselle" },
+                oven: { name: "Four", state_running: "Cuisson" },
+                microwave: { name: "Micro-ondes", state_running: "Chauffage" },
+            },
+        },
+    };
 
-        // ---- Appearance & language ----
-        {
-          type: "expandable",
-          name: "",
-          title: "Appearance & language",
-          icon: "mdi:palette-outline",
-          schema: [
-            {
-              name: "language",
-              label: "Language",
-              selector: {
-                select: {
-                  mode: "dropdown",
-                  options: [
-                    { value: "en", label: "English" },
-                    { value: "fr", label: "Français" },
-                    { value: "de", label: "Deutsch" },
-                    { value: "ru", label: "Русский" },
-                  ],
+    static DEFAULTS = {
+        appliance_type: "washer",
+        language: "auto",
+        theme: "auto",
+        currency: "€",
+        running_states: [
+            "стирка", "washing", "running", "run", "wash", "on", "spin", "отжим", "полоскание", "rinse",
+            "waschen", "läuft", "schleudern", "spülen", "trocknen", "drying", "dry", "tumble",
+            "lavage", "en cours", "essorage", "rincage", "rinçage",
+            "baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
+            "backen", "heizen", "erwärmen", "cuisson", "chauffage",
+        ],
+        power_threshold: 10,
+        power_max: 2500,
+        hide_status_panel: false,
+        duration_format: "minutes",
+    };
+
+    static normalizeType(value) {
+        const raw = String(value || "washer").toLowerCase().trim();
+        if (raw === "tumbler" || raw === "tumble_dryer" || raw === "tumble-dryer")
+            return "dryer";
+        if (raw === "washing_machine" || raw === "washing-machine")
+            return "washer";
+        if (raw === "backofen" || raw === "bakeoven" || raw === "bake-oven")
+            return "oven";
+        if (raw === "mikrowelle" || raw === "micro-wave" || raw === "micro_wave")
+            return "microwave";
+        if (WashingMachineCard.APPLIANCE_TYPES.includes(raw))
+            return raw;
+        return "washer";
+    }
+
+    static detectLanguage(hass) {
+        const S = WashingMachineCard.STRINGS;
+        const haLang = String(hass?.locale?.language || hass?.language || "en").toLowerCase();
+        if (S[haLang])
+            return haLang;
+        const short = haLang.split(/[-_]/)[0];
+        if (S[short])
+            return short;
+        return "en";
+    }
+
+    static languageDisplayName(code) {
+        try {
+            const dn = new Intl.DisplayNames([code], {
+                type: "language"
+            });
+            const name = dn.of(code);
+            if (name)
+                return name.charAt(0).toUpperCase() + name.slice(1);
+        } catch (e) {
+            // Intl.DisplayNames unsupported, or code not recognized — fall through.
+        }
+        return code.toUpperCase();
+    }
+
+    setConfig(config) {
+        if (!config.status_entity) {
+            throw new Error("washing-machine-card: status_entity is required");
+        }
+        this._config = {
+            ...WashingMachineCard.DEFAULTS,
+            ...config,
+            appliance_type: WashingMachineCard.normalizeType(config.appliance_type),
+        };
+        this._uid = `a${Math.random().toString(36).slice(2, 9)}`;
+        this._built = false;
+    }
+
+    set hass(hass) {
+        this._hass = hass;
+        if (!this._built)
+            this._build();
+        this._update();
+    }
+
+    getCardSize() {
+        return 6;
+    }
+
+    static getConfigElement() {
+        return document.createElement("washing-machine-card-editor");
+    }
+
+    static getStubConfig() {
+        return {
+            status_entity: "binary_sensor.washing_in_progress",
+        };
+    }
+
+    _observeWidth() {
+        if (this._ro || typeof ResizeObserver === "undefined")
+            return;
+        this._ro = new ResizeObserver((entries) => {
+            const w = entries[0]?.contentRect?.width;
+            if (!w || !this._built)
+                return;
+            const wrap = this._el("wrap");
+            if (!wrap)
+                return;
+            wrap.classList.toggle("narrow", w <= 430);
+            wrap.classList.toggle("xnarrow", w <= 320);
+        });
+        this._ro.observe(this);
+    }
+
+    connectedCallback() {
+        this._observeWidth();
+        if (this._timer)
+            clearInterval(this._timer);
+        this._timer = setInterval(() => {
+            if (this._hass && this._built && this._applianceState() !== "off")
+                this._update();
+        }, 30000);
+    }
+
+    disconnectedCallback() {
+        if (this._timer) {
+            clearInterval(this._timer);
+            this._timer = null;
+        }
+        if (this._ro) {
+            this._ro.disconnect();
+            this._ro = null;
+        }
+    }
+
+    get _applianceType() {
+        return WashingMachineCard.normalizeType(this._config?.appliance_type);
+    }
+
+    get _t() {
+        const S = WashingMachineCard.STRINGS;
+        const cfg = this._config?.language;
+        const isAuto = !cfg || cfg === WashingMachineCardEditor.AUTO_LANGUAGE;
+        const lang = !isAuto && S[cfg] ? cfg : WashingMachineCard.detectLanguage(this._hass);
+        const base = S[lang];
+        const typeStrings = base.types?.[this._applianceType] || {};
+        return {
+            ...base,
+            ...typeStrings,
+            locale: lang
+        };
+    }
+
+    _st(entityId) {
+        return entityId ? this._hass.states[entityId] : undefined;
+    }
+
+    _isRunning() {
+        const c = this._config;
+        const status = this._st(c.status_entity);
+        const byStatus =
+            status && c.running_states.includes(String(status.state).toLowerCase());
+        let byPower = false;
+        if (c.power_entity) {
+            const p = parseFloat(this._st(c.power_entity)?.state);
+            byPower = !isNaN(p) && p > c.power_threshold;
+        }
+        return byStatus || byPower;
+    }
+
+    _applianceState() {
+        if (this._isRunning())
+            return "running";
+        const c = this._config;
+        if (c.power_entity) {
+            const p = parseFloat(this._st(c.power_entity)?.state);
+            if (!isNaN(p) && p >= 1)
+                return "idle";
+        }
+        return "off";
+    }
+
+    _parseDate(state) {
+        if (!state || ["unknown", "unavailable", "none"].includes(String(state).toLowerCase()))
+            return null;
+        const d = new Date(String(state).replace(" ", "T"));
+        return isNaN(d) ? null : d;
+    }
+
+    _fmtDateTime(state) {
+        const t = this._t;
+        const d = this._parseDate(state);
+        if (!d)
+            return "—";
+        const now = new Date();
+        const sameDay = d.toDateString() === now.toDateString();
+        const yest = new Date(now);
+        yest.setDate(now.getDate() - 1);
+        const time = d.toLocaleTimeString(t.locale, {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+        if (sameDay)
+            return `${t.today}, ${time}`;
+        if (d.toDateString() === yest.toDateString())
+            return `${t.yesterday}, ${time}`;
+        return d.toLocaleDateString(t.locale, {
+            day: "numeric",
+            month: "short"
+        }) + `, ${time}`;
+    }
+
+    _fmtClock(fromDate) {
+        const s = Math.max(0, Math.floor((Date.now() - fromDate.getTime()) / 1000));
+        const h = Math.floor(s / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        return `${h}:${String(m).padStart(2, "0")}`;
+    }
+
+    _fmtNum(value, digits = 2) {
+        const n = parseFloat(value);
+        if (isNaN(n))
+            return null;
+        let s = n.toFixed(digits);
+        if (digits > 0)
+            s = s.replace(/0+$/, "").replace(/\.$/, "");
+        return s.replace(".", this._t.decimal);
+    }
+
+    _fmtDuration(state) {
+        const t = this._t;
+        const n = parseFloat(state);
+        if (isNaN(n))
+            return null;
+        if (this._config.duration_format === "hhmm" && n >= 60) {
+            const h = Math.floor(n / 60);
+            const m = Math.round(n % 60);
+            return {
+                value: `${h}h${String(m).padStart(2, "0")}`,
+                unit: ""
+            };
+        }
+        return {
+            value: this._fmtNum(n, 0),
+            unit: t.min
+        };
+    }
+
+    _startDate() {
+        const c = this._config;
+        const status = this._st(c.status_entity);
+        return (
+            (c.last_wash_entity && this._parseDate(this._st(c.last_wash_entity)?.state)) ||
+            (status && this._parseDate(status.last_changed)) ||
+            null);
+    }
+
+    _moreInfo(entityId) {
+        this.dispatchEvent(
+            new CustomEvent("hass-more-info", {
+                detail: {
+                    entityId
                 },
-              },
-            },
-            {
-              name: "theme",
-              label: "Theme",
-              selector: {
-                select: {
-                  mode: "dropdown",
-                  options: [
-                    { value: "auto", label: "Auto (follow Home Assistant)" },
-                    { value: "light", label: "Light" },
-                    { value: "dark", label: "Dark" },
-                  ],
-                },
-              },
-            },
-            {
-              name: "hide_status_panel",
-              label: "Hide status panel when idle",
-              selector: { boolean: {} },
-              default: false,
-            },
-          ],
-        },
-
-        // ---- Power monitoring ----
-        {
-          type: "expandable",
-          name: "",
-          title: "Power monitoring",
-          icon: "mdi:flash-outline",
-          schema: [
-            {
-              name: "power_entity",
-              label: "Power sensor",
-              selector: { entity: { domain: "sensor" } },
-            },
-            {
-              name: "power_threshold",
-              label: "Running threshold (W)",
-              selector: { number: { min: 0, mode: "box" } },
-            },
-            {
-              name: "power_max",
-              label: "Gauge max (W)",
-              selector: { number: { min: 1, mode: "box" } },
-            },
-          ],
-        },
-
-        // ---- Controls & notifications ----
-        {
-          type: "expandable",
-          name: "",
-          title: "Controls & notifications",
-          icon: "mdi:tune-variant",
-          schema: [
-            {
-              name: "plug_entity",
-              label: "Plug / switch entity",
-              selector: { entity: { domain: ["switch", "input_boolean"] } },
-            },
-            {
-              name: "notify_entity",
-              label: "Notification entity",
-              selector: { entity: {} },
-            },
-          ],
-        },
-
-        // ---- Last cycle stats ----
-        {
-          type: "expandable",
-          name: "",
-          title: "Last cycle stats",
-          icon: "mdi:history",
-          schema: [
-            {
-              name: "last_wash_entity",
-              label: "Last start time entity",
-              selector: { entity: { domain: "input_datetime" } },
-            },
-            {
-              name: "duration_entity",
-              label: "Duration entity",
-              selector: { entity: { domain: "input_number" } },
-            },
-            {
-              name: "energy_entity",
-              label: "Energy entity",
-              selector: { entity: { domain: "input_number" } },
-            },
-            {
-              name: "cost_entity",
-              label: "Cost entity",
-              selector: { entity: { domain: "input_number" } },
-            },
-            {
-              name: "currency",
-              label: "Currency symbol",
-              selector: { text: {} },
-            },
-          ],
-        },
-      ],
-    };
-  }
-
-  static getStubConfig() {
-    return {
-      appliance_type: "washer",
-      status_entity: "binary_sensor.washing_in_progress",
-      hide_status_panel: false,
-    };
-  }
-
-  connectedCallback() {
-    if (this._timer) clearInterval(this._timer);
-    this._timer = setInterval(() => {
-      if (this._hass && this._built && this._isRunning()) this._update();
-    }, 30000);
-  }
-
-  disconnectedCallback() {
-    if (this._timer) {
-      clearInterval(this._timer);
-      this._timer = null;
+                bubbles: true,
+                composed: true,
+            }));
     }
-  }
 
-  get _applianceType() {
-    return WashingMachineCard.normalizeType(this._config?.appliance_type);
-  }
-
-  get _t() {
-    const S = WashingMachineCard.STRINGS;
-    const cfg = this._config?.language;
-    let base;
-    if (cfg && S[cfg]) base = S[cfg];
-    else {
-      const haLang = (this._hass?.locale?.language || this._hass?.language || "en").toLowerCase();
-      base = S[haLang] || S[haLang.split(/[-_]/)[0]] || S.en;
+    _toggle(entityId) {
+        const domain = entityId.split(".")[0];
+        const svcDomain = ["switch", "light", "input_boolean", "fan", "automation"].includes(domain)
+         ? domain
+         : "homeassistant";
+        this._hass.callService(svcDomain, "toggle", {
+            entity_id: entityId
+        });
     }
-    const typeStrings = base.types?.[this._applianceType] || {};
-    return { ...base, ...typeStrings };
-  }
 
-  _st(entityId) {
-    return entityId ? this._hass.states[entityId] : undefined;
-  }
-
-  _isRunning() {
-    const c = this._config;
-    const status = this._st(c.status_entity);
-    const byStatus =
-      status && c.running_states.includes(String(status.state).toLowerCase());
-    let byPower = false;
-    if (c.power_entity) {
-      const p = parseFloat(this._st(c.power_entity)?.state);
-      byPower = !isNaN(p) && p > c.power_threshold;
+    _confirmTogglePlug() {
+        const c = this._config;
+        const t = this._t;
+        const isOn = this._st(c.plug_entity)?.state === "on";
+        if (isOn && !window.confirm(t.confirm_plug_off))
+            return;
+        this._toggle(c.plug_entity);
     }
-    return byStatus || byPower;
-  }
 
-  _parseDate(state) {
-    if (!state || ["unknown", "unavailable", "none"].includes(String(state).toLowerCase()))
-      return null;
-    const d = new Date(String(state).replace(" ", "T"));
-    return isNaN(d) ? null : d;
-  }
-
-  _fmtDateTime(state) {
-    const t = this._t;
-    const d = this._parseDate(state);
-    if (!d) return "—";
-    const now = new Date();
-    const sameDay = d.toDateString() === now.toDateString();
-    const yest = new Date(now);
-    yest.setDate(now.getDate() - 1);
-    const time = d.toLocaleTimeString(t.locale, { hour: "2-digit", minute: "2-digit" });
-    if (sameDay) return `${t.today}, ${time}`;
-    if (d.toDateString() === yest.toDateString()) return `${t.yesterday}, ${time}`;
-    return d.toLocaleDateString(t.locale, { day: "numeric", month: "short" }) + `, ${time}`;
-  }
-
-  _fmtClock(fromDate) {
-    const s = Math.max(0, Math.floor((Date.now() - fromDate.getTime()) / 1000));
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    return `${h}:${String(m).padStart(2, "0")}`;
-  }
-
-  _fmtNum(value, digits = 2) {
-    const n = parseFloat(value);
-    if (isNaN(n)) return null;
-    let s = n.toFixed(digits);
-    if (digits > 0) s = s.replace(/0+$/, "").replace(/\.$/, "");
-    return s.replace(".", this._t.decimal);
-  }
-
-  _startDate() {
-    const c = this._config;
-    const status = this._st(c.status_entity);
-    return (
-      (c.last_wash_entity && this._parseDate(this._st(c.last_wash_entity)?.state)) ||
-      (status && this._parseDate(status.last_changed)) ||
-      null
-    );
-  }
-
-  _moreInfo(entityId) {
-    this.dispatchEvent(
-      new CustomEvent("hass-more-info", {
-        detail: { entityId },
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-  _toggle(entityId) {
-    const domain = entityId.split(".")[0];
-    const svcDomain = ["switch", "light", "input_boolean", "fan", "automation"].includes(domain)
-      ? domain
-      : "homeassistant";
-    this._hass.callService(svcDomain, "toggle", { entity_id: entityId });
-  }
-
-  _headerIcon() {
-    const type = this._applianceType;
-    if (type === "dryer") {
-      return `
+    _headerIcon() {
+        const type = this._applianceType;
+        if (type === "dryer") {
+            return `
         <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
              stroke-linecap="round" stroke-linejoin="round">
           <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
@@ -447,9 +406,9 @@ class WashingMachineCard extends HTMLElement {
           <line x1="7.2" y1="19.2" x2="16.8" y2="19.2"/>
           <line x1="8" y1="20.4" x2="16" y2="20.4"/>
         </svg>`;
-    }
-    if (type === "dishwasher") {
-      return `
+        }
+        if (type === "dishwasher") {
+            return `
         <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
              stroke-linecap="round" stroke-linejoin="round">
           <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
@@ -457,9 +416,9 @@ class WashingMachineCard extends HTMLElement {
           <line x1="8" y1="4.6" x2="16" y2="4.6"/>
           <line x1="9" y1="19.4" x2="15" y2="19.4"/>
         </svg>`;
-    }
-    if (type === "oven") {
-      return `
+        }
+        if (type === "oven") {
+            return `
         <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
              stroke-linecap="round" stroke-linejoin="round">
           <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
@@ -467,9 +426,9 @@ class WashingMachineCard extends HTMLElement {
           <circle cx="17.2" cy="5.4" r="1.3" fill="#f0a04b" stroke="none"/>
           <line x1="8" y1="19.6" x2="16" y2="19.6"/>
         </svg>`;
-    }
-    if (type === "microwave") {
-      return `
+        }
+        if (type === "microwave") {
+            return `
         <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
              stroke-linecap="round" stroke-linejoin="round">
           <rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2.6"/>
@@ -478,8 +437,8 @@ class WashingMachineCard extends HTMLElement {
           <line x1="17.2" y1="12.2" x2="19.2" y2="12.2"/>
           <line x1="17.2" y1="14.4" x2="19.2" y2="14.4"/>
         </svg>`;
-    }
-    return `
+        }
+        return `
       <svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="1.9"
            stroke-linecap="round" stroke-linejoin="round">
         <rect x="3.2" y="2.8" width="17.6" height="18.4" rx="3.4"/>
@@ -487,20 +446,24 @@ class WashingMachineCard extends HTMLElement {
         <circle cx="12" cy="13" r="1.6" fill="#2f80ed" stroke="none"/>
         <circle cx="7"  cy="6.2" r="1.05" fill="#2f80ed" stroke="none"/>
       </svg>`;
-  }
+    }
 
-  _machineSvg() {
-    const type = this._applianceType;
-    const u = this._uid;
-    if (type === "dryer") return this._svgDryer(u);
-    if (type === "dishwasher") return this._svgDishwasher(u);
-    if (type === "oven") return this._svgOven(u);
-    if (type === "microwave") return this._svgMicrowave(u);
-    return this._svgWasher(u);
-  }
+    _machineSvg() {
+        const type = this._applianceType;
+        const u = this._uid;
+        if (type === "dryer")
+            return this._svgDryer(u);
+        if (type === "dishwasher")
+            return this._svgDishwasher(u);
+        if (type === "oven")
+            return this._svgOven(u);
+        if (type === "microwave")
+            return this._svgMicrowave(u);
+        return this._svgWasher(u);
+    }
 
-  _svgChassis(u, opts = {}) {
-    const top = opts.topPanel || `
+    _svgChassis(u, opts = {}) {
+        const top = opts.topPanel || `
       <rect x="42" y="20" width="34" height="13" rx="4" fill="#cfd7e0"/>
       <rect x="42" y="20" width="34" height="6"  rx="3" fill="#dee5ec"/>
       <rect x="88" y="18" width="70" height="18" rx="9" fill="#0d1526"/>
@@ -511,17 +474,17 @@ class WashingMachineCard extends HTMLElement {
       <circle cx="176" cy="27" r="10" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.3"/>
       <circle cx="176" cy="27" r="3.2" fill="#31415a"/>
       <rect x="175.1" y="18.5" width="1.8" height="6.5" rx=".9" fill="#31415a"/>`;
-    return `
+        return `
       <ellipse cx="110" cy="222" rx="76" ry="8" fill="#20304a" opacity=".16"/>
       <rect x="30" y="8" width="160" height="204" rx="18" fill="url(#${u}-body)"/>
       <rect x="30" y="8" width="160" height="204" rx="18" fill="none" stroke="#c7cfda" stroke-width="1.4"/>
       <rect x="48"  y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
       <rect x="162" y="210" width="10" height="7" rx="3" fill="#9aa6b4"/>
       ${top}`;
-  }
+    }
 
-  _svgWasher(u) {
-    return `
+    _svgWasher(u) {
+        return `
       <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
@@ -558,10 +521,10 @@ class WashingMachineCard extends HTMLElement {
                   stroke-linecap="round" stroke-dasharray="104 62.5" opacity=".95"/>
         </g>
       </svg>`;
-  }
+    }
 
-  _svgDryer(u) {
-    const top = `
+    _svgDryer(u) {
+        const top = `
       <rect x="42" y="20" width="34" height="13" rx="4" fill="#cfd7e0"/>
       <rect x="46" y="23" width="26" height="3.2" rx="1.4" fill="#9aa6b4"/>
       <rect x="46" y="28" width="18" height="2.4" rx="1.1" fill="#b7c0cb"/>
@@ -573,7 +536,7 @@ class WashingMachineCard extends HTMLElement {
       <circle cx="176" cy="27" r="10" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.3"/>
       <circle cx="176" cy="27" r="3.2" fill="#31415a"/>
       <rect x="175.1" y="18.5" width="1.8" height="6.5" rx=".9" fill="#31415a"/>`;
-    return `
+        return `
       <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
@@ -595,7 +558,9 @@ class WashingMachineCard extends HTMLElement {
             <stop offset="1" stop-color="#ffb347" stop-opacity="0"/>
           </radialGradient>
         </defs>
-        ${this._svgChassis(u, { topPanel: top })}
+        ${this._svgChassis(u, {
+            topPanel: top
+        })}
         <circle cx="110" cy="128" r="58" fill="url(#${u}-ring)"/>
         <circle cx="110" cy="128" r="58" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
         <circle cx="110" cy="128" r="47" fill="#e3e9f0"/>
@@ -628,10 +593,10 @@ class WashingMachineCard extends HTMLElement {
           <line x1="80" y1="206" x2="140" y2="206"/>
         </g>
       </svg>`;
-  }
+    }
 
-  _svgDishwasher(u) {
-    const top = `
+    _svgDishwasher(u) {
+        const top = `
       <rect x="42" y="18" width="136" height="22" rx="8" fill="#0d1526"/>
       <text id="dispTime" x="100" y="33" text-anchor="middle"
             font-family="ui-monospace, 'SF Mono', Consolas, monospace"
@@ -639,7 +604,7 @@ class WashingMachineCard extends HTMLElement {
       <circle id="dispDot" cx="148" cy="29" r="2.4" fill="#22b263"/>
       <circle cx="162" cy="29" r="5.5" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1"/>
       <circle cx="162" cy="29" r="1.8" fill="#31415a"/>`;
-    return `
+        return `
       <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
@@ -665,7 +630,9 @@ class WashingMachineCard extends HTMLElement {
             <rect x="56" y="60" width="108" height="120" rx="8"/>
           </clipPath>
         </defs>
-        ${this._svgChassis(u, { topPanel: top })}
+        ${this._svgChassis(u, {
+            topPanel: top
+        })}
         <rect x="48" y="52" width="124" height="148" rx="12" fill="url(#${u}-frame)"/>
         <rect x="48" y="52" width="124" height="148" rx="12" fill="none" stroke="#c2cbd6" stroke-width="1.4"/>
         <rect x="56" y="60" width="108" height="120" rx="8" fill="url(#${u}-glass)"/>
@@ -726,11 +693,10 @@ class WashingMachineCard extends HTMLElement {
               stroke-dasharray="90 70" opacity=".9"/>
         <rect x="78" y="188" width="64" height="7" rx="3.5" fill="#cfd7e0" stroke="#b4bec9" stroke-width="1"/>
       </svg>`;
-  }
+    }
 
-
-  _svgOven(u) {
-    const top = `
+    _svgOven(u) {
+        const top = `
       <rect x="42" y="40" width="88" height="22" rx="8" fill="#0d1526"/>
       <text id="dispTime" x="78" y="55" text-anchor="middle"
             font-family="ui-monospace, 'SF Mono', Consolas, monospace"
@@ -739,7 +705,7 @@ class WashingMachineCard extends HTMLElement {
       <circle cx="172" cy="51" r="11" fill="#e9edf3" stroke="#c2cbd6" stroke-width="1.3"/>
       <circle cx="172" cy="51" r="3.4" fill="#31415a"/>
       <rect x="171" y="41.5" width="2" height="7" rx="1" fill="#f0a04b"/>`;
-    return `
+        return `
       <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
@@ -807,10 +773,10 @@ class WashingMachineCard extends HTMLElement {
               stroke-dasharray="90 70" opacity=".9"/>
         <rect x="78" y="188" width="64" height="8" rx="4" fill="#cfd7e0" stroke="#b4bec9" stroke-width="1"/>
       </svg>`;
-  }
+    }
 
-  _svgMicrowave(u) {
-    return `
+    _svgMicrowave(u) {
+        return `
       <svg class="machine" id="machine" viewBox="0 0 220 232" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="${u}-body" x1="0" y1="0" x2="1" y2="1">
@@ -890,17 +856,18 @@ class WashingMachineCard extends HTMLElement {
               stroke-dasharray="70 55" opacity=".9"/>
         <rect x="42" y="130" width="6" height="36" rx="3" fill="#cfd7e0" stroke="#b4bec9" stroke-width="1"/>
       </svg>`;
-  }
+    }
 
-  _build() {
-    const c = this._config;
-    const t = this._t;
-    const root = this.shadowRoot || this.attachShadow({ mode: "open" });
-    root.innerHTML = `
+    _build() {
+        const c = this._config;
+        const t = this._t;
+        const root = this.shadowRoot || this.attachShadow({
+            mode: "open"
+        });
+        root.innerHTML = `
       <style>
         :host {
           display: block;
-          /* --- светлая палитра (по умолчанию) --- */
           --wm-grad: linear-gradient(180deg, #edf3fb 0%, #e4edf8 55%, #dfe9f6 100%);
           --wm-text: #1c2733;
           --wm-muted: #7d8894;
@@ -908,11 +875,14 @@ class WashingMachineCard extends HTMLElement {
           --wm-accent: #2f80ed;
           --wm-icon-bg: #ffffff;
           --wm-icon-shadow: 0 3px 10px rgba(47,128,237,.18);
+          --wm-icon-border: transparent;
           --wm-badge-bg: #e3e8ee;
           --wm-badge-fg: #6b7684;
           --wm-badge-dot: #9aa5b1;
           --wm-badge-run-bg: #d9f2e2;
           --wm-badge-run-fg: #1c9a55;
+          --wm-badge-idle-bg: #fbf1d3;
+          --wm-badge-idle-fg: #b8923a;
           --wm-btn-bg: rgba(255,255,255,.75);
           --wm-btn-border: #d8e0ea;
           --wm-btn-on-bg: #eaf3fe;
@@ -927,7 +897,6 @@ class WashingMachineCard extends HTMLElement {
           --wm-divider: #e2e8f0;
           --wm-appliance-dim: 1;
         }
-        /* --- тёмная палитра: класс ставится по hass.themes.darkMode или опции theme --- */
         :host(.wm-dark) {
           --wm-grad: linear-gradient(180deg, #1d2634 0%, #18212f 55%, #141c29 100%);
           --wm-text: #e8eef7;
@@ -936,11 +905,14 @@ class WashingMachineCard extends HTMLElement {
           --wm-accent: #6fb0ff;
           --wm-icon-bg: #232e3f;
           --wm-icon-shadow: 0 3px 10px rgba(0,0,0,.38);
+          --wm-icon-border: transparent;
           --wm-badge-bg: #2a3547;
           --wm-badge-fg: #a5b2c4;
           --wm-badge-dot: #6b7a8d;
           --wm-badge-run-bg: rgba(34,178,99,.20);
           --wm-badge-run-fg: #4ad489;
+          --wm-badge-idle-bg: rgba(240,192,72,.16);
+          --wm-badge-idle-fg: #e0b559;
           --wm-btn-bg: rgba(255,255,255,.06);
           --wm-btn-border: rgba(255,255,255,.13);
           --wm-btn-on-bg: rgba(47,128,237,.20);
@@ -954,6 +926,51 @@ class WashingMachineCard extends HTMLElement {
           --wm-bar-idle: #4a5769;
           --wm-divider: rgba(255,255,255,.09);
           --wm-appliance-dim: .93;
+        }
+        :host(.wm-native) {
+          --wm-grad: var(--ha-card-background, var(--card-background-color, #fff));
+          --wm-text: var(--primary-text-color, #1c2733);
+          --wm-muted: var(--secondary-text-color, #727272);
+          --wm-label: var(--secondary-text-color, #727272);
+          --wm-accent: var(--primary-color, #2f80ed);
+          --wm-icon-bg: var(--secondary-background-color, rgba(0,0,0,.04));
+          --wm-icon-shadow: 0 1px 3px rgba(0,0,0,.12);
+          --wm-icon-border: var(--divider-color, rgba(0,0,0,.12));
+          --wm-badge-bg: var(--secondary-background-color, rgba(0,0,0,.06));
+          --wm-badge-fg: var(--secondary-text-color, #727272);
+          --wm-badge-dot: var(--disabled-text-color, #bdbdbd);
+          --wm-badge-run-bg: rgba(var(--rgb-success-color, 76,175,80), .16);
+          --wm-badge-run-fg: var(--success-color, #21c15e);
+          --wm-badge-idle-bg: rgba(var(--rgb-warning-color, 255,193,7), .16);
+          --wm-badge-idle-fg: var(--warning-color, #c79100);
+          --wm-btn-bg: var(--secondary-background-color, rgba(0,0,0,.04));
+          --wm-btn-border: var(--divider-color, #e0e0e0);
+          --wm-btn-on-bg: rgba(var(--rgb-primary-color, 47,128,237), .12);
+          --wm-btn-on-border: var(--primary-color, #2f80ed);
+          --wm-panel-bg: var(--secondary-background-color, rgba(0,0,0,.03));
+          --wm-panel-border: var(--divider-color, #e0e0e0);
+          --wm-panel-shadow: none;
+          --wm-card-shadow: var(--ha-card-box-shadow, 0 2px 4px rgba(0,0,0,.1));
+          --wm-ring-track: var(--divider-color, #e0e0e0);
+          --wm-bar-bg: var(--divider-color, #e0e0e0);
+          --wm-bar-idle: var(--disabled-text-color, #bdbdbd);
+          --wm-divider: var(--divider-color, #e0e0e0);
+          --wm-appliance-dim: 1;
+        }
+        :host(.wm-native:not(.wm-native-dark)) {
+          --wm-icon-bg: #f4f6f8;
+          --wm-badge-bg: #eef1f4;
+          --wm-btn-bg: #f4f6f8;
+          --wm-panel-bg: #f6f8fa;
+        }
+        :host(.wm-native-dark) {
+          --wm-icon-shadow: 0 2px 6px rgba(0,0,0,.45);
+        }
+        :host(.wm-native) ha-card::before {
+          display: none;
+        }
+        :host(.wm-native) ha-card {
+          box-shadow: none;
         }
         ha-card {
           display: block;
@@ -970,13 +987,12 @@ class WashingMachineCard extends HTMLElement {
           content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
           background: linear-gradient(90deg, #2f80ed, #56a8ff);
         }
-        .wrap { container-type: inline-size; }
         .header { display: flex; align-items: center; gap: 10px; }
         .h-icon {
           width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
           background: var(--wm-icon-bg); box-shadow: var(--wm-icon-shadow);
+          border: 1px solid var(--wm-icon-border, transparent);
           display: flex; align-items: center; justify-content: center;
-          cursor: pointer;
         }
         .h-icon svg { width: 27px; height: 27px; }
         .h-title {
@@ -990,14 +1006,14 @@ class WashingMachineCard extends HTMLElement {
           padding: 6px 11px; border-radius: 999px;
           background: var(--wm-badge-bg); color: var(--wm-badge-fg); white-space: nowrap;
         }
-        @container (max-width: 430px) {
-          #badgeText { display: none; }
-          .badge { padding: 6px 8px; }
-          .header { gap: 8px; }
-          .h-title { font-size: 15.5px; }
-        }
+        .wrap.narrow #badgeText { display: none; }
+        .wrap.narrow .badge { padding: 6px 8px; }
+        .wrap.narrow .header { gap: 8px; }
+        .wrap.narrow .h-title { font-size: 15.5px; }
         .badge .b-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--wm-badge-dot); }
         .running .badge { background: var(--wm-badge-run-bg); color: var(--wm-badge-run-fg); }
+        .state-idle .badge { background: var(--wm-badge-idle-bg); color: var(--wm-badge-idle-fg); }
+        .state-idle .badge .b-dot { background: var(--wm-badge-idle-fg); }
         .running .badge .b-dot { background: #22b263; animation: pulse 1.6s ease-in-out infinite; }
         @keyframes pulse {
           0%, 100% { box-shadow: 0 0 0 0 rgba(34,178,99,.45); }
@@ -1015,7 +1031,7 @@ class WashingMachineCard extends HTMLElement {
         .h-btn.on { color: var(--wm-accent); border-color: var(--wm-btn-on-border); background: var(--wm-btn-on-bg); }
 
         .hero { display: flex; justify-content: center; padding: 14px 0 6px; }
-        .machine { width: 210px; max-width: 62%; cursor: pointer; filter: brightness(var(--wm-appliance-dim)); }
+        .machine { width: 210px; max-width: 62%; filter: brightness(var(--wm-appliance-dim)); }
 
         .laundry, .drum, .arcs {
           transform-box: view-box;
@@ -1188,6 +1204,7 @@ class WashingMachineCard extends HTMLElement {
         }
         .bar-fill {
           height: 100%; border-radius: 6px; width: 0%;
+          min-width: 3px;
           background: linear-gradient(90deg, #ff6a5e, #d93025);
           transition: width .6s ease;
         }
@@ -1203,10 +1220,6 @@ class WashingMachineCard extends HTMLElement {
         .lc-value { font-size: 14.5px; font-weight: 800; margin-top: 5px; overflow-wrap: break-word; }
         .lc-unit { font-size: 11px; font-weight: 700; color: var(--wm-accent); }
         .hidden { display: none !important; }
-        @container (max-width: 320px) {
-          .lc-grid { grid-template-columns: 1fr 1fr; row-gap: 12px; }
-          .lc-item:nth-child(3) { border-left: none; padding-left: 0; }
-        }
       </style>
 
       <ha-card>
@@ -1278,148 +1291,680 @@ class WashingMachineCard extends HTMLElement {
       </ha-card>
     `;
 
-    this._el = (id) => root.getElementById(id);
+        this._el = (id) => root.getElementById(id);
 
-    const mi = (ent) => () => this._moreInfo(ent);
-    this._el("machine").addEventListener("click", mi(c.status_entity));
-    this._el("hIcon").addEventListener("click", mi(c.status_entity));
-    this._el("chartBtn").addEventListener("click", mi(c.power_entity || c.status_entity));
-    this._el("ringBox").addEventListener("click", mi(c.last_wash_entity || c.status_entity));
-    if (c.power_entity)
-      this._el("powerValue").addEventListener("click", mi(c.power_entity));
-    if (c.notify_entity)
-      this._el("notifyBtn").addEventListener("click", () => this._toggle(c.notify_entity));
-    if (c.plug_entity)
-      this._el("plugBtn").addEventListener("click", () => this._toggle(c.plug_entity));
-    if (c.last_wash_entity)
-      this._el("lcStart").addEventListener("click", mi(c.last_wash_entity));
-    if (c.duration_entity)
-      this._el("lcDuration").addEventListener("click", mi(c.duration_entity));
-    if (c.energy_entity)
-      this._el("lcEnergy").addEventListener("click", mi(c.energy_entity));
-    if (c.cost_entity)
-      this._el("lcCost").addEventListener("click", mi(c.cost_entity));
+        const mi = (ent) => () => this._moreInfo(ent);
+        this._el("chartBtn").addEventListener("click", mi(c.power_entity || c.status_entity));
+        this._el("ringBox").addEventListener("click", mi(c.last_wash_entity || c.status_entity));
+        if (c.power_entity)
+            this._el("powerValue").addEventListener("click", mi(c.power_entity));
+        if (c.notify_entity)
+            this._el("notifyBtn").addEventListener("click", () => this._toggle(c.notify_entity));
+        if (c.plug_entity)
+            this._el("plugBtn").addEventListener("click", () => this._confirmTogglePlug());
+        if (c.last_wash_entity)
+            this._el("lcStart").addEventListener("click", mi(c.last_wash_entity));
+        if (c.duration_entity)
+            this._el("lcDuration").addEventListener("click", mi(c.duration_entity));
+        if (c.energy_entity)
+            this._el("lcEnergy").addEventListener("click", mi(c.energy_entity));
+        if (c.cost_entity)
+            this._el("lcCost").addEventListener("click", mi(c.cost_entity));
 
-    this._built = true;
-  }
-
-  _update() {
-    const c = this._config;
-    const t = this._t;
-    const wrap = this._el("wrap");
-
-    // тема: auto следует за Home Assistant, light/dark принудительно
-    const themeCfg = String(c.theme || "auto").toLowerCase();
-    const dark = themeCfg === "dark"
-      || (themeCfg !== "light" && !!this._hass?.themes?.darkMode);
-    this.classList.toggle("wm-dark", dark);
-
-    const running = this._isRunning();
-    wrap.classList.toggle("running", running);
-    wrap.classList.toggle("idle", !running);
-
-    this._el("name").textContent = c.name || t.name;
-    const status = this._st(c.status_entity);
-    const noData = !status || ["unknown", "unavailable"].includes(status.state);
-    this._el("badgeText").textContent = noData
-      ? t.badge_nodata
-      : running ? t.badge_running : t.badge_idle;
-
-    const start = running ? this._startDate() : null;
-    const clock = start ? this._fmtClock(start) : null;
-    this._el("dispTime").textContent = running ? (clock || "0:00") : "--:--";
-    this._el("dispDot").setAttribute("fill", running ? "#22b263" : "#4a5871");
-    this._el("ringTime").textContent = running ? (clock || "…") : "—";
-    this._el("ringLabel").textContent = running ? t.ring_running : t.ring_idle;
-    this._el("ringArc").style.display = running ? "" : "none";
-
-    this._el("stState").textContent = noData
-      ? t.state_nodata
-      : running ? t.state_running : t.state_idle;
-
-    // hide status panel only when idle
-    const hideStatus = !!c.hide_status_panel && !running;
-    this._el("statusPanel").classList.toggle("hidden", hideStatus);
-
-    if (c.power_entity) {
-      const ps = this._st(c.power_entity);
-      const p = parseFloat(ps?.state);
-      const unit = ps?.attributes?.unit_of_measurement || "W";
-      this._el("powerRow").classList.remove("hidden");
-      this._el("bar").classList.remove("hidden");
-      const unitL = String(unit).toLowerCase();
-      this._el("powerLabel").textContent =
-        ["a", "а"].includes(unitL) ? t.current : t.power;
-      let disp;
-      if (isNaN(p)) disp = "—";
-      else if (["w", "вт"].includes(unitL) && Math.abs(p) >= 1000)
-        disp = `${this._fmtNum(p / 1000, 2)} ${t.kw}`;
-      else disp = `${Math.abs(p) >= 10 ? Math.round(p) : this._fmtNum(p, 2)} ${unit}`;
-      this._el("powerValue").textContent = disp;
-      const frac = isNaN(p) ? 0 : Math.min(1, Math.max(0, p / (c.power_max || 1)));
-      this._el("barFill").style.width = `${Math.max(running ? 4 : 2, frac * 100)}%`;
+        this._built = true;
+        this._observeWidth();
+        const w0 = this.getBoundingClientRect().width;
+        if (w0) {
+            const wrap = this._el("wrap");
+            wrap.classList.toggle("narrow", w0 <= 430);
+            wrap.classList.toggle("xnarrow", w0 <= 320);
+        }
     }
 
-    let anyLc = false;
-    if (c.last_wash_entity) {
-      const s = this._st(c.last_wash_entity);
-      this._el("lcStart").classList.remove("hidden");
-      this._el("lcStartV").textContent = s ? this._fmtDateTime(s.state) : "—";
-      anyLc = true;
-    }
-    if (c.duration_entity) {
-      const s = this._st(c.duration_entity);
-      const v = this._fmtNum(s?.state, 0);
-      this._el("lcDuration").classList.remove("hidden");
-      this._el("lcDurationV").innerHTML =
-        v !== null ? `${v} <span class="lc-unit">${t.min}</span>` : "—";
-      anyLc = true;
-    }
-    if (c.energy_entity) {
-      const s = this._st(c.energy_entity);
-      const v = this._fmtNum(s?.state, 2);
-      this._el("lcEnergy").classList.remove("hidden");
-      this._el("lcEnergyV").innerHTML =
-        v !== null ? `${v} <span class="lc-unit">${t.kwh}</span>` : "—";
-      anyLc = true;
-    }
-    if (c.cost_entity) {
-      const s = this._st(c.cost_entity);
-      const v = this._fmtNum(s?.state, 2);
-      this._el("lcCost").classList.remove("hidden");
-      this._el("lcCostV").innerHTML =
-        v !== null ? `${v} <span class="lc-unit">${c.currency}</span>` : "—";
-      anyLc = true;
-    }
-    if (anyLc) this._el("lastCycle").classList.remove("hidden");
+    _update() {
+        const c = this._config;
+        const t = this._t;
+        const wrap = this._el("wrap");
+        const themeCfg = String(c.theme || "auto").toLowerCase();
+        const isNative = themeCfg === "ha";
+        const haIsDark = !!this._hass?.themes?.darkMode;
+        this.classList.toggle("wm-native", isNative);
+        this.classList.toggle("wm-native-dark", isNative && haIsDark);
+        const dark = !isNative && (themeCfg === "dark" || (themeCfg !== "light" && haIsDark));
+        this.classList.toggle("wm-dark", dark);
+        const running = this._isRunning();
+        wrap.classList.toggle("running", running);
+        this._el("name").textContent = c.name || t.name;
+        const status = this._st(c.status_entity);
+        const noData = !status || ["unknown", "unavailable"].includes(status.state);
+        const applianceState = noData ? "nodata" : this._applianceState();
+        this._el("badgeText").textContent = t[`badge_${applianceState}`];
+        wrap.classList.toggle("state-idle", applianceState === "idle");
+        const active = applianceState === "running" || applianceState === "idle";
+        wrap.classList.toggle("idle", !active);
+        const start = active ? this._startDate() : null;
+        const clock = start ? this._fmtClock(start) : null;
+        this._el("dispTime").textContent = active ? (clock || "0:00") : "--:--";
+        this._el("dispDot").setAttribute("fill", running ? "#22b263" : "#4a5871");
+        this._el("ringTime").textContent = active ? (clock || "…") : "—";
+        const ringState = applianceState === "running" ? "running" : applianceState === "idle" ? "idle" : "off";
+        this._el("ringLabel").textContent = t[`ring_${ringState}`];
+        this._el("ringArc").style.display = active ? "" : "none";
+        this._el("stState").textContent = t[`state_${applianceState}`];
+        const hideStatus = !!c.hide_status_panel && !active;
+        this._el("statusPanel").classList.toggle("hidden", hideStatus);
 
-    if (c.notify_entity) {
-      const on = this._st(c.notify_entity)?.state === "on";
-      this._el("notifyBtn").classList.remove("hidden");
-      this._el("notifyBtn").classList.toggle("on", on);
+        if (c.power_entity) {
+            const ps = this._st(c.power_entity);
+            const p = parseFloat(ps?.state);
+            const unit = ps?.attributes?.unit_of_measurement || "W";
+            this._el("powerRow").classList.remove("hidden");
+            this._el("bar").classList.remove("hidden");
+            const unitL = String(unit).toLowerCase();
+            this._el("powerLabel").textContent =
+                ["a", "а"].includes(unitL) ? t.current : t.power;
+            let disp;
+            if (isNaN(p))
+                disp = "—";
+            else if (["w", "вт"].includes(unitL) && Math.abs(p) >= 1000)
+                disp = `${this._fmtNum(p / 1000, 2)} ${t.kw}`;
+            else
+                disp = `${Math.abs(p) >= 10 ? Math.round(p) : this._fmtNum(p, 2)} ${unit}`;
+            this._el("powerValue").textContent = disp;
+            const frac = isNaN(p) ? 0 : Math.min(1, Math.max(0, p / (c.power_max || 1)));
+            this._el("barFill").style.width = `${frac * 100}%`;
+        }
+
+        let anyLc = false;
+        if (c.last_wash_entity) {
+            const s = this._st(c.last_wash_entity);
+            this._el("lcStart").classList.remove("hidden");
+            this._el("lcStartV").textContent = s ? this._fmtDateTime(s.state) : "—";
+            anyLc = true;
+        }
+        if (c.duration_entity) {
+            const s = this._st(c.duration_entity);
+            const d = this._fmtDuration(s?.state);
+            this._el("lcDuration").classList.remove("hidden");
+            this._el("lcDurationV").innerHTML = d
+                 ? (d.unit ? `${d.value} <span class="lc-unit">${d.unit}</span>` : d.value)
+                 : "—";
+            anyLc = true;
+        }
+        if (c.energy_entity) {
+            const s = this._st(c.energy_entity);
+            const v = this._fmtNum(s?.state, 2);
+            this._el("lcEnergy").classList.remove("hidden");
+            this._el("lcEnergyV").innerHTML =
+                v !== null ? `${v} <span class="lc-unit">${t.kwh}</span>` : "—";
+            anyLc = true;
+        }
+        if (c.cost_entity) {
+            const s = this._st(c.cost_entity);
+            const v = this._fmtNum(s?.state, 2);
+            this._el("lcCost").classList.remove("hidden");
+            this._el("lcCostV").innerHTML =
+                v !== null ? `${v} <span class="lc-unit">${c.currency}</span>` : "—";
+            anyLc = true;
+        }
+        if (anyLc)
+            this._el("lastCycle").classList.remove("hidden");
+
+        if (c.notify_entity) {
+            const on = this._st(c.notify_entity)?.state === "on";
+            this._el("notifyBtn").classList.remove("hidden");
+            this._el("notifyBtn").classList.toggle("on", on);
+        }
+        if (c.plug_entity) {
+            const on = this._st(c.plug_entity)?.state === "on";
+            this._el("plugBtn").classList.remove("hidden");
+            this._el("plugBtn").classList.toggle("on", on);
+        }
     }
-    if (c.plug_entity) {
-      const on = this._st(c.plug_entity)?.state === "on";
-      this._el("plugBtn").classList.remove("hidden");
-      this._el("plugBtn").classList.toggle("on", on);
-    }
-  }
 }
 
 if (!customElements.get("washing-machine-card")) {
-  customElements.define("washing-machine-card", WashingMachineCard);
+    customElements.define("washing-machine-card", WashingMachineCard);
+}
+
+/**
+ * Custom visual editor
+ */
+ 
+class WashingMachineCardEditor extends HTMLElement {
+    static AUTO_LANGUAGE = "auto";
+
+    constructor() {
+        super();
+        this._config = {};
+        this._built = false;
+        this._fieldEls = {};
+    }
+
+    setConfig(config) {
+        this._config = {
+            ...config
+        };
+        if (this._built)
+            this._syncValues();
+    }
+
+    set hass(hass) {
+        this._hass = hass;
+        if (!this._built)
+            this._build();
+        else
+            this._syncValues();
+    }
+
+    get hass() {
+        return this._hass;
+    }
+
+    static get _sections() {
+        const D = WashingMachineCard.DEFAULTS;
+        return [{
+                title: "General",
+                icon: "mdi:cog-outline",
+                expanded: true,
+                fields: [{
+                        key: "name",
+                        kind: "text",
+                        title: "Card name"
+                    }, {
+                        key: "appliance_type",
+                        kind: "select",
+                        title: "Appliance type",
+                        required: true,
+                    default:
+                        D.appliance_type,
+                        selector: {
+                            select: {
+                                mode: "dropdown",
+                                options: [{
+                                        value: "washer",
+                                        label: "Washer"
+                                    }, {
+                                        value: "dryer",
+                                        label: "Dryer / Tumbler"
+                                    }, {
+                                        value: "dishwasher",
+                                        label: "Dishwasher"
+                                    }, {
+                                        value: "oven",
+                                        label: "Oven"
+                                    }, {
+                                        value: "microwave",
+                                        label: "Microwave"
+                                    },
+                                ],
+                            },
+                        },
+                    }, {
+                        key: "status_entity",
+                        kind: "entity",
+                        title: "Status entity (required)",
+                        required: true,
+                        selector: {
+                            entity: {}
+                        },
+                    },
+                ],
+            }, {
+                title: "Appearance & language",
+                icon: "mdi:palette-outline",
+                fields: [{
+                        key: "language",
+                        kind: "select",
+                        title: "Language",
+                        required: true,
+                    default:
+                        WashingMachineCardEditor.AUTO_LANGUAGE,
+                        selector: {
+                            select: {
+                                mode: "dropdown",
+                                options: WashingMachineCardEditor._languageOptions(),
+                            },
+                        },
+                    }, {
+                        key: "theme",
+                        kind: "select",
+                        title: "Theme",
+                        required: true,
+                    default:
+                        D.theme,
+                        selector: {
+                            select: {
+                                mode: "dropdown",
+                                options: [{
+                                        value: "auto",
+                                        label: "Auto (follow Home Assistant)"
+                                    }, {
+                                        value: "light",
+                                        label: "Light"
+                                    }, {
+                                        value: "dark",
+                                        label: "Dark"
+                                    }, {
+                                        value: "ha",
+                                        label: "Home Assistant (native colours)"
+                                    },
+                                ],
+                            },
+                        },
+                    }, {
+                        key: "duration_format",
+                        kind: "select",
+                        title: "Duration time format",
+                        required: true,
+                    default:
+                        D.duration_format,
+                        selector: {
+                            select: {
+                                mode: "dropdown",
+                                options: [{
+                                        value: "minutes",
+                                        label: "Raw minutes"
+                                    }, {
+                                        value: "hhmm",
+                                        label: "Human-readable"
+                                    },
+                                ],
+                            },
+                        },
+                    }, {
+                        key: "hide_status_panel",
+                        kind: "boolean",
+                        title: "Hide status panel",
+                        description: "Hide status panel only when appliance is off.",
+                    default:
+                        D.hide_status_panel,
+                        selector: {
+                            boolean: {}
+                        },
+                    },
+                ],
+            }, {
+                title: "Power monitoring",
+                icon: "mdi:flash-outline",
+                fields: [{
+                        key: "power_entity",
+                        kind: "entity",
+                        title: "Power sensor",
+                        selector: {
+                            entity: {
+                                domain: "sensor"
+                            }
+                        },
+                    }, {
+                        key: "power_threshold",
+                        kind: "number",
+                        title: "Running threshold (W)",
+                    default:
+                        D.power_threshold,
+                        min: 0,
+                    }, {
+                        key: "power_max",
+                        kind: "number",
+                        title: "Gauge max (W)",
+                    default:
+                        D.power_max,
+                        min: 1,
+                    },
+                ],
+            }, {
+                title: "Controls & notifications",
+                icon: "mdi:tune-variant",
+                fields: [{
+                        key: "plug_entity",
+                        kind: "entity",
+                        title: "Plug / switch entity",
+                        selector: {
+                            entity: {
+                                domain: ["switch", "input_boolean"]
+                            }
+                        },
+                    }, {
+                        key: "notify_entity",
+                        kind: "entity",
+                        title: "Notification entity",
+                        selector: {
+                            entity: {}
+                        },
+                    },
+                ],
+            }, {
+                title: "Last cycle stats",
+                icon: "mdi:history",
+                fields: [{
+                        key: "last_wash_entity",
+                        kind: "entity",
+                        title: "Last start time entity",
+                        selector: {
+                            entity: {
+                                domain: "input_datetime"
+                            }
+                        },
+                    }, {
+                        key: "duration_entity",
+                        kind: "entity",
+                        title: "Duration entity",
+                        selector: {
+                            entity: {
+                                domain: "input_number"
+                            }
+                        },
+                    }, {
+                        key: "energy_entity",
+                        kind: "entity",
+                        title: "Energy entity",
+                        selector: {
+                            entity: {
+                                domain: "input_number"
+                            }
+                        },
+                    }, {
+                        key: "cost_entity",
+                        kind: "entity",
+                        title: "Cost entity",
+                        selector: {
+                            entity: {
+                                domain: "input_number"
+                            }
+                        },
+                    }, {
+                        key: "currency",
+                        kind: "text",
+                        title: "Currency symbol",
+                    default:
+                        D.currency,
+                    },
+                ],
+            },
+        ];
+    }
+
+    static _languageOptions() {
+        const codes = Object.keys(WashingMachineCard.STRINGS);
+        return [{
+                value: WashingMachineCardEditor.AUTO_LANGUAGE,
+                label: "Automatic (Home Assistant language)"
+            },
+            ...codes.map((code) => ({
+                    value: code,
+                    label: WashingMachineCard.languageDisplayName(code),
+                })),
+        ];
+    }
+
+    _build() {
+        const root = this.shadowRoot || this.attachShadow({
+            mode: "open"
+        });
+        root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .wm-editor { display: flex; flex-direction: column; gap: 16px; padding: 4px 0 8px; }
+
+        .wm-field { display: flex; flex-direction: column; gap: 6px; }
+        .wm-field-title {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--secondary-text-color, #6b7684);
+          padding: 0 2px;
+        }
+
+        .wm-field-title--primary {
+          color: var(--primary-text-color, #1c2733);
+        }
+
+        .wm-native-input {
+          box-sizing: border-box;
+          width: 100%;
+          padding: 10px 12px;
+          font-size: 14px;
+          font-family: inherit;
+          color: var(--primary-text-color, #1c2733);
+          background: var(--card-background-color, #fff);
+          border: 1px solid var(--divider-color, #c2cbd6);
+          border-radius: 4px;
+          outline: none;
+        }
+        .wm-native-input:focus {
+          border-color: var(--primary-color, #2f80ed);
+          box-shadow: 0 0 0 1px var(--primary-color, #2f80ed);
+        }
+        .wm-native-input::placeholder {
+          color: var(--secondary-text-color, #8a95a3);
+          opacity: .75;
+        }
+
+        .wm-field--row {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+        .wm-field--row .wm-field-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          flex: 1;
+          min-width: 0;
+        }
+        .wm-field--row .wm-field-title { padding: 0; }
+        .wm-field-desc {
+          font-size: 11px;
+          color: var(--secondary-text-color, #8a95a3);
+        }
+        .wm-field--row ha-selector { flex-shrink: 0; }
+
+        ha-expansion-panel { border-radius: 8px; }
+        .wm-section-body { display: flex; flex-direction: column; gap: 16px; padding: 12px; }
+        .wm-section-header { display: flex; align-items: center; gap: 8px; }
+        .wm-section-header ha-icon {
+          color: var(--secondary-text-color, #6b7684);
+          --mdc-icon-size: 20px;
+        }
+      </style>
+      <div class="wm-editor" id="editor"></div>
+    `;
+
+        const editor = root.getElementById("editor");
+        const sections = WashingMachineCardEditor._sections;
+
+        sections.forEach((section) => {
+            const panel = document.createElement("ha-expansion-panel");
+            panel.outlined = true;
+            if (section.expanded)
+                panel.expanded = true;
+
+            const header = document.createElement("div");
+            header.slot = "header";
+            header.className = "wm-section-header";
+            const icon = document.createElement("ha-icon");
+            icon.icon = section.icon;
+            header.appendChild(icon);
+            const span = document.createElement("span");
+            span.textContent = section.title;
+            header.appendChild(span);
+            panel.appendChild(header);
+
+            const body = document.createElement("div");
+            body.className = "wm-section-body";
+            section.fields.forEach((f) => body.appendChild(this._buildField(f)));
+            panel.appendChild(body);
+
+            editor.appendChild(panel);
+        });
+
+        this._built = true;
+        this._syncValues();
+    }
+
+    _isChoiceField(field) {
+        return field.kind === "select" || field.kind === "boolean";
+    }
+
+    _buildField(field) {
+        const wrap = document.createElement("div");
+        wrap.className = "wm-field" + (field.kind === "boolean" ? " wm-field--row" : "");
+
+        if (field.kind === "boolean") {
+            const textCol = document.createElement("div");
+            textCol.className = "wm-field-text";
+            const title = document.createElement("div");
+            title.className = "wm-field-title wm-field-title--primary";
+            title.textContent = field.title;
+            textCol.appendChild(title);
+            if (field.description) {
+                const desc = document.createElement("div");
+                desc.className = "wm-field-desc";
+                desc.textContent = field.description;
+                textCol.appendChild(desc);
+            }
+            wrap.appendChild(textCol);
+
+            const sel = document.createElement("ha-selector");
+            sel.label = "";
+            sel.selector = field.selector;
+            if (this._hass)
+                sel.hass = this._hass;
+            sel.addEventListener("value-changed", (ev) => {
+                ev.stopPropagation();
+                this._valueChanged(field, ev.detail.value);
+            });
+            wrap.appendChild(sel);
+            this._fieldEls[field.key] = sel;
+            return wrap;
+        }
+
+        const title = document.createElement("div");
+        title.className = "wm-field-title";
+        title.textContent = field.title;
+        wrap.appendChild(title);
+
+        if (field.kind === "text" || field.kind === "number") {
+            const input = document.createElement("input");
+            input.className = "wm-native-input";
+            input.type = field.kind === "number" ? "number" : "text";
+            if (field.kind === "number" && field.min !== undefined)
+                input.min = String(field.min);
+            input.addEventListener("input", () => {
+                this._nativeValueChanged(field, input.value);
+            });
+            wrap.appendChild(input);
+            this._fieldEls[field.key] = input;
+            return wrap;
+        }
+
+        const sel = document.createElement("ha-selector");
+        sel.label = "";
+        sel.selector = field.selector;
+        sel.required = !!field.required;
+        if (this._hass)
+            sel.hass = this._hass;
+        sel.addEventListener("value-changed", (ev) => {
+            ev.stopPropagation();
+            this._valueChanged(field, ev.detail.value);
+        });
+        wrap.appendChild(sel);
+        this._fieldEls[field.key] = sel;
+        return wrap;
+    }
+
+    _syncValues() {
+        if (!this._built)
+            return;
+        for (const section of WashingMachineCardEditor._sections) {
+            for (const field of section.fields) {
+                const el = this._fieldEls[field.key];
+                if (!el)
+                    continue;
+
+                const isNative = field.kind === "text" || field.kind === "number";
+                if (!isNative)
+                    el.hass = this._hass;
+
+                const raw = this._config[field.key];
+                const hasValue = raw !== undefined && raw !== "";
+
+                if (this._isChoiceField(field)) {
+                    let v = hasValue ? raw : field.default;
+                    if (field.key === "appliance_type")
+                        v = WashingMachineCard.normalizeType(v);
+                    el.value = v;
+                } else {
+                    el.value = hasValue ? raw : "";
+                    if (field.default !== undefined)
+                        el.placeholder = String(field.default);
+                }
+            }
+        }
+    }
+
+    _valueChanged(field, value) {
+        if (!this._hass)
+            return;
+        let v = value;
+        if (this._isChoiceField(field) && (v === undefined || v === "") && field.default !== undefined) {
+            v = field.default;
+        }
+        if (field.key === "appliance_type")
+            v = WashingMachineCard.normalizeType(v);
+        this._commit(field, v);
+    }
+
+    _nativeValueChanged(field, rawValue) {
+        const trimmed = String(rawValue ?? "").trim();
+        let v;
+        if (trimmed === "") {
+            v = undefined;
+        } else if (field.kind === "number") {
+            const n = parseFloat(trimmed);
+            v = isNaN(n) ? undefined : n;
+        } else {
+            v = trimmed;
+        }
+        this._commit(field, v);
+    }
+
+    _commit(field, v) {
+        const newConfig = {
+            ...this._config
+        };
+        if (v === undefined || v === "") {
+            delete newConfig[field.key];
+        } else {
+            newConfig[field.key] = v;
+        }
+        this._config = newConfig;
+
+        this.dispatchEvent(
+            new CustomEvent("config-changed", {
+                detail: {
+                    config: this._config
+                },
+                bubbles: true,
+                composed: true,
+            }));
+    }
+}
+
+if (!customElements.get("washing-machine-card-editor")) {
+    customElements.define("washing-machine-card-editor", WashingMachineCardEditor);
 }
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "washing-machine-card",
-  name: "Washing Machine Animated Card",
-  description:
+    type: "washing-machine-card",
+    name: "Washing Machine Animated Card",
+    description:
     "Oikos-style animated appliance card (washer / dryer / dishwasher / oven / microwave): live status, power gauge, last-cycle stats, light and dark theme",
 });
 
 /* ============================================================
-   Example configuration:
+Example configuration:
 
 type: custom:washing-machine-card
 appliance_type: washer                      # washer | dryer | dishwasher | oven | microwave
@@ -1432,11 +1977,12 @@ power_threshold: 10
 power_max: 2500
 last_wash_entity: input_datetime.wm_last_start
 duration_entity: input_number.wm_last_duration
+duration_format: minutes                    # minutes | hhmm (e.g. "1h05" once it reaches 60 min)
 energy_entity: input_number.wm_last_energy
 cost_entity: input_number.wm_last_cost
 currency: "€"
-language: en                                # en | ru | de | fr
-theme: auto                                 # auto | light | dark
+language: auto                              # auto | en | ru | de | fr (auto = match Home Assistant's language)
+theme: auto                                 # auto | light | dark | ha (ha = native Home Assistant colours)
 hide_status_panel: false                    # true hides the status panel while idle
 
 # Other appliances — same config, one line changed:
