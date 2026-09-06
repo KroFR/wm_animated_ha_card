@@ -49,21 +49,21 @@ Lovelace-карточка в стиле Oikos, которая превращае
 ```yaml
 type: custom:washing-machine-card
 appliance_type: washer                             # washer | dryer | dishwasher | oven | microwave
-name: Стиральная машина
-status_entity: binary_sensor.washing_in_progress   # ОБЯЗАТЕЛЬНЫЙ
-plug_entity: switch.washing_machine_plug           # кнопка «Розетка», тап = переключить
-notify_entity: automation.washing_finished         # кнопка «Уведомление», тап = переключить
-power_entity: sensor.washing_machine_power         # шкала + детект работы
-power_threshold: 10                                # выше этого значения прибор работает
-power_max: 2500                                    # максимум шкалы
-last_wash_entity: input_datetime.wm_last_start     # время старта цикла
-duration_entity: input_number.wm_last_duration     # длительность цикла, мин
-energy_entity: input_number.wm_last_energy         # кВт·ч за цикл
-cost_entity: input_number.wm_last_cost             # стоимость цикла
-hide_status_panel: true                            # Скрывать панель статуса только в режиме ожидания (По умолчанию: false)
-currency: "₾"
-language: ru                                       # ru / en / de / fr (по умолчанию — язык HA)
-theme: auto                                        # auto / light / dark
+name: Washing machine
+status_entity: binary_sensor.washing_in_progress
+plug_entity: switch.washing_machine_plug
+notify_entity: automation.washing_finished
+power_entity: sensor.washing_machine_power
+power_threshold: 10
+power_max: 2500
+last_wash_entity: input_datetime.wm_last_start
+duration_entity: input_number.wm_last_duration
+energy_entity: input_number.wm_last_energy
+cost_entity: input_number.wm_last_cost
+hide_status_panel: false
+currency: "€"
+language: auto
+theme: auto
 ```
 
 | Параметр | Обязателен | По умолчанию | Описание |
@@ -83,8 +83,9 @@ theme: auto                                        # auto / light / dark
 | `currency` | нет | `€` | Символ валюты для колонки стоимости. |
 | `running_states` | нет | on, washing, стирка, run, spin, … | Состояния `status_entity`, считающиеся «работает» (распознаются русские, английские, немецкие и французские). |
 | `hide_status_panel` | нет | false | Скрывать панель статуса только в режиме ожидания. |
+| `duration_format` | нет | minutes | `minutes`, `hhmm`. Форматирует продолжительность последнего цикла. Если параметр duration_format установлен в значение hhmm и продолжительность составляет 60 минут или более, значение отображается в формате HHhMM (например, 1h05). |
 | `language` | нет | язык HA | `ru`, `en`, `de` или `fr`. |
-| `theme` | нет | `auto` | `auto` следует теме Home Assistant, `light` и `dark` фиксируют оформление. |
+| `theme` | нет | `auto` | `auto` следует теме Home Assistant Oikos, `light` и `dark` фиксируют оформление. Тема `Home Assistant` заменяет оформление Oikos на более нативную цветовую схему Home Assistant. |
 
 ## 🧺 Типы приборов
 
