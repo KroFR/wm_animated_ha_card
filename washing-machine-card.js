@@ -1718,7 +1718,7 @@ class WashingMachineCardEditor extends HTMLElement {
         const codes = Object.keys(WashingMachineCard.STRINGS);
         return [{
                 value: WashingMachineCardEditor.AUTO_LANGUAGE,
-                label: "Automatic (Home Assistant language)"
+                label: "Auto (Home Assistant language)"
             },
             ...codes.map((code) => ({
                     value: code,
