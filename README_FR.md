@@ -50,20 +50,20 @@ Ajoutez `https://github.com/sionetta/wm_animated_ha_card` comme **dépôt person
 type: custom:washing-machine-card
 appliance_type: washer                             # washer | dryer | dishwasher | oven | microwave
 name: Lave-linge
-status_entity: binary_sensor.washing_in_progress   # OBLIGATOIRE
-plug_entity: switch.washing_machine_plug           # bouton prise, appui = commuter
-notify_entity: automation.washing_finished         # bouton notification, appui = commuter
-power_entity: sensor.washing_machine_power         # jauge + détection de marche
-power_threshold: 10                                # au-dessus, l'appareil est en marche
-power_max: 2500                                    # maximum de la jauge
-last_wash_entity: input_datetime.wm_last_start     # horodatage du début de cycle
-duration_entity: input_number.wm_last_duration     # durée du cycle, en minutes
-energy_entity: input_number.wm_last_energy         # kWh par cycle
-cost_entity: input_number.wm_last_cost             # coût par cycle
-hide_status_panel: true                            # Masquer le panneau de statut uniquement lorsque l'appareil est inactif (défaut : false)
+status_entity: binary_sensor.washing_in_progress
+plug_entity: switch.washing_machine_plug
+notify_entity: automation.washing_finished
+power_entity: sensor.washing_machine_power
+power_threshold: 10
+power_max: 2500
+last_wash_entity: input_datetime.wm_last_start
+duration_entity: input_number.wm_last_duration
+energy_entity: input_number.wm_last_energy
+cost_entity: input_number.wm_last_cost
+hide_status_panel: false
 currency: "€"
-language: fr                                       # fr / en / ru / de (défaut : langue de HA)
-theme: auto                                        # auto / light / dark
+language: auto
+theme: auto
 ```
 
 | Option | Obligatoire | Défaut | Description |
@@ -83,8 +83,8 @@ theme: auto                                        # auto / light / dark
 | `currency` | non | `€` | Symbole monétaire de la colonne coût. |
 | `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche » (les états français, anglais, russes et allemands sont reconnus). |
 | `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
-| `language` | non | langue de HA | `fr`, `en`, `ru` ou `de`. |
-| `theme` | non | `auto` | `auto` suit le thème de Home Assistant, `light` et `dark` le figent. |
+| `language` | non | auto | `auto`, `fr`, `en`, `ru` ou `de`. |
+| `theme` | non | `auto` | `auto` suit le thème Oikos de Home Assistant, `light` et `dark` le figent. Le theme `Home Assistant` remplace le theme Oikos par les couleurs native. |
 
 ## 🧺 Types d'appareils
 
