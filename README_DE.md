@@ -49,21 +49,22 @@ Füge `https://github.com/sionetta/wm_animated_ha_card` als **benutzerdefinierte
 ```yaml
 type: custom:washing-machine-card
 appliance_type: washer                             # washer | dryer | dishwasher | oven | microwave
-name: Washing machine
-status_entity: binary_sensor.washing_in_progress
-plug_entity: switch.washing_machine_plug
-notify_entity: automation.washing_finished
-power_entity: sensor.washing_machine_power
-power_threshold: 10
-power_max: 2500
-last_wash_entity: input_datetime.wm_last_start
-duration_entity: input_number.wm_last_duration
-energy_entity: input_number.wm_last_energy
-cost_entity: input_number.wm_last_cost
-hide_status_panel: false
+name: Waschmaschine
+status_entity: binary_sensor.washing_in_progress   # PFLICHT
+plug_entity: switch.washing_machine_plug           # Steckdosen-Button, Tippen schaltet um
+notify_entity: automation.washing_finished         # Benachrichtigungs-Button, Tippen schaltet um
+power_entity: sensor.washing_machine_power         # Anzeige + Laufterkennung
+power_threshold: 10                                # darüber gilt das Gerät als laufend
+power_max: 2500                                    # Maximum der Anzeige
+last_wash_entity: input_datetime.wm_last_start     # Startzeitpunkt des Durchgangs
+duration_entity: input_number.wm_last_duration     # Dauer des Durchgangs, Minuten
+energy_entity: input_number.wm_last_energy         # kWh pro Durchgang
+cost_entity: input_number.wm_last_cost             # Kosten pro Durchgang
+hide_status_panel: true                            # Statusanzeige nur ausblenden, wenn inaktiv (Standard: false)
+duration_format: minutes                           # minutes / hhmm
 currency: "€"
-language: auto
-theme: auto
+language: de                                       # de / en / ru / fr (Standard: HA-Sprache)
+theme: auto                                        # auto / light / dark
 ```
 
 | Option | Pflicht | Standard | Beschreibung |
