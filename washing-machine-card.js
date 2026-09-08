@@ -303,6 +303,18 @@ class WashingMachineCard extends HTMLElement {
         return isNaN(d) ? null : d;
     }
 
+    _hour12() {
+      const tf = this._hass?.locale?.time_format; // "12" | "24" | "language" | "system"
+      if (tf === "12") return true;
+      if (tf === "24") return false;
+    
+      const testLocale = tf === "language" ? this._hass?.locale?.language : undefined;
+    
+      return new Date(2023, 0, 1, 22, 0, 0)
+        .toLocaleTimeString(testLocale || undefined)
+        .includes("10");
+    }
+
     _fmtDateTime(state) {
         const t = this._t;
         const d = this._parseDate(state);
@@ -314,7 +326,8 @@ class WashingMachineCard extends HTMLElement {
         yest.setDate(now.getDate() - 1);
         const time = d.toLocaleTimeString(t.locale, {
             hour: "2-digit",
-            minute: "2-digit"
+            minute: "2-digit",
+            hour12: this._hour12(),
         });
         if (sameDay)
             return `${t.today}, ${time}`;
@@ -1345,7 +1358,8 @@ class WashingMachineCard extends HTMLElement {
         const status = this._st(c.status_entity);
         const noData = !status || ["unknown", "unavailable"].includes(status.state);
         const applianceState = noData ? "nodata" : this._applianceState();
-        this._el("badgeText").textContent = t[`badge_${applianceState}`];
+        const displayState = (applianceState === "off" && !c.power_entity) ? "idle" : applianceState;
+        this._el("badgeText").textContent = t[`badge_${displayState}`];
         wrap.classList.toggle("state-idle", applianceState === "idle");
         const active = applianceState === "running" || applianceState === "idle";
         wrap.classList.toggle("idle", !active);
@@ -1354,10 +1368,10 @@ class WashingMachineCard extends HTMLElement {
         this._el("dispTime").textContent = active ? (clock || "0:00") : "--:--";
         this._el("dispDot").setAttribute("fill", running ? "#22b263" : "#4a5871");
         this._el("ringTime").textContent = active ? (clock || "…") : "—";
-        const ringState = applianceState === "running" ? "running" : applianceState === "idle" ? "idle" : "off";
+        const ringState = displayState === "running" ? "running" : displayState === "idle" ? "idle" : "off";
         this._el("ringLabel").textContent = t[`ring_${ringState}`];
         this._el("ringArc").style.display = active ? "" : "none";
-        this._el("stState").textContent = t[`state_${applianceState}`];
+        this._el("stState").textContent = t[`state_${displayState}`];
         const hideStatus = !!c.hide_status_panel && !active;
         this._el("statusPanel").classList.toggle("hidden", hideStatus);
 
