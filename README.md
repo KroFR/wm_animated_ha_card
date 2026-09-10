@@ -28,7 +28,11 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 
 ## 📦 Installation
 
-### Manual
+Two steps: first the card itself, then the entities it displays.
+
+### Step 1 — the card
+
+**Manual**
 
 1. Copy [`washing-machine-card.js`](washing-machine-card.js) to `/config/www/`.
 2. Add a dashboard resource (Settings → Dashboards → Resources, or `lovelace: resources:` in YAML mode):
@@ -40,9 +44,54 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 
    Bump `?v=` after every update to bust the browser cache.
 
-### HACS
+**HACS**
 
 Add `https://github.com/sionetta/wm_animated_ha_card` as a **custom repository** (type: Dashboard), then install *Washing Machine Animated Card*.
+
+### Step 2 — the appliance entities
+
+The card only displays data, and `status_entity` is required, so this step cannot be skipped.
+
+**A smart appliance** (Home Connect, Miele@home, LG ThinQ, SmartHQ) already reports its own state — go straight to "Using it with a smart appliance" below.
+
+**An ordinary appliance on a smart plug** — the ready-made package creates everything:
+
+1. Find your plug's sensors in Developer tools → States: power (W) and cumulative energy (kWh), e.g. `sensor.washer_plug_power` and `sensor.washer_plug_energy`.
+
+2. Enable packages in `configuration.yaml` (if a `homeassistant:` block already exists, add the line to it):
+
+   ```yaml
+   homeassistant:
+     packages: !include_dir_named packages
+   ```
+
+3. Copy [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml) to `/config/packages/washing_machine.yaml`.
+
+4. Replace `sensor.YOUR_PLUG_power` and `sensor.YOUR_PLUG_energy` in it with your own.
+
+5. Restart Home Assistant.
+
+6. Set your electricity price in `input_number.el_tarif` — it defaults to zero, and without a tariff the cycle cost will always be `0.00`.
+
+7. Check that the entities appeared:
+
+   | Entity | Purpose |
+   |---|---|
+   | `binary_sensor.washing_in_progress` | for `status_entity` |
+   | `input_datetime.wm_last_start` | cycle start |
+   | `input_number.wm_last_duration` | duration |
+   | `input_number.wm_last_energy` | energy |
+   | `input_number.wm_last_cost` | cost |
+   | `input_number.el_tarif` | your tariff (step 6) |
+   | `input_number.wm_energy_start` | internal |
+
+8. Add the card to your dashboard — see "Configuration" below.
+
+> The notification arrives as a `persistent_notification`. For your phone, replace the last block of the automation with your own `notify.mobile_app_...`.
+>
+> For a dryer, dishwasher, oven or microwave, copy the package under a different name with different entity prefixes, and set the matching `appliance_type` on the card.
+>
+> Without packages: the same helpers can be created in the Home Assistant UI, and the automations pasted into the automation editor (⋮ → Edit in YAML).
 
 ## ⚙️ Configuration
 
@@ -105,7 +154,7 @@ The appliance itself reports nothing — everything is derived from a smart plug
 - a template `binary_sensor` (power above a threshold, with `delay_off` of a few minutes so inter-cycle pauses don't count as "finished") drives the status;
 - a small automation stores the cycle start into `input_datetime`, and on finish writes duration, energy and cost into `input_number` helpers which the card displays as the "Last cycle" panel.
 
-An example Home Assistant package with these sensors, helpers and automations is in [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml).
+The ready-made package that creates all of this is installed in step 2 above.
 
 ## 🔌 Using it with a smart appliance
 

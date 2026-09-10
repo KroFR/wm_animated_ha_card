@@ -28,7 +28,11 @@ Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschi
 
 ## 📦 Installation
 
-### Manuell
+Zwei Schritte: zuerst die Karte selbst, dann die Entitäten, die sie anzeigt.
+
+### Schritt 1 — die Karte
+
+**Manuell**
 
 1. Kopiere [`washing-machine-card.js`](washing-machine-card.js) nach `/config/www/`.
 2. Füge eine Dashboard-Ressource hinzu (Einstellungen → Dashboards → Ressourcen oder `lovelace: resources:` im YAML-Modus):
@@ -40,9 +44,54 @@ Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschi
 
    Zähle `?v=` nach jedem Update hoch, damit der Browser die neue Datei lädt und nicht die alte aus dem Cache.
 
-### HACS
+**HACS**
 
 Füge `https://github.com/sionetta/wm_animated_ha_card` als **benutzerdefiniertes Repository** hinzu (Typ: Dashboard) und installiere *Washing Machine Animated Card*.
+
+### Schritt 2 — die Entitäten des Geräts
+
+Die Karte zeigt nur an, und `status_entity` ist Pflicht — dieser Schritt lässt sich nicht überspringen.
+
+**Ein smartes Gerät** (Home Connect, Miele@home, LG ThinQ, SmartHQ) meldet seinen Zustand bereits selbst — weiter zum Abschnitt „Verwendung mit einem smarten Gerät“ weiter unten.
+
+**Ein normales Gerät an einer smarten Steckdose** — das fertige Package legt alles an:
+
+1. Finde die Sensoren deiner Steckdose unter Entwicklerwerkzeuge → Zustände: Leistung (W) und Gesamtenergie (kWh), z. B. `sensor.washer_plug_power` und `sensor.washer_plug_energy`.
+
+2. Aktiviere Packages in der `configuration.yaml` (falls es den Block `homeassistant:` schon gibt, ergänze die Zeile dort):
+
+   ```yaml
+   homeassistant:
+     packages: !include_dir_named packages
+   ```
+
+3. Kopiere [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml) nach `/config/packages/washing_machine.yaml`.
+
+4. Ersetze darin `sensor.YOUR_PLUG_power` und `sensor.YOUR_PLUG_energy` durch deine eigenen.
+
+5. Starte Home Assistant neu.
+
+6. Trage deinen Strompreis in `input_number.el_tarif` ein — er steht standardmäßig auf null, und ohne Tarif bleiben die Kosten pro Zyklus immer `0.00`.
+
+7. Prüfe, dass die Entitäten angelegt wurden:
+
+   | Entität | Zweck |
+   |---|---|
+   | `binary_sensor.washing_in_progress` | für `status_entity` |
+   | `input_datetime.wm_last_start` | Start des Zyklus |
+   | `input_number.wm_last_duration` | Dauer |
+   | `input_number.wm_last_energy` | Verbrauch |
+   | `input_number.wm_last_cost` | Kosten |
+   | `input_number.el_tarif` | dein Tarif (Schritt 6) |
+   | `input_number.wm_energy_start` | intern |
+
+8. Füge die Karte zum Dashboard hinzu — siehe Abschnitt „Konfiguration“ weiter unten.
+
+> Die Benachrichtigung kommt als `persistent_notification`. Für dein Handy ersetze den letzten Block der Automatisierung durch dein eigenes `notify.mobile_app_...`.
+>
+> Für Trockner, Geschirrspüler, Backofen oder Mikrowelle kopiere das Package unter anderem Namen mit anderen Entitäts-Präfixen und setze auf der Karte den passenden `appliance_type`.
+>
+> Ohne Packages: dieselben Helfer lassen sich in der Home-Assistant-Oberfläche anlegen und die Automatisierungen im Automatisierungs-Editor einfügen (⋮ → In YAML bearbeiten).
 
 ## ⚙️ Konfiguration
 
@@ -105,7 +154,7 @@ Das Gerät selbst meldet nichts – alles wird aus einer Steckdose mit Leistungs
 - ein Template-`binary_sensor` (Leistung über einem Schwellwert, mit `delay_off` von einigen Minuten, damit Pausen innerhalb des Durchgangs nicht als „beendet“ zählen) liefert den Status;
 - eine kleine Automatisierung speichert den Start des Durchgangs in `input_datetime` und schreibt am Ende Dauer, Verbrauch und Kosten in `input_number`-Helfer, die die Karte im Bereich „Letzter Durchgang“ anzeigt.
 
-Ein fertiges Home-Assistant-Package mit diesen Sensoren, Helfern und Automatisierungen liegt in [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml).
+Das fertige Package, das all das anlegt, wird oben in Schritt 2 installiert.
 
 ## 🔌 Verwendung mit einem smarten Gerät
 
