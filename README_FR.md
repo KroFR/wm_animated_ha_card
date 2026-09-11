@@ -28,7 +28,11 @@ Une carte Lovelace inspirée d'Oikos qui transforme un lave-linge, sèche-linge,
 
 ## 📦 Installation
 
-### Manuelle
+Deux étapes : d'abord la carte elle-même, puis les entités qu'elle affiche.
+
+### Étape 1 — la carte
+
+**Manuelle**
 
 1. Copiez [`washing-machine-card.js`](washing-machine-card.js) dans `/config/www/`.
 2. Ajoutez une ressource au tableau de bord (Paramètres → Tableaux de bord → Ressources, ou `lovelace: resources:` en mode YAML) :
@@ -40,9 +44,54 @@ Une carte Lovelace inspirée d'Oikos qui transforme un lave-linge, sèche-linge,
 
    Incrémentez `?v=` après chaque mise à jour pour vider le cache du navigateur.
 
-### HACS
+**HACS**
 
 Ajoutez `https://github.com/sionetta/wm_animated_ha_card` comme **dépôt personnalisé** (type : Dashboard), puis installez *Washing Machine Animated Card*.
+
+### Étape 2 — les entités de l'appareil
+
+La carte ne fait qu'afficher, et `status_entity` est obligatoire : cette étape ne peut pas être sautée.
+
+**Un appareil connecté** (Home Connect, Miele@home, LG ThinQ, SmartHQ) publie déjà son état — passez directement à la section « Utilisation avec un appareil connecté » ci-dessous.
+
+**Un appareil ordinaire sur une prise connectée** — le package prêt à l'emploi crée tout :
+
+1. Repérez les capteurs de votre prise dans Outils de développement → États : la puissance (W) et l'énergie cumulée (kWh), par exemple `sensor.washer_plug_power` et `sensor.washer_plug_energy`.
+
+2. Activez les packages dans `configuration.yaml` (si le bloc `homeassistant:` existe déjà, ajoutez-y la ligne) :
+
+   ```yaml
+   homeassistant:
+     packages: !include_dir_named packages
+   ```
+
+3. Copiez [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml) vers `/config/packages/washing_machine.yaml`.
+
+4. Remplacez-y `sensor.YOUR_PLUG_power` et `sensor.YOUR_PLUG_energy` par les vôtres.
+
+5. Redémarrez Home Assistant.
+
+6. Saisissez le prix de l'électricité dans `input_number.el_tarif` — il vaut zéro par défaut, et sans tarif le coût du cycle restera toujours `0.00`.
+
+7. Vérifiez que les entités sont apparues :
+
+   | Entité | Rôle |
+   |---|---|
+   | `binary_sensor.washing_in_progress` | pour `status_entity` |
+   | `input_datetime.wm_last_start` | début du cycle |
+   | `input_number.wm_last_duration` | durée |
+   | `input_number.wm_last_energy` | consommation |
+   | `input_number.wm_last_cost` | coût |
+   | `input_number.el_tarif` | votre tarif (étape 6) |
+   | `input_number.wm_energy_start` | interne |
+
+8. Ajoutez la carte au tableau de bord — voir la section « Configuration » ci-dessous.
+
+> La notification arrive sous forme de `persistent_notification`. Pour votre téléphone, remplacez le dernier bloc de l'automatisation par votre propre `notify.mobile_app_...`.
+>
+> Pour un sèche-linge, un lave-vaisselle, un four ou un micro-ondes, copiez le package sous un autre nom avec d'autres préfixes d'entités, et indiquez le `appliance_type` correspondant sur la carte.
+>
+> Sans packages : les mêmes helpers peuvent être créés dans l'interface de Home Assistant, et les automatisations collées dans l'éditeur d'automatisations (⋮ → Modifier en YAML).
 
 ## ⚙️ Configuration
 
@@ -107,7 +156,7 @@ L'appareil lui-même ne remonte rien : tout est déduit d'une prise connectée a
 - un `binary_sensor` template (puissance au-dessus d'un seuil, avec un `delay_off` de quelques minutes pour que les pauses en milieu de cycle ne comptent pas comme une fin) fournit l'état ;
 - une petite automatisation enregistre le début du cycle dans un `input_datetime`, puis écrit à la fin la durée, l'énergie et le coût dans des helpers `input_number` que la carte affiche dans le bloc « Dernier cycle ».
 
-Un package Home Assistant prêt à l'emploi avec ces capteurs, helpers et automatisations se trouve dans [`examples/washing_machine_package.yaml`](examples/washing_machine_package.yaml).
+Le package prêt à l'emploi qui crée tout cela s'installe à l'étape 2 ci-dessus.
 
 ## 🔌 Utilisation avec un appareil connecté
 
