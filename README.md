@@ -111,6 +111,7 @@ energy_entity: input_number.wm_last_energy         # kWh per cycle
 cost_entity: input_number.wm_last_cost             # cost per cycle
 hide_status_panel: true                            # Hide status panel only when idle (Default: false)
 duration_format: minutes                           # minutes / hhmm
+confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`.
 currency: "€"
 language: en                                       # en / ru / de / fr (default: HA language)
 theme: auto                                        # auto / light / dark
@@ -134,8 +135,9 @@ theme: auto                                        # auto / light / dark
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German and French states are recognised). |
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
 | `duration_format` | no | minutes | `minutes`, `hhmm`. Formats the last cycle duration. When `duration_format` is set to `hhmm` and the duration is 60 minutes or longer, the value is displayed in HHhMM format (for example, 1h05). |
+| `confirm_plug_off` | no | true | Displays a confirmation popup before turning off the `plug_entity`. |
 | `language` | no | auto | `auto`, `en`, `ru`, `de` or `fr`. |
-| `theme` | no | `auto` | `auto` follows the Home Assistant Oikos theme, `light` and `dark` pin it. The `Home Assistant` theme replaces the Oikos styling with a more native color scheme. |
+| `theme` | no | `auto` | `auto`, `light` and `dark` use the card's own styling. `ha` adopts your Home Assistant theme colors instead. |
 
 ## 🧺 Appliance types
 
