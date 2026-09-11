@@ -135,6 +135,7 @@ class WashingMachineCard extends HTMLElement {
         power_threshold: 10,
         power_max: 2500,
         hide_status_panel: false,
+        confirm_plug_off: true,
         duration_format: "minutes",
     };
 
@@ -308,10 +309,10 @@ class WashingMachineCard extends HTMLElement {
       if (tf === "12") return true;
       if (tf === "24") return false;
     
-      const testLocale = tf === "language" ? this._hass?.locale?.language : undefined;
+      const testLocale = (tf === "language" ? this._hass?.locale?.language : null) || this._t.locale;
     
       return new Date(2023, 0, 1, 22, 0, 0)
-        .toLocaleTimeString(testLocale || undefined)
+        .toLocaleTimeString(testLocale)
         .includes("10");
     }
 
@@ -409,7 +410,7 @@ class WashingMachineCard extends HTMLElement {
         const c = this._config;
         const t = this._t;
         const isOn = this._st(c.plug_entity)?.state === "on";
-        if (isOn && !window.confirm(t.confirm_plug_off))
+        if (isOn && c.confirm_plug_off !== false && !window.confirm(t.confirm_plug_off))
             return;
         this._toggle(c.plug_entity);
     }
@@ -1454,6 +1455,15 @@ if (!customElements.get("washing-machine-card")) {
  
 class WashingMachineCardEditor extends HTMLElement {
     static AUTO_LANGUAGE = "auto";
+    static _defaultName(config, hass) {
+        const S = WashingMachineCard.STRINGS;
+        const cfgLang = config?.language;
+        const isAuto = !cfgLang || cfgLang === WashingMachineCardEditor.AUTO_LANGUAGE;
+        const lang = (!isAuto && S[cfgLang]) ? cfgLang : WashingMachineCard.detectLanguage(hass);
+        const type = WashingMachineCard.normalizeType(config?.appliance_type);
+        const base = S[lang] || S.en;
+        return base.types?.[type]?.name || base.name;
+    }
 
     constructor() {
         super();
@@ -1491,7 +1501,8 @@ class WashingMachineCardEditor extends HTMLElement {
                 fields: [{
                         key: "name",
                         kind: "text",
-                        title: "Card name"
+                        title: "Card name",
+                        dynamicDefault: true,
                     }, {
                         key: "appliance_type",
                         kind: "select",
@@ -1644,6 +1655,16 @@ class WashingMachineCardEditor extends HTMLElement {
                             entity: {
                                 domain: ["switch", "input_boolean"]
                             }
+                        },
+                    }, {
+                        key: "confirm_plug_off",
+                        kind: "boolean",
+                        title: "Confirm before turning off plug",
+                        description: "Show a confirmation popup when turning off the plug entity.",
+                    default:
+                        D.confirm_plug_off,
+                        selector: {
+                            boolean: {}
                         },
                     }, {
                         key: "notify_entity",
@@ -1917,8 +1938,11 @@ class WashingMachineCardEditor extends HTMLElement {
                     el.value = v;
                 } else {
                     el.value = hasValue ? raw : "";
-                    if (field.default !== undefined)
-                        el.placeholder = String(field.default);
+                    const def = field.dynamicDefault
+                        ? WashingMachineCardEditor._defaultName(this._config, this._hass)
+                        : field.default;
+                    if (def !== undefined)
+                        el.placeholder = String(def);
                 }
             }
         }
@@ -1982,6 +2006,8 @@ window.customCards.push({
     name: "Washing Machine Animated Card",
     description:
     "Oikos-style animated appliance card (washer / dryer / dishwasher / oven / microwave): live status, power gauge, last-cycle stats, light and dark theme",
+	preview: true,
+	documentationURL: "https://github.com/sionetta/wm_animated_ha_card",
 });
 
 /* ============================================================
@@ -2005,6 +2031,7 @@ currency: "€"
 language: auto                              # auto | en | ru | de | fr (auto = match Home Assistant's language)
 theme: auto                                 # auto | light | dark | ha (ha = native Home Assistant colours)
 hide_status_panel: false                    # true hides the status panel while idle
+confirm_plug_off: true                      # true displays a confirmation popup before turning off the `plug_entity`.
 
 # Other appliances — same config, one line changed:
 # appliance_type: dryer        (alias: tumbler)
