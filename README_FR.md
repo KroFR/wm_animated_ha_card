@@ -111,6 +111,7 @@ energy_entity: input_number.wm_last_energy         # kWh par cycle
 cost_entity: input_number.wm_last_cost             # coût par cycle
 hide_status_panel: true                            # Masquer le panneau de statut uniquement lorsque l'appareil est inactif (défaut : false)
 duration_format: minutes                           # minutes / hhmm
+confirm_plug_off: true                             # affiche une popup de confirmation avant d'éteindre `plug_entity`
 currency: "€"
 language: fr                                       # fr / en / ru / de (défaut : langue de HA)
 theme: auto                                        # auto / light / dark
@@ -134,8 +135,9 @@ theme: auto                                        # auto / light / dark
 | `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche » (les états français, anglais, russes et allemands sont reconnus). |
 | `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
 | `duration_format` | non | minutes | `minutes`, `hhmm`. Formate la durée du dernier cycle. Lorsque `duration_format` est défini sur `hhmm` et que la durée est égale ou supérieure à 60 minutes, la valeur est affichée au format HHhMM (par exemple, 1h05). |
+| `confirm_plug_off` | non | true | Affiche une popup de confirmation avant d'éteindre `plug_entity`. |
 | `language` | non | auto | `auto`, `fr`, `en`, `ru` ou `de`. |
-| `theme` | non | `auto` | `auto` suit le thème Oikos de Home Assistant, `light` et `dark` le figent. Le theme `Home Assistant` remplace le theme Oikos par les couleurs native. |
+| `theme` | non | `auto` | `auto`, `light` et `dark` utilisent le style propre de la carte. `ha` adopte à la place les couleurs de votre thème Home Assistant. |
 
 ## 🧺 Types d'appareils
 
