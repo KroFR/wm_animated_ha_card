@@ -111,7 +111,7 @@ energy_entity: input_number.wm_last_energy         # kWh per cycle
 cost_entity: input_number.wm_last_cost             # cost per cycle
 hide_status_panel: true                            # Hide status panel only when idle (Default: false)
 duration_format: minutes                           # minutes / hhmm
-confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`.
+confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`
 currency: "€"
 language: en                                       # en / ru / de / fr (default: HA language)
 theme: auto                                        # auto / light / dark
