@@ -41,7 +41,7 @@ class WashingMachineCard extends HTMLElement {
             today: "Today", yesterday: "Yesterday",
             tip_notify: "Finish notification", tip_plug: "Machine plug", tip_history: "History",
             confirm_plug_off: "Turn off the plug? This may interrupt the current cycle.",
-            decimal: ".",
+						 
             types: {
                 washer: { name: "Washing machine", state_running: "Washing" },
                 dryer: { name: "Dryer", state_running: "Drying" },
@@ -62,7 +62,7 @@ class WashingMachineCard extends HTMLElement {
             today: "Сегодня", yesterday: "Вчера",
             tip_notify: "Уведомление об окончании", tip_plug: "Розетка машины", tip_history: "История",
             confirm_plug_off: "Выключить розетку? Это может прервать текущий цикл.",
-            decimal: ",",
+						 
             types: {
                 washer: { name: "Стиральная машина", state_running: "Идёт стирка" },
                 dryer: { name: "Сушилка", state_running: "Сушка" },
@@ -83,7 +83,7 @@ class WashingMachineCard extends HTMLElement {
             today: "Heute", yesterday: "Gestern",
             tip_notify: "Benachrichtigung bei Ende", tip_plug: "Steckdose der Maschine", tip_history: "Verlauf",
             confirm_plug_off: "Steckdose ausschalten? Der laufende Durchgang könnte dadurch unterbrochen werden.",
-            decimal: ",",
+						 
             types: {
                 washer: { name: "Waschmaschine", state_running: "Wäsche läuft" },
                 dryer: { name: "Tumbler", state_running: "Trocknet" },
@@ -103,7 +103,7 @@ class WashingMachineCard extends HTMLElement {
             today: "Aujourd'hui", yesterday: "Hier",
             tip_notify: "Notification de fin", tip_plug: "Prise machine", tip_history: "Historique",
             confirm_plug_off: "Éteindre la prise ? Cela peut interrompre le cycle en cours.",
-            decimal: ",",
+						 
             types: {
                 washer: { name: "Lave-linge", state_running: "Lavage en cours" },
                 dryer: { name: "Sèche-linge", state_running: "Séchage en cours" },
@@ -348,14 +348,46 @@ class WashingMachineCard extends HTMLElement {
         return `${h}:${String(m).padStart(2, "0")}`;
     }
 
+    static NUMBER_SEPARATORS = {
+        comma_decimal: { group: ",", decimal: "." },
+        decimal_comma: { group: ".", decimal: "," },
+        space_comma: { group: " ", decimal: "," },
+    };
     _fmtNum(value, digits = 2) {
         const n = parseFloat(value);
         if (isNaN(n))
             return null;
-        let s = n.toFixed(digits);
-        if (digits > 0)
-            s = s.replace(/0+$/, "").replace(/\.$/, "");
-        return s.replace(".", this._t.decimal);
+        // Trim trailing zeros (e.g. 2.50 -> 2.5, 2.00 -> 2), same as before.
+        let trimmedDigits = 1;
+        if (digits > 0) {
+            const stripped = n.toFixed(digits).replace(/0+$/, "").replace(/\.$/, "");
+            const dotIndex = stripped.indexOf(".");
+            trimmedDigits = dotIndex === -1 ? 0 : stripped.length - dotIndex - 1;
+        }
+        const numberFormat = this._hass?.locale?.number_format;
+        // "None": raw number, no thousands separator, dot as decimal point.
+        if (numberFormat === "none")
+            return n.toFixed(trimmedDigits);
+        // "System": defer entirely to the browser/OS locale.
+        if (numberFormat === "system") {
+            return new Intl.NumberFormat(undefined, {
+                minimumFractionDigits: trimmedDigits,
+                maximumFractionDigits: trimmedDigits,
+            }).format(n);
+        }
+        // comma_decimal / decimal_comma / space_comma: build the string from the separators the option name itself describes.
+        const separators = WashingMachineCard.NUMBER_SEPARATORS[numberFormat];
+        if (separators) {
+            const isNegative = n < 0;
+            const [intPart, decPart] = Math.abs(n).toFixed(trimmedDigits).split(".");
+            const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, separators.group);
+            return `${isNegative ? "-" : ""}${grouped}${decPart ? separators.decimal + decPart : ""}`;
+        }
+        // Default ("language", or unset): follow the interface's own language, untouched.
+        return new Intl.NumberFormat(this._hass?.locale?.language, {
+            minimumFractionDigits: trimmedDigits,
+            maximumFractionDigits: trimmedDigits,
+        }).format(n);
     }
 
     _fmtDuration(state) {
