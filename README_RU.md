@@ -110,6 +110,8 @@ duration_entity: input_number.wm_last_duration     # длительность ц
 energy_entity: input_number.wm_last_energy         # кВт·ч за цикл
 cost_entity: input_number.wm_last_cost             # стоимость цикла
 hide_status_panel: true                            # Скрывать панель статуса только в режиме ожидания (По умолчанию: false)
+duration_format: minutes                           # minutes / hhmm
+confirm_plug_off: true                             # Отображает всплывающее окно подтверждения перед выключением `plug_entity`
 currency: "₾"
 language: ru                                       # ru / en / de / fr (по умолчанию — язык HA)
 theme: auto                                        # auto / light / dark
@@ -132,8 +134,10 @@ theme: auto                                        # auto / light / dark
 | `currency` | нет | `€` | Символ валюты для колонки стоимости. |
 | `running_states` | нет | on, washing, стирка, run, spin, … | Состояния `status_entity`, считающиеся «работает» (распознаются русские, английские, немецкие и французские). |
 | `hide_status_panel` | нет | false | Скрывать панель статуса только в режиме ожидания. |
+| `duration_format` | нет | minutes | `minutes`, `hhmm`. Форматирует продолжительность последнего цикла. Если параметр `duration_format` установлен в значение `hhmm` и продолжительность составляет 60 минут или более, значение отображается в формате HHhMM (например, 1h05). |
+| `confirm_plug_off` | нет | true | Отображает всплывающее окно подтверждения перед выключением `plug_entity`. |
 | `language` | нет | язык HA | `ru`, `en`, `de` или `fr`. |
-| `theme` | нет | `auto` | `auto` следует теме Home Assistant, `light` и `dark` фиксируют оформление. |
+| `theme` | нет | `auto` | `auto`, `light` и `dark` используют собственное оформление карточки. `ha` вместо этого использует цвета вашей темы Home Assistant. |
 
 ## 🧺 Типы приборов
 
