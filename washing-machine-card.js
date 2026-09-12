@@ -400,7 +400,7 @@ class WashingMachineCard extends HTMLElement {
             const m = Math.round(n % 60);
             return {
                 value: `${h}h${String(m).padStart(2, "0")}`,
-                unit: ""
+                unit: "min"
             };
         }
         return {
