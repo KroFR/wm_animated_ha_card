@@ -7,16 +7,17 @@
  *
  * https://github.com/sionetta/wm_animated_ha_card
  * License: MIT
- * Version: 1.2.1
+ * Version: 1.3.0
  *
  * UI languages: en, ru, de, fr (auto-detected from Home Assistant, or set `language:`).
  * Appliances: washer, dryer, dishwasher, oven, microwave (`appliance_type:`).
- * Theme: follows the Home Assistant theme automatically (`theme: auto | light | dark`).
+ * Theme: follows the Home Assistant theme automatically (`theme: auto | light | dark`),
+ * or `theme: ha` to adopt the colours of your active Home Assistant theme.
  *
  * Install:
  *   1. Copy to /config/www/washing-machine-card.js
  *   2. Add a dashboard resource:
- *        url: /local/washing-machine-card.js?v=4
+ *        url: /local/washing-machine-card.js?v=5
  *        type: module
  *   3. Add the card — full example at the bottom of this file.
  *

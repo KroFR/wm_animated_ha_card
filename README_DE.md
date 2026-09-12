@@ -12,7 +12,7 @@ Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschi
 
 - **Fünf Geräte, eine Karte** – `washer`, `dryer`, `dishwasher`, `oven` und `microwave`, jedes mit eigener Illustration, eigenem Icon und eigenen Texten. Umschalten mit einer Zeile: `appliance_type: dryer`.
 - **Animation im Betrieb** – die Wäsche dreht sich hinter dem Bullauge, im Geschirrspüler schwenkt der Sprüharm, der Backofen glüht, in der Mikrowelle dreht sich der Teller. Alles reines CSS und SVG, ohne externe Dateien, und `prefers-reduced-motion` wird berücksichtigt.
-- **Helles und dunkles Design** – die Karte folgt automatisch dem Home-Assistant-Theme oder wird mit `theme: light | dark` festgelegt.
+- **Helles und dunkles Design** – die Karte folgt automatisch dem Home-Assistant-Theme oder wird mit `theme: light | dark` festgelegt. Ein vierter Wert, `theme: ha`, verzichtet auf die eigene Palette der Karte und übernimmt die Farben deines aktiven Home-Assistant-Themes.
 - **Live-Status** – ein pulsierendes „LÄUFT / BEREIT“-Badge, ein Ring mit der verstrichenen Zeit und eine Leistungsanzeige, die die Einheit selbst wählt (`1950 W` erscheint als `1,95 kW`; hängt ein Stromsensor dran, heißt die Beschriftung automatisch „Stromaufnahme“).
 - **Letzter Durchgang** – Startzeit („Heute, 09:55“), Dauer, Verbrauch und Kosten. Jede Spalte öffnet per Tippen den More-Info-Dialog.
 - **Schnellzugriffe** – Buttons in der Kopfzeile schalten die Steckdose und die Benachrichtigungs-Automatisierung und öffnen den Leistungsverlauf.
@@ -24,7 +24,7 @@ Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschi
 
 ![Helles und dunkles Design](media/themes_de.jpg)
 
-`theme: auto` (Standard) folgt Home Assistant: Stellst du dein Dashboard auf ein dunkles Theme um, zieht die Karte beim nächsten Rendern nach. `light` und `dark` legen das Aussehen unabhängig vom Dashboard fest.
+`theme: auto` (Standard) folgt Home Assistant: Stellst du dein Dashboard auf ein dunkles Theme um, zieht die Karte beim nächsten Rendern nach. `light` und `dark` legen das Aussehen unabhängig vom Dashboard fest. `theme: ha` funktioniert anders: Statt der eigenen Palette übernimmt die Karte die Farben des aktiven Home-Assistant-Themes und fügt sich so in ein eigenes Theme ein.
 
 ## 📦 Installation
 
@@ -38,7 +38,7 @@ Zwei Schritte: zuerst die Karte selbst, dann die Entitäten, die sie anzeigt.
 2. Füge eine Dashboard-Ressource hinzu (Einstellungen → Dashboards → Ressourcen oder `lovelace: resources:` im YAML-Modus):
 
    ```yaml
-   url: /local/washing-machine-card.js?v=4
+   url: /local/washing-machine-card.js?v=5
    type: module
    ```
 
@@ -113,8 +113,8 @@ hide_status_panel: true                            # Statusanzeige nur ausblende
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # Zeigt ein Bestätigungs-Popup an, bevor die `plug_entity` ausgeschaltet wird
 currency: "€"
-language: de                                       # de / en / ru / fr (Standard: HA-Sprache)
-theme: auto                                        # auto / light / dark
+language: de                                       # auto / de / en / ru / fr (auto = HA-Sprache folgen)
+theme: auto                                        # auto / light / dark / ha
 ```
 
 | Option | Pflicht | Standard | Beschreibung |
@@ -136,7 +136,7 @@ theme: auto                                        # auto / light / dark
 | `hide_status_panel` | nein | false | Statusanzeige nur ausblenden, wenn inaktiv. |
 | `duration_format` | nein | minutes | `minutes`, `hhmm`. Formatteert de duur van de laatste cyclus. Wanneer `duration_format` is ingesteld op `hhmm` en de duur 60 minuten of langer is, wordt de waarde weergegeven in het formaat HHhMM (bijvoorbeeld 1h05). |
 | `confirm_plug_off` | nein | true | Zeigt ein Bestätigungs-Popup an, bevor die `plug_entity` ausgeschaltet wird. |
-| `language` | nein | auto | `de`, `en`, `ru` oder `fr`. |
+| `language` | nein | `auto` | `auto`, `de`, `en`, `ru` oder `fr`. |
 | `theme` | nein | `auto` | `auto`, `light` und `dark` verwenden das eigene Styling der Karte. `ha` übernimmt stattdessen die Farben deines Home Assistant-Themes. |
 
 ## 🧺 Gerätetypen

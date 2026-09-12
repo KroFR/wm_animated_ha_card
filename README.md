@@ -12,7 +12,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 
 - **Five appliances, one card** — `washer`, `dryer`, `dishwasher`, `oven` and `microwave`, each with its own illustration, icon and wording. Switch with a single line: `appliance_type: dryer`.
 - **Animated while running** — laundry tumbles behind the glass, dishwasher jets sweep, the oven glows, the microwave turntable turns. All animation is pure CSS/SVG, no external assets, and it respects `prefers-reduced-motion`.
-- **Light and dark themes** — the card follows your Home Assistant theme automatically, or you can pin it with `theme: light | dark`.
+- **Light and dark themes** — the card follows your Home Assistant theme automatically, or you can pin it with `theme: light | dark`. A fourth value, `theme: ha`, drops the card's own palette and uses the colours of your active Home Assistant theme.
 - **Live status** — a pulsing "RUNNING / IDLE" badge, an elapsed-time ring and a power gauge with automatic unit handling (`1950 W` is shown as `1.95 kW`; an ampere sensor is labelled "Current draw" automatically).
 - **Last cycle summary** — start time ("Today, 09:55"), duration, energy and cost, each column tappable for more-info.
 - **Quick actions** — header buttons toggle the smart plug and the finish-notification automation, and open the power history.
@@ -24,7 +24,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 
 ![Light and dark theme](media/themes_en.jpg)
 
-`theme: auto` (the default) follows Home Assistant: switch your dashboard to a dark theme and the card follows on the next render. `theme: light` and `theme: dark` pin it regardless of the dashboard.
+`theme: auto` (the default) follows Home Assistant: switch your dashboard to a dark theme and the card follows on the next render. `theme: light` and `theme: dark` pin it regardless of the dashboard. `theme: ha` works differently: instead of the card's own palette it takes the colours of whichever Home Assistant theme is active, so the card blends into a custom theme.
 
 ## 📦 Installation
 
@@ -38,7 +38,7 @@ Two steps: first the card itself, then the entities it displays.
 2. Add a dashboard resource (Settings → Dashboards → Resources, or `lovelace: resources:` in YAML mode):
 
    ```yaml
-   url: /local/washing-machine-card.js?v=4
+   url: /local/washing-machine-card.js?v=5
    type: module
    ```
 
@@ -113,8 +113,8 @@ hide_status_panel: true                            # Hide status panel only when
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`
 currency: "€"
-language: en                                       # en / ru / de / fr (default: HA language)
-theme: auto                                        # auto / light / dark
+language: en                                       # auto / en / ru / de / fr (auto = follow Home Assistant)
+theme: auto                                        # auto / light / dark / ha
 ```
 
 | Option | Required | Default | Description |
@@ -136,7 +136,7 @@ theme: auto                                        # auto / light / dark
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
 | `duration_format` | no | minutes | `minutes`, `hhmm`. Formats the last cycle duration. When `duration_format` is set to `hhmm` and the duration is 60 minutes or longer, the value is displayed in HHhMM format (for example, 1h05). |
 | `confirm_plug_off` | no | true | Displays a confirmation popup before turning off the `plug_entity`. |
-| `language` | no | auto | `auto`, `en`, `ru`, `de` or `fr`. |
+| `language` | no | `auto` | `auto`, `en`, `ru`, `de` or `fr`. |
 | `theme` | no | `auto` | `auto`, `light` and `dark` use the card's own styling. `ha` adopts your Home Assistant theme colors instead. |
 
 ## 🧺 Appliance types

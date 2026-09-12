@@ -12,7 +12,7 @@ Une carte Lovelace inspirée d'Oikos qui transforme un lave-linge, sèche-linge,
 
 - **Cinq appareils, une seule carte** — `washer`, `dryer`, `dishwasher`, `oven` et `microwave`, chacun avec son illustration, son icône et ses libellés. On change d'appareil en une ligne : `appliance_type: dryer`.
 - **Animation pendant le cycle** — le linge culbute derrière le hublot, le bras du lave-vaisselle balaie, le four rougeoie, le plateau du micro-ondes tourne. Tout est en CSS/SVG pur, sans fichier externe, et `prefers-reduced-motion` est respecté.
-- **Thème clair et sombre** — la carte suit automatiquement le thème de Home Assistant, ou se fige avec `theme: light | dark`.
+- **Thème clair et sombre** — la carte suit automatiquement le thème de Home Assistant, ou se fige avec `theme: light | dark`. Une quatrième valeur, `theme: ha`, abandonne la palette propre à la carte au profit des couleurs de votre thème Home Assistant actif.
 - **État en direct** — un badge clignotant « EN MARCHE / INACTIF », un anneau avec le temps écoulé et une jauge de puissance qui choisit son unité toute seule (`1950 W` s'affiche `1,95 kW` ; avec un capteur de courant, le libellé devient « Courant instantané »).
 - **Résumé du dernier cycle** — heure de départ (« Aujourd'hui, 09:55 »), durée, énergie et coût ; chaque colonne ouvre la fenêtre more-info d'une simple pression.
 - **Actions rapides** — les boutons de l'en-tête commutent la prise connectée et l'automatisation de notification de fin, et ouvrent l'historique de puissance.
@@ -24,7 +24,7 @@ Une carte Lovelace inspirée d'Oikos qui transforme un lave-linge, sèche-linge,
 
 ![Thème clair et sombre](media/themes_fr.jpg)
 
-`theme: auto` (par défaut) suit Home Assistant : passez votre tableau de bord en thème sombre et la carte suit au rendu suivant. `light` et `dark` figent l'apparence indépendamment du tableau de bord.
+`theme: auto` (par défaut) suit Home Assistant : passez votre tableau de bord en thème sombre et la carte suit au rendu suivant. `light` et `dark` figent l'apparence indépendamment du tableau de bord. `theme: ha` fonctionne autrement : au lieu de sa propre palette, la carte reprend les couleurs du thème Home Assistant actif et se fond dans un thème personnalisé.
 
 ## 📦 Installation
 
@@ -38,7 +38,7 @@ Deux étapes : d'abord la carte elle-même, puis les entités qu'elle affiche.
 2. Ajoutez une ressource au tableau de bord (Paramètres → Tableaux de bord → Ressources, ou `lovelace: resources:` en mode YAML) :
 
    ```yaml
-   url: /local/washing-machine-card.js?v=4
+   url: /local/washing-machine-card.js?v=5
    type: module
    ```
 
@@ -113,8 +113,8 @@ hide_status_panel: true                            # Masquer le panneau de statu
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # affiche une popup de confirmation avant d'éteindre `plug_entity`
 currency: "€"
-language: fr                                       # fr / en / ru / de (défaut : langue de HA)
-theme: auto                                        # auto / light / dark
+language: fr                                       # auto / fr / en / ru / de (auto = langue de HA)
+theme: auto                                        # auto / light / dark / ha
 ```
 
 | Option | Obligatoire | Défaut | Description |
@@ -136,7 +136,7 @@ theme: auto                                        # auto / light / dark
 | `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
 | `duration_format` | non | minutes | `minutes`, `hhmm`. Formate la durée du dernier cycle. Lorsque `duration_format` est défini sur `hhmm` et que la durée est égale ou supérieure à 60 minutes, la valeur est affichée au format HHhMM (par exemple, 1h05). |
 | `confirm_plug_off` | non | true | Affiche une popup de confirmation avant d'éteindre `plug_entity`. |
-| `language` | non | auto | `auto`, `fr`, `en`, `ru` ou `de`. |
+| `language` | non | `auto` | `auto`, `fr`, `en`, `ru` ou `de`. |
 | `theme` | non | `auto` | `auto`, `light` et `dark` utilisent le style propre de la carte. `ha` adopte à la place les couleurs de votre thème Home Assistant. |
 
 ## 🧺 Types d'appareils

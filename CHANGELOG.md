@@ -4,6 +4,63 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] — 2026-09-12
+
+### Added
+- **Native Home Assistant theme** — the new `theme: ha` drops the card's own
+  palette and paints it with the colours of whichever Home Assistant theme is
+  active, so the card blends into a custom theme instead of sitting on top of
+  it. `auto`, `light` and `dark` keep the card's own look as before.
+  Thanks to [@KroFR](https://github.com/KroFR) (#17).
+- **`duration_format`** — with `hhmm`, a last-cycle duration of 60 minutes or
+  more is shown as `1h05` instead of `65 min`. Defaults to `minutes`, so
+  existing dashboards are unchanged.
+  Thanks to [@KroFR](https://github.com/KroFR) (#17).
+- **`confirm_plug_off`** — a confirmation prompt before the plug button turns
+  the socket **off**, so a mistap can no longer cut a running cycle. Turning the
+  plug on is never gated. Defaults to `true`; set it to `false` for the old
+  behaviour. Thanks to [@KroFR](https://github.com/KroFR) (#17).
+- **Three appliance states instead of two.** When a `power_entity` is
+  configured the card now distinguishes *off* (below 1 W), *idle* (above 1 W but
+  below `power_threshold`) and *running*. Without a power sensor it stays on
+  *idle*, because there is no way to tell an unplugged appliance from a waiting
+  one. Thanks to [@KroFR](https://github.com/KroFR) (#17).
+- **Visual editor improvements** — a live preview while you configure the card,
+  a card name that follows the selected appliance type, and a link to the
+  documentation. Thanks to [@KroFR](https://github.com/KroFR) (#17).
+- **The installation instructions now cover the entities, not just the card.**
+  Installation is split into step 1 (the card file and the dashboard resource)
+  and step 2 (the entities), with a walkthrough of the example package for an
+  appliance on a smart plug and a table of what it creates. This also documents
+  `input_number.el_tarif`, which no README had ever mentioned: it defaults to
+  zero, so the cost column silently stayed at `0.00` for anyone who copied the
+  package without setting a tariff.
+
+### Changed
+- **Dates and times now follow Home Assistant.** The card previously formatted
+  them with a locale hardcoded per UI language (`en-GB`, `ru-RU`, …) and never
+  looked at your Home Assistant settings. It now takes the locale from
+  `hass.locale.language` and honours `hass.locale.time_format`, so a 12/24-hour
+  preference is finally respected and a profile set to a regional variant gets
+  that region's format — `en-GB` shows `5 Sept, 09:55`, `pt-BR` shows
+  `5 de set., 09:55`. Note for English users: a profile set to plain `en` with
+  the default time format now shows `Sep 5, 09:55 AM`, matching the rest of the
+  Home Assistant interface. Set the Home Assistant time format to 24 hours to
+  get `09:55` back. Thanks to [@KroFR](https://github.com/KroFR) (#17).
+- **`language: auto`** is now an explicit value rather than an implicit default,
+  and is what the visual editor selects for a new card.
+
+### Fixed
+- **An appliance with no `power_entity` reported "Off".** The new three-state
+  logic defaulted to *off* whenever it could not read power, which is
+  misleading: without a power sensor the card cannot tell an unplugged
+  appliance from an idle one. It now falls back to *idle*.
+  Found in review, fixed by [@KroFR](https://github.com/KroFR) (#17).
+- **English showed 12-hour time regardless of the Home Assistant setting.**
+  The time format was inferred from the UI language instead of being read from
+  `hass.locale.time_format`. Found in review, fixed by
+  [@KroFR](https://github.com/KroFR) (#17).
+
 ## [1.2.1] — 2026-09-02
 
 ### Fixed
