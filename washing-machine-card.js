@@ -41,7 +41,6 @@ class WashingMachineCard extends HTMLElement {
             today: "Today", yesterday: "Yesterday",
             tip_notify: "Finish notification", tip_plug: "Machine plug", tip_history: "History",
             confirm_plug_off: "Turn off the plug? This may interrupt the current cycle.",
-						 
             types: {
                 washer: { name: "Washing machine", state_running: "Washing" },
                 dryer: { name: "Dryer", state_running: "Drying" },
@@ -49,6 +48,11 @@ class WashingMachineCard extends HTMLElement {
                 oven: { name: "Oven", state_running: "Baking" },
                 microwave: { name: "Microwave", state_running: "Heating" },
             },
+            running_states: [
+                "washing", "running", "run", "wash", "on", "spin", "rinse",
+                "drying", "dry", "tumble",
+                "baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
+            ],
         },
         ru: {
             name: "Стиральная машина",
@@ -62,7 +66,6 @@ class WashingMachineCard extends HTMLElement {
             today: "Сегодня", yesterday: "Вчера",
             tip_notify: "Уведомление об окончании", tip_plug: "Розетка машины", tip_history: "История",
             confirm_plug_off: "Выключить розетку? Это может прервать текущий цикл.",
-						 
             types: {
                 washer: { name: "Стиральная машина", state_running: "Идёт стирка" },
                 dryer: { name: "Сушилка", state_running: "Сушка" },
@@ -70,6 +73,9 @@ class WashingMachineCard extends HTMLElement {
                 oven: { name: "Духовка", state_running: "Выпечка" },
                 microwave: { name: "Микроволновка", state_running: "Разогрев" },
             },
+            running_states: [
+                "стирка", "отжим", "полоскание",
+            ],
         },
         de: {
             name: "Waschmaschine",
@@ -83,7 +89,6 @@ class WashingMachineCard extends HTMLElement {
             today: "Heute", yesterday: "Gestern",
             tip_notify: "Benachrichtigung bei Ende", tip_plug: "Steckdose der Maschine", tip_history: "Verlauf",
             confirm_plug_off: "Steckdose ausschalten? Der laufende Durchgang könnte dadurch unterbrochen werden.",
-						 
             types: {
                 washer: { name: "Waschmaschine", state_running: "Wäsche läuft" },
                 dryer: { name: "Tumbler", state_running: "Trocknet" },
@@ -91,6 +96,10 @@ class WashingMachineCard extends HTMLElement {
                 oven: { name: "Backofen", state_running: "Backt" },
                 microwave: { name: "Mikrowelle", state_running: "Erwärmt" },
             },
+            running_states: [
+                "waschen", "läuft", "schleudern", "spülen", "trocknen",
+                "backen", "heizen", "erwärmen",
+            ],
         },
         fr: {
             name: "Lave-linge", badge_running: "EN MARCHE", badge_idle: "EN PAUSE", badge_off: "ÉTEINT", badge_nodata: "PAS DE DONNÉES",
@@ -103,14 +112,17 @@ class WashingMachineCard extends HTMLElement {
             today: "Aujourd'hui", yesterday: "Hier",
             tip_notify: "Notification de fin", tip_plug: "Prise machine", tip_history: "Historique",
             confirm_plug_off: "Éteindre la prise ? Cela peut interrompre le cycle en cours.",
-						 
             types: {
                 washer: { name: "Lave-linge", state_running: "Lavage en cours" },
                 dryer: { name: "Sèche-linge", state_running: "Séchage en cours" },
-                dishwasher: { name: "Lave-vaisselle", state_running: "Lavage vaisselle" },
-                oven: { name: "Four", state_running: "Cuisson" },
-                microwave: { name: "Micro-ondes", state_running: "Chauffage" },
+                dishwasher: { name: "Lave-vaisselle", state_running: "Vaisselle en cours" },
+                oven: { name: "Four", state_running: "Cuisson en cours" },
+                microwave: { name: "Micro-ondes", state_running: "Réchauffage en cours" },
             },
+            running_states: [
+                "lavage", "en cours", "essorage", "rincage", "rinçage",
+                "cuisson", "chauffage", "réchauffage", "rechauffage",
+            ],
         },
     };
 
@@ -119,26 +131,17 @@ class WashingMachineCard extends HTMLElement {
         language: "auto",
         theme: "auto",
         currency: "€",
-		running_states: [
-			// English
-			"washing", "running", "run", "wash", "on", "spin", "rinse",
-			"drying", "dry", "tumble",
-			"baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
-			// Russian
-			"стирка", "отжим", "полоскание",
-			// German
-			"waschen", "läuft", "schleudern", "spülen", "trocknen",
-			"backen", "heizen", "erwärmen",
-			// French
-			"lavage", "en cours", "essorage", "rincage", "rinçage",
-			"cuisson", "chauffage",
-		],
         power_threshold: 10,
         power_max: 2500,
         hide_status_panel: false,
         confirm_plug_off: true,
         duration_format: "minutes",
     };
+
+    static get DEFAULT_RUNNING_STATES() {
+        return Object.values(WashingMachineCard.STRINGS).flatMap(
+            (lang) => lang.running_states || []);
+    }
 
     static normalizeType(value) {
         const raw = String(value || "washer").toLowerCase().trim();
@@ -186,6 +189,7 @@ class WashingMachineCard extends HTMLElement {
         }
         this._config = {
             ...WashingMachineCard.DEFAULTS,
+            running_states: WashingMachineCard.DEFAULT_RUNNING_STATES,
             ...config,
             appliance_type: WashingMachineCard.normalizeType(config.appliance_type),
         };
@@ -358,7 +362,7 @@ class WashingMachineCard extends HTMLElement {
         if (isNaN(n))
             return null;
         // Trim trailing zeros (e.g. 2.50 -> 2.5, 2.00 -> 2), same as before.
-        let trimmedDigits = 1;
+        let trimmedDigits = '';
         if (digits > 0) {
             const stripped = n.toFixed(digits).replace(/0+$/, "").replace(/\.$/, "");
             const dotIndex = stripped.indexOf(".");
