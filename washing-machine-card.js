@@ -264,7 +264,7 @@ class WashingMachineCard extends HTMLElement {
         return {
             ...base,
             ...typeStrings,
-            locale: lang
+            locale: this._hass?.locale?.language || lang
         };
     }
 
@@ -309,7 +309,7 @@ class WashingMachineCard extends HTMLElement {
       if (tf === "12") return true;
       if (tf === "24") return false;
     
-      const testLocale = (tf === "language" ? this._hass?.locale?.language : null) || this._t.locale;
+      const testLocale = tf === "system" ? undefined : this._t.locale;
     
       return new Date(2023, 0, 1, 22, 0, 0)
         .toLocaleTimeString(testLocale)
