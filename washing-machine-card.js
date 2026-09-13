@@ -113,11 +113,11 @@ class WashingMachineCard extends HTMLElement {
             tip_notify: "Notification de fin", tip_plug: "Prise machine", tip_history: "Historique",
             confirm_plug_off: "Éteindre la prise ? Cela peut interrompre le cycle en cours.",
             types: {
-                washer: { name: "Lave-linge", state_running: "Lavage du linge" },
-                dryer: { name: "Sèche-linge", state_running: "Séchage" },
-                dishwasher: { name: "Lave-vaisselle", state_running: "Lavage vaisselle" },
-                oven: { name: "Four", state_running: "Cuisson" },
-                microwave: { name: "Micro-ondes", state_running: "Réchauffage" },
+                washer: { name: "Lave-linge", state_running: "Lavage en cours" },
+                dryer: { name: "Sèche-linge", state_running: "Séchage en cours" },
+                dishwasher: { name: "Lave-vaisselle", state_running: "Lavage en cours" },
+                oven: { name: "Four", state_running: "Cuisson en cours" },
+                microwave: { name: "Micro-ondes", state_running: "Réchauffage en cours" },
             },
             running_states: [
                 "lavage", "en cours", "essorage", "rincage", "rinçage",
