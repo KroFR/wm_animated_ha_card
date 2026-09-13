@@ -918,7 +918,6 @@ class WashingMachineCard extends HTMLElement {
 
     _build() {
         const c = this._config;
-        const t = this._t;
         const root = this.shadowRoot || this.attachShadow({
             mode: "open"
         });
@@ -1287,13 +1286,13 @@ class WashingMachineCard extends HTMLElement {
             <div class="h-title" id="name"></div>
             <div class="badge"><span class="b-dot"></span><span id="badgeText"></span></div>
             <div class="h-spacer"></div>
-            <div class="h-btn hidden" id="notifyBtn" title="${t.tip_notify}">
+            <div class="h-btn hidden" id="notifyBtn">
               <ha-icon icon="mdi:bell-ring-outline"></ha-icon>
             </div>
-            <div class="h-btn hidden" id="plugBtn" title="${t.tip_plug}">
+            <div class="h-btn hidden" id="plugBtn">
               <ha-icon icon="mdi:power-socket-eu"></ha-icon>
             </div>
-            <div class="h-btn" id="chartBtn" title="${t.tip_history}">
+            <div class="h-btn" id="chartBtn">
               <ha-icon icon="mdi:chart-bar"></ha-icon>
             </div>
           </div>
@@ -1325,22 +1324,22 @@ class WashingMachineCard extends HTMLElement {
           </div>
 
           <div class="panel hidden" id="lastCycle">
-            <div class="lc-title">${t.last_cycle}</div>
+            <div class="lc-title" id="lcTitle"></div>
             <div class="lc-grid">
               <div class="lc-item hidden" id="lcStart">
-                <div class="lc-label">${t.start}</div>
+                <div class="lc-label" id="lcStartLabel"></div>
                 <div class="lc-value" id="lcStartV">—</div>
               </div>
               <div class="lc-item hidden" id="lcDuration">
-                <div class="lc-label">${t.duration}</div>
+                <div class="lc-label" id="lcDurationLabel"></div>
                 <div class="lc-value" id="lcDurationV">—</div>
               </div>
               <div class="lc-item hidden" id="lcEnergy">
-                <div class="lc-label">${t.energy}</div>
+                <div class="lc-label" id="lcEnergyLabel"></div>
                 <div class="lc-value" id="lcEnergyV">—</div>
               </div>
               <div class="lc-item hidden" id="lcCost">
-                <div class="lc-label">${t.cost}</div>
+                <div class="lc-label" id="lcCostLabel"></div>
                 <div class="lc-value" id="lcCostV">—</div>
               </div>
             </div>
@@ -1412,6 +1411,14 @@ class WashingMachineCard extends HTMLElement {
         this._el("stState").textContent = t[`state_${displayState}`];
         const hideStatus = !!c.hide_status_panel && !active;
         this._el("statusPanel").classList.toggle("hidden", hideStatus);
+        this._el("notifyBtn").title = t.tip_notify;
+        this._el("plugBtn").title = t.tip_plug;
+        this._el("chartBtn").title = t.tip_history;
+        this._el("lcTitle").textContent = t.last_cycle;
+        this._el("lcStartLabel").textContent = t.start;
+        this._el("lcDurationLabel").textContent = t.duration;
+        this._el("lcEnergyLabel").textContent = t.energy;
+        this._el("lcCostLabel").textContent = t.cost;
 
         if (c.power_entity) {
             const ps = this._st(c.power_entity);
@@ -1492,14 +1499,30 @@ if (!customElements.get("washing-machine-card")) {
  
 class WashingMachineCardEditor extends HTMLElement {
     static AUTO_LANGUAGE = "auto";
-    static _defaultName(config, hass) {
+
+    static _resolveLanguage(config, hass) {
         const S = WashingMachineCard.STRINGS;
         const cfgLang = config?.language;
         const isAuto = !cfgLang || cfgLang === WashingMachineCardEditor.AUTO_LANGUAGE;
-        const lang = (!isAuto && S[cfgLang]) ? cfgLang : WashingMachineCard.detectLanguage(hass);
+        return (!isAuto && S[cfgLang]) ? cfgLang : WashingMachineCard.detectLanguage(hass);
+    }
+
+    static _defaultName(config, hass) {
+        const S = WashingMachineCard.STRINGS;
+        const lang = WashingMachineCardEditor._resolveLanguage(config, hass);
         const type = WashingMachineCard.normalizeType(config?.appliance_type);
         const base = S[lang] || S.en;
         return base.types?.[type]?.name || base.name;
+    }
+
+    static _defaultRunningStates(config, hass) {
+        const lang = WashingMachineCardEditor._resolveLanguage(config, hass);
+        return WashingMachineCardEditor._runningStatesForLang(lang);
+    }
+
+    static _runningStatesForLang(lang) {
+        const S = WashingMachineCard.STRINGS;
+        return (S[lang] || S.en).running_states || [];
     }
 
     constructor() {
@@ -1507,6 +1530,8 @@ class WashingMachineCardEditor extends HTMLElement {
         this._config = {};
         this._built = false;
         this._fieldEls = {};
+        this._focusedElements = new Set();
+        this._keywordsLang = null;
     }
 
     setConfig(config) {
@@ -1651,6 +1676,11 @@ class WashingMachineCardEditor extends HTMLElement {
                         selector: {
                             boolean: {}
                         },
+                    }, {
+                        key: "running_states",
+                        kind: "keywords",
+                        title: "Running State keywords",
+                        description: "Running State keywords determine when the card considers the appliance to be running. Built-in keywords for the selected language appear in blue. Add or remove keywords as needed.",
                     },
                 ],
             }, {
@@ -1784,7 +1814,6 @@ class WashingMachineCardEditor extends HTMLElement {
       <style>
         :host { display: block; }
         .wm-editor { display: flex; flex-direction: column; gap: 16px; padding: 4px 0 8px; }
-
         .wm-field { display: flex; flex-direction: column; gap: 6px; }
         .wm-field-title {
           font-size: 13px;
@@ -1792,11 +1821,9 @@ class WashingMachineCardEditor extends HTMLElement {
           color: var(--secondary-text-color, #6b7684);
           padding: 0 2px;
         }
-
         .wm-field-title--primary {
           color: var(--primary-text-color, #1c2733);
         }
-
         .wm-native-input {
           box-sizing: border-box;
           width: 100%;
@@ -1817,7 +1844,6 @@ class WashingMachineCardEditor extends HTMLElement {
           color: var(--secondary-text-color, #8a95a3);
           opacity: .75;
         }
-
         .wm-field--row {
           flex-direction: row;
           align-items: center;
@@ -1837,7 +1863,31 @@ class WashingMachineCardEditor extends HTMLElement {
           color: var(--secondary-text-color, #8a95a3);
         }
         .wm-field--row ha-selector { flex-shrink: 0; }
-
+        .wm-chips-box { display: flex; flex-direction: column; gap: 8px; }
+        .wm-chips {
+          display: flex; flex-wrap: wrap; gap: 6px;
+          min-height: 20px;
+        }
+        .wm-chip {
+          display: inline-flex; align-items: center; gap: 5px;
+          padding: 5px 6px 5px 11px; border-radius: 999px;
+          font-size: 12.5px; font-weight: 600; line-height: 1.3;
+          background: var(--secondary-background-color, #eef1f4);
+          color: var(--primary-text-color, #1c2733);
+          border: 1px solid var(--divider-color, #d8e0ea);
+        }
+        .wm-chip--default {
+          background: rgba(var(--rgb-primary-color, 47,128,237), .14);
+          border-color: rgba(var(--rgb-primary-color, 47,128,237), .35);
+          color: var(--primary-color, #2f80ed);
+        }
+        .wm-chip-remove {
+          display: flex; align-items: center; justify-content: center;
+          width: 16px; height: 16px; padding: 0; border: none; border-radius: 50%;
+          background: transparent; color: inherit; opacity: .65;
+          font-size: 13px; line-height: 1; cursor: pointer;
+        }
+        .wm-chip-remove:hover { opacity: 1; background: rgba(0,0,0,.08); }
         ha-expansion-panel { border-radius: 8px; }
         .wm-section-body { display: flex; flex-direction: column; gap: 16px; padding: 12px; }
         .wm-section-header { display: flex; align-items: center; gap: 8px; }
@@ -1919,9 +1969,44 @@ class WashingMachineCardEditor extends HTMLElement {
         }
 
         const title = document.createElement("div");
-        title.className = "wm-field-title";
+        title.className = "wm-field-title" + (field.kind === "keywords" ? " wm-field-title--primary" : "");
         title.textContent = field.title;
         wrap.appendChild(title);
+
+        if (field.description) {
+            const desc = document.createElement("div");
+            desc.className = "wm-field-desc";
+            desc.textContent = field.description;
+            wrap.appendChild(desc);
+        }
+
+        if (field.kind === "keywords") {
+            const box = document.createElement("div");
+            box.className = "wm-chips-box";
+            const chipsRow = document.createElement("div");
+            chipsRow.className = "wm-chips";
+            box.appendChild(chipsRow);
+            const input = document.createElement("input");
+            input.className = "wm-native-input";
+            input.type = "text";
+            input.placeholder = "Type a keyword and press Enter";
+            input.addEventListener("keydown", (ev) => {
+                if (ev.key === "Enter") {
+                    ev.preventDefault();
+                    this._addKeyword(field, input.value);
+                    input.value = "";
+                }
+            });
+            input.addEventListener("focus", () => this._focusedElements.add(input));
+            input.addEventListener("blur", () => this._focusedElements.delete(input));
+            box.appendChild(input);
+            wrap.appendChild(box);
+            this._fieldEls[field.key] = {
+                chipsRow,
+                input
+            };
+            return wrap;
+        }
 
         if (field.kind === "text" || field.kind === "number") {
             const input = document.createElement("input");
@@ -1961,6 +2046,18 @@ class WashingMachineCardEditor extends HTMLElement {
                 if (!el)
                     continue;
 
+                if (field.kind === "keywords") {
+                    if (!this._focusedElements.has(el.input)) {
+                        this._migrateKeywordsOnLanguageChange(field);
+                        const raw = this._config[field.key];
+                        const words = Array.isArray(raw)
+                             ? raw
+                             : WashingMachineCardEditor._defaultRunningStates(this._config, this._hass);
+                        this._renderKeywordChips(field, el, words);
+                    }
+                    continue;
+                }
+
                 const isNative = field.kind === "text" || field.kind === "number";
                 if (!isNative)
                     el.hass = this._hass;
@@ -1995,6 +2092,84 @@ class WashingMachineCardEditor extends HTMLElement {
         if (field.key === "appliance_type")
             v = WashingMachineCard.normalizeType(v);
         this._commit(field, v);
+    }
+
+    // When the selected language changes, a previously-saved custom list is
+    // still anchored to the *old* language's defaults. Swap those out for the
+    // new language's defaults while keeping any keywords the user added that
+    // aren't part of either language's built-in list.
+    _migrateKeywordsOnLanguageChange(field) {
+        const lang = WashingMachineCardEditor._resolveLanguage(this._config, this._hass);
+        if (this._keywordsLang === null) {
+            this._keywordsLang = lang;
+            return;
+        }
+        if (this._keywordsLang === lang)
+            return;
+        const raw = this._config[field.key];
+        if (Array.isArray(raw)) {
+            const oldDefaults = WashingMachineCardEditor._runningStatesForLang(this._keywordsLang);
+            const newDefaults = WashingMachineCardEditor._runningStatesForLang(lang);
+            const customExtras = raw.filter((word) => !oldDefaults.includes(word));
+            const merged = Array.from(new Set([...newDefaults, ...customExtras]));
+            const sameAsNewDefault = merged.length === newDefaults.length &&
+                newDefaults.every((word) => merged.includes(word));
+            this._commit(field, sameAsNewDefault ? undefined : merged);
+        }
+        this._keywordsLang = lang;
+    }
+
+    _renderKeywordChips(field, els, words) {
+        const defaults = WashingMachineCardEditor._defaultRunningStates(this._config, this._hass);
+        const sorted = [...words].sort((a, b) => a.localeCompare(b, undefined, {
+                sensitivity: "base"
+            }));
+        els.chipsRow.innerHTML = "";
+        sorted.forEach((word) => {
+            const chip = document.createElement("span");
+            chip.className = "wm-chip" + (defaults.includes(word) ? " wm-chip--default" : "");
+            const text = document.createElement("span");
+            text.textContent = word;
+            chip.appendChild(text);
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "wm-chip-remove";
+            removeBtn.setAttribute("aria-label", `Remove ${word}`);
+            removeBtn.textContent = "×";
+            removeBtn.addEventListener("click", () => this._removeKeyword(field, word));
+            chip.appendChild(removeBtn);
+            els.chipsRow.appendChild(chip);
+        });
+    }
+
+    _currentKeywords(field) {
+        const raw = this._config[field.key];
+        return Array.isArray(raw)
+             ? [...raw]
+             : WashingMachineCardEditor._defaultRunningStates(this._config, this._hass);
+    }
+
+    _addKeyword(field, value) {
+        const word = String(value ?? "").trim();
+        if (!word)
+            return;
+        const current = this._currentKeywords(field);
+        if (current.includes(word))
+            return;
+        this._applyKeywords(field, [...current, word]);
+    }
+
+    _removeKeyword(field, word) {
+        const current = this._currentKeywords(field);
+        this._applyKeywords(field, current.filter((w) => w !== word));
+    }
+
+    _applyKeywords(field, words) {
+        const defaults = WashingMachineCardEditor._defaultRunningStates(this._config, this._hass);
+        const sameAsDefault = words.length === defaults.length &&
+            defaults.every((word) => words.includes(word));
+        this._commit(field, (words.length === 0 || sameAsDefault) ? undefined : words);
+        this._renderKeywordChips(field, this._fieldEls[field.key], words.length === 0 ? defaults : words);
     }
 
     _nativeValueChanged(field, rawValue) {
