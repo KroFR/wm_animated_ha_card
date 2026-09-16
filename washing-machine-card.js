@@ -1769,7 +1769,7 @@ class WashingMachineCardEditor extends HTMLElement {
                         title: "Energy entity",
                         selector: {
                             entity: {
-                                domain: "input_number"
+                                domain: ["input_number", "sensor"]
                             }
                         },
                     }, {
@@ -1778,7 +1778,7 @@ class WashingMachineCardEditor extends HTMLElement {
                         title: "Cost entity",
                         selector: {
                             entity: {
-                                domain: "input_number"
+                                domain: ["input_number", "sensor"]
                             }
                         },
                     }, {
