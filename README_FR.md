@@ -144,10 +144,10 @@ theme: auto                                        # auto / light / dark / ha
 | `appliance_type` | Titre par défaut | Libellé en marche |
 |---|---|---|
 | `washer` | Lave-linge | Lavage en cours |
-| `dryer` (alias `tumbler`) | Sèche-linge | Séchage |
-| `dishwasher` | Lave-vaisselle | Lavage vaisselle |
-| `oven` | Four | Cuisson |
-| `microwave` | Micro-ondes | Chauffage |
+| `dryer` (alias `tumbler`) | Sèche-linge | Séchage en cours |
+| `dishwasher` | Lave-vaisselle | Lavage en cours |
+| `oven` | Four | Cuisson en cours |
+| `microwave` | Micro-ondes | Réchauffage en cours |
 
 Les titres et libellés sont traduits dans les quatre langues ; `name` remplace le titre.
 
