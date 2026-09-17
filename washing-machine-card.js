@@ -49,8 +49,7 @@ class WashingMachineCard extends HTMLElement {
                 microwave: { name: "Microwave", state_running: "Heating" },
             },
             running_states: [
-                "washing", "running", "run", "wash", "on", "spin", "rinse",
-                "drying", "dry", "tumble",
+                "washing", "running", "run", "wash", "spin", "rinse", "drying", "dry", "tumble",
                 "baking", "bake", "cooking", "cook", "heating", "heat", "microwave", "oven",
             ],
         },
@@ -280,14 +279,15 @@ class WashingMachineCard extends HTMLElement {
     _isRunning() {
         const c = this._config;
         const status = this._st(c.status_entity);
-        const byStatus =
-            status && c.running_states.includes(String(status.state).toLowerCase());
-        let byPower = false;
+        const state = status ? String(status.state).toLowerCase() : "";
+        const byStatus = !!status && c.running_states.includes(state);
         if (c.power_entity) {
             const p = parseFloat(this._st(c.power_entity)?.state);
-            byPower = !isNaN(p) && p > c.power_threshold;
+            const byPower = !isNaN(p) && p > c.power_threshold;
+            return byStatus || byPower;
         }
-        return byStatus || byPower;
+        const byBinaryOn = state === "on";
+        return byStatus || byBinaryOn;
     }
 
     _applianceState() {
