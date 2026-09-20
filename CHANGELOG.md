@@ -4,6 +4,32 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-09-20
+
+### Added
+- **Dutch** — the card's fifth UI language, covering every label and all five
+  appliance types, plus Dutch entries in `running_states` and a full
+  [`README_NL.md`](README_NL.md). Contributed by
+  [@RienduPre](https://github.com/RienduPre) (#7, #21).
+- **`media/demo_nl.gif`** and **`media/themes_nl.jpg`**, so the Dutch README
+  shows the card in Dutch rather than borrowing the English screenshots.
+
+### Fixed
+- **The ring label could lose its last pixel column** in the longest
+  translations. `.ring-label` was capped at `58px`; Dutch "VERSTREKEN" measures
+  59px. The cap is now `64px`, which clears every current label with room to
+  spare and changes nothing for the others.
+- **`drogen` was missing from `running_states`**, so a Dutch integration
+  reporting that state was not detected as running even though the card has a
+  dryer type. `spoelen` was also listed twice.
+- **`séchage` was missing from the French `running_states`** — the same gap,
+  present since French was added.
+
+### Changed
+- The READMEs no longer claim the card is "responsive via CSS container
+  queries". That stopped being true when the container queries were replaced by a
+  `ResizeObserver` (#14); the wording now just describes the behaviour.
+
 ## [1.3.0] — 2026-09-12
 
 ### Added

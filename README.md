@@ -1,12 +1,12 @@
 # 🏠 Animated Appliance Card for Home Assistant
 
-**English** | [Русский](README_RU.md) | [Deutsch](README_DE.md) | [Français](README_FR.md)
+**English** | [Русский](README_RU.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [Nederlands](README_NL.md)
 
 An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, oven or microwave on a smart plug into a beautiful, animated dashboard widget — no smart appliance required.
 
 ![Demo](media/demo_en.gif)
 
-<sub>Same card in other UI languages: [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Français](media/demo_fr.gif)</sub>
+<sub>Same card in other UI languages: [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Français](media/demo_fr.gif) · [Nederlands](media/demo_nl.gif)</sub>
 
 ## ✨ Features
 
@@ -16,9 +16,9 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 - **Live status** — a pulsing "RUNNING / IDLE" badge, an elapsed-time ring and a power gauge with automatic unit handling (`1950 W` is shown as `1.95 kW`; an ampere sensor is labelled "Current draw" automatically).
 - **Last cycle summary** — start time ("Today, 09:55"), duration, energy and cost, each column tappable for more-info.
 - **Quick actions** — header buttons toggle the smart plug and the finish-notification automation, and open the power history.
-- **Four languages** — English, Russian, German and French labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de | fr` explicitly.
+- **Five languages** — English, Russian, German, French and Dutch labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de | fr | nl` explicitly.
 - **Visual editor** — the card ships a config form, so it can be set up from the UI without touching YAML.
-- **Zero dependencies** — a single vanilla-JS file with Shadow DOM. Every entity option except `status_entity` is optional: blocks without an entity are simply hidden. Responsive via CSS container queries.
+- **Zero dependencies** — a single vanilla-JS file with Shadow DOM. Every entity option except `status_entity` is optional: blocks without an entity are simply hidden. Responsive from a full-width dashboard column down to a narrow phone layout.
 
 ## 🌗 Light and dark
 
@@ -38,7 +38,7 @@ Two steps: first the card itself, then the entities it displays.
 2. Add a dashboard resource (Settings → Dashboards → Resources, or `lovelace: resources:` in YAML mode):
 
    ```yaml
-   url: /local/washing-machine-card.js?v=5
+   url: /local/washing-machine-card.js?v=6
    type: module
    ```
 
@@ -113,7 +113,7 @@ hide_status_panel: true                            # Hide status panel only when
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`
 currency: "€"
-language: en                                       # auto / en / ru / de / fr (auto = follow Home Assistant)
+language: en                                       # auto / en / ru / de / fr / nl (auto = follow Home Assistant)
 theme: auto                                        # auto / light / dark / ha
 ```
 
@@ -132,11 +132,11 @@ theme: auto                                        # auto / light / dark / ha
 | `energy_entity` | no | — | Energy per cycle, kWh. |
 | `cost_entity` | no | — | Cost per cycle. |
 | `currency` | no | `€` | Currency symbol for the cost column. |
-| `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German and French states are recognised). |
+| `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German, French and Dutch states are recognised). |
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
 | `duration_format` | no | minutes | `minutes`, `hhmm`. Formats the last cycle duration. When `duration_format` is set to `hhmm` and the duration is 60 minutes or longer, the value is displayed in HHhMM format (for example, 1h05). |
 | `confirm_plug_off` | no | true | Displays a confirmation popup before turning off the `plug_entity`. |
-| `language` | no | `auto` | `auto`, `en`, `ru`, `de` or `fr`. |
+| `language` | no | `auto` | `auto`, `en`, `ru`, `de`, `fr` or `nl`. |
 | `theme` | no | `auto` | `auto`, `light` and `dark` use the card's own styling. `ha` adopts your Home Assistant theme colors instead. |
 
 ## 🧺 Appliance types
@@ -149,7 +149,7 @@ theme: auto                                        # auto / light / dark / ha
 | `oven` | Oven | Baking |
 | `microwave` | Microwave | Heating |
 
-Titles and labels are translated into all four languages; `name` overrides the title.
+Titles and labels are translated into all five languages; `name` overrides the title.
 
 ## 🧠 How it works with a dumb appliance
 

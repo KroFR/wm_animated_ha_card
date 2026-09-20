@@ -7,9 +7,9 @@
  *
  * https://github.com/sionetta/wm_animated_ha_card
  * License: MIT
- * Version: 1.3.0
+ * Version: 1.4.0
  *
- * UI languages: en, ru, de, fr (auto-detected from Home Assistant, or set `language:`).
+ * UI languages: en, ru, de, fr, nl (auto-detected from Home Assistant, or set `language:`).
  * Appliances: washer, dryer, dishwasher, oven, microwave (`appliance_type:`).
  * Theme: follows the Home Assistant theme automatically (`theme: auto | light | dark`),
  * or `theme: ha` to adopt the colours of your active Home Assistant theme.
@@ -17,7 +17,7 @@
  * Install:
  *   1. Copy to /config/www/washing-machine-card.js
  *   2. Add a dashboard resource:
- *        url: /local/washing-machine-card.js?v=5
+ *        url: /local/washing-machine-card.js?v=6
  *        type: module
  *   3. Add the card — full example at the bottom of this file.
  *
@@ -121,6 +121,31 @@ class WashingMachineCard extends HTMLElement {
             running_states: [
                 "lavage", "en cours", "essorage", "rincage", "rinçage",
                 "cuisson", "chauffage", "réchauffage", "rechauffage", "séchage",
+            ],
+        },
+        nl: {
+            name: "Wasmachine",
+            badge_running: "BEZIG", badge_idle: "INACTIEF", badge_off: "UIT", badge_nodata: "GEEN DATA",
+            state_running: "Wast", state_idle: "Inactief", state_off: "Uit", state_nodata: "Geen data",
+            ring_running: "VERSTREKEN", ring_idle: "INACTIEF", ring_off: "UIT",
+            power: "Huidig vermogen", current: "Huidig verbruik",
+            last_cycle: "LAATSTE CYCLUS", start: "START", duration: "DUUR",
+            energy: "ENERGIE", cost: "KOSTEN",
+            min: "min", kwh: "kWh", kw: "kW",
+            today: "Vandaag", yesterday: "Gisteren",
+            tip_notify: "Melding bij voltooiing", tip_plug: "Stekker apparaat", tip_history: "Geschiedenis",
+            confirm_plug_off: "Stekker uitschakelen? Dit kan de huidige cyclus onderbreken.",
+            decimal: ",",
+            types: {
+                washer: { name: "Wasmachine", state_running: "Wast" },
+                dryer: { name: "Droger", state_running: "Droogt" },
+                dishwasher: { name: "Vaatwasser", state_running: "Wast af" },
+                oven: { name: "Oven", state_running: "Bakt" },
+                microwave: { name: "Magnetron", state_running: "Verwarmt" },
+            },
+            running_states: [
+                "wassen", "bezig", "centrifugeren", "spoelen", "drogen",
+                "bakken", "verwarmen",
             ],
         },
     };
@@ -1245,7 +1270,7 @@ class WashingMachineCard extends HTMLElement {
         .ring-time { font-size: 19px; font-weight: 800; line-height: 1; }
         .ring-label {
           font-size: 8px; font-weight: 700; letter-spacing: .8px; color: var(--wm-label);
-          margin-top: 3px; max-width: 58px; overflow: hidden; white-space: nowrap;
+          margin-top: 3px; max-width: 64px; overflow: hidden; white-space: nowrap;
         }
         .st-col { flex: 1; min-width: 0; }
         .st-state { font-size: 16.5px; font-weight: 700; }
