@@ -9,7 +9,7 @@
  * License: MIT
  * Version: 1.4.0
  *
- * UI languages: en, ru, de, fr, nl (auto-detected from Home Assistant, or set `language:`).
+ * UI languages: en, ru, de, fr (auto-detected from Home Assistant, or set `language:`).
  * Appliances: washer, dryer, dishwasher, oven, microwave (`appliance_type:`).
  * Theme: follows the Home Assistant theme automatically (`theme: auto | light | dark`),
  * or `theme: ha` to adopt the colours of your active Home Assistant theme.
@@ -17,7 +17,7 @@
  * Install:
  *   1. Copy to /config/www/washing-machine-card.js
  *   2. Add a dashboard resource:
- *        url: /local/washing-machine-card.js?v=6
+ *        url: /local/washing-machine-card.js?v=5
  *        type: module
  *   3. Add the card — full example at the bottom of this file.
  *
@@ -135,7 +135,6 @@ class WashingMachineCard extends HTMLElement {
             today: "Vandaag", yesterday: "Gisteren",
             tip_notify: "Melding bij voltooiing", tip_plug: "Stekker apparaat", tip_history: "Geschiedenis",
             confirm_plug_off: "Stekker uitschakelen? Dit kan de huidige cyclus onderbreken.",
-            decimal: ",",
             types: {
                 washer: { name: "Wasmachine", state_running: "Wast" },
                 dryer: { name: "Droger", state_running: "Droogt" },
@@ -301,29 +300,34 @@ class WashingMachineCard extends HTMLElement {
         return entityId ? this._hass.states[entityId] : undefined;
     }
 
-    _isRunning() {
+    _cycleIsActive() {
         const c = this._config;
         const status = this._st(c.status_entity);
         const state = status ? String(status.state).toLowerCase() : "";
         const byStatus = !!status && c.running_states.includes(state);
-        if (c.power_entity) {
-            const p = parseFloat(this._st(c.power_entity)?.state);
-            const byPower = !isNaN(p) && p > c.power_threshold;
-            return byStatus || byPower;
-        }
         const byBinaryOn = state === "on";
         return byStatus || byBinaryOn;
     }
 
-    _applianceState() {
-        if (this._isRunning())
-            return "running";
+    _isRunning() {
         const c = this._config;
-        if (c.power_entity) {
-            const p = parseFloat(this._st(c.power_entity)?.state);
-            if (!isNaN(p) && p >= 1)
-                return "idle";
-        }
+        const cycleIsActive = this._cycleIsActive();
+        // Without a power sensor, the status entity is the only source of truth.
+        if (!c.power_entity)
+            return cycleIsActive;
+        // With a power sensor, RUNNING requires an active cycle and power consumption above the configured threshold.
+        const p = parseFloat(this._st(c.power_entity)?.state);
+        return cycleIsActive && !isNaN(p) && p > c.power_threshold;
+    }
+
+    _applianceState() {
+        const c = this._config;
+        const cycleIsActive = this._cycleIsActive();
+        if (!c.power_entity)
+            return cycleIsActive ? "running" : "off";
+        const p = parseFloat(this._st(c.power_entity)?.state);
+        if (cycleIsActive)
+            return !isNaN(p) && p > c.power_threshold ? "running" : "idle";
         return "off";
     }
 
@@ -1270,7 +1274,7 @@ class WashingMachineCard extends HTMLElement {
         .ring-time { font-size: 19px; font-weight: 800; line-height: 1; }
         .ring-label {
           font-size: 8px; font-weight: 700; letter-spacing: .8px; color: var(--wm-label);
-          margin-top: 3px; max-width: 64px; overflow: hidden; white-space: nowrap;
+          margin-top: 3px; max-width: 58px; overflow: hidden; white-space: nowrap;
         }
         .st-col { flex: 1; min-width: 0; }
         .st-state { font-size: 16.5px; font-weight: 700; }
