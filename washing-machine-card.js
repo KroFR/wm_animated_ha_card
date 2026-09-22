@@ -193,6 +193,11 @@ class WashingMachineCard extends HTMLElement {
         return "en";
     }
 
+    static isBooleanStatusEntity(entityId) {
+        const domain = String(entityId || "").split(".")[0];
+        return domain === "input_boolean" || domain === "binary_sensor";
+    }
+
     static capitalize(value, locale) {
         const str = String(value ?? "");
         if (!str)
@@ -315,7 +320,13 @@ class WashingMachineCard extends HTMLElement {
         const state = status ? String(status.state).toLowerCase() : "";
         const byStatus = !!status && c.running_states.some((k) => String(k).toLowerCase() === state);
         const byBinaryOn = state === "on";
-        return byStatus || byBinaryOn;
+
+        let byResidualPower = false;
+        if (!byBinaryOn && c.power_entity && WashingMachineCard.isBooleanStatusEntity(c.status_entity)) {
+            const p = parseFloat(this._st(c.power_entity)?.state);
+            byResidualPower = !isNaN(p) && p > 0;
+        }
+        return byStatus || byBinaryOn || byResidualPower;
     }
 
     _isRunning() {
@@ -1447,7 +1458,7 @@ class WashingMachineCard extends HTMLElement {
         const ringState = ["running", "idle", "paused"].includes(displayState) ? displayState : "off";
         this._el("ringLabel").textContent = t[`ring_${ringState}`];
         this._el("ringArc").style.display = active ? "" : "none";
-        if (c.show_raw_status) {
+        if (c.show_raw_status && !WashingMachineCard.isBooleanStatusEntity(c.status_entity)) {
             const rawState = status ? String(status.state) : "";
             const capitalizedRaw = WashingMachineCard.capitalize(rawState, t.locale);
             this._el("stState").textContent = noData ? t.state_nodata : capitalizedRaw;
@@ -1737,7 +1748,7 @@ class WashingMachineCardEditor extends HTMLElement {
                         },
                         visibleIf: (config) => {
                             const entity = config?.status_entity;
-                            return !!entity && entity.split(".")[0] !== "input_boolean";
+                            return !!entity && !WashingMachineCard.isBooleanStatusEntity(entity);
                         },
                     }, {
                         key: "running_states",
