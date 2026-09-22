@@ -110,7 +110,7 @@ duration_entity: input_number.wm_last_duration     # cycle duration, minutes
 energy_entity: input_number.wm_last_energy         # kWh per cycle
 cost_entity: input_number.wm_last_cost             # cost per cycle
 hide_status_panel: true                            # Hide status panel only when idle (Default: false)
-show_raw_status: false                             # true shows the raw value of the status entity in the card's status panel
+show_raw_status: false                             # Shows the raw value of the status entity in the card's status panel (Default: false)
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`
 currency: "€"
