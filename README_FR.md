@@ -110,7 +110,7 @@ duration_entity: input_number.wm_last_duration     # durée du cycle, en minutes
 energy_entity: input_number.wm_last_energy         # kWh par cycle
 cost_entity: input_number.wm_last_cost             # coût par cycle
 hide_status_panel: true                            # Masquer le panneau de statut uniquement lorsque l'appareil est inactif (défaut : false)
-show_raw_status: false                             # true affiche la valeur brute de l'entité de statut dans le panneau d'état de la carte.
+show_raw_status: false                             # Afficher la valeur brute de l'entité de statut dans le panneau de status de la carte (défaut : false)
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # affiche une popup de confirmation avant d'éteindre `plug_entity`
 currency: "€"
