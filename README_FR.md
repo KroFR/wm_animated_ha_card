@@ -135,7 +135,7 @@ theme: auto                                        # auto / light / dark / ha
 | `currency` | non | `€` | Symbole monétaire de la colonne coût. |
 | `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche » (les états français, anglais, russes, allemands et néerlandais sont reconnus). |
 | `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
-| `show_raw_status` | no | false | Affiche la valeur brute de `status_entity` dans le panneau d’état de la carte. Cette option est utile lorsqu’un appareil connecté fournit directement son état. L’état doit toujours correspondre à l’une des valeurs définies dans `running_states`.|
+| `show_raw_status` | non | false | Affiche la valeur brute de `status_entity` dans le panneau d’état de la carte. Cette option est utile lorsqu’un appareil connecté fournit directement son état. L’état doit toujours correspondre à l’une des valeurs définies dans `running_states`.|
 | `duration_format` | non | minutes | `minutes`, `hhmm`. Formate la durée du dernier cycle. Lorsque `duration_format` est défini sur `hhmm` et que la durée est égale ou supérieure à 60 minutes, la valeur est affichée au format HHhMM (par exemple, 1h05). |
 | `confirm_plug_off` | non | true | Affiche une popup de confirmation avant d'éteindre `plug_entity`. |
 | `language` | non | `auto` | `auto`, `fr`, `en`, `ru`, `de` ou `nl`. |
