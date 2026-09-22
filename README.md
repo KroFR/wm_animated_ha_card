@@ -135,7 +135,7 @@ theme: auto                                        # auto / light / dark / ha
 | `currency` | no | `€` | Currency symbol for the cost column. |
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German, French and Dutch states are recognised). |
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
-| `show_raw_status` | no | false | Displays the raw value of the status entity in the card's status panel. This is useful when a smart appliance sends its state directly. The state must still match `running_states`.|
+| `show_raw_status` | no | false | Displays the raw value of `status_entity` in the card's status panel. This is useful when a smart appliance sends its state directly. The state must still match `running_states`.|
 | `duration_format` | no | minutes | `minutes`, `hhmm`. Formats the last cycle duration. When `duration_format` is set to `hhmm` and the duration is 60 minutes or longer, the value is displayed in HHhMM format (for example, 1h05). |
 | `confirm_plug_off` | no | true | Displays a confirmation popup before turning off the `plug_entity`. |
 | `language` | no | `auto` | `auto`, `en`, `ru`, `de`, `fr` or `nl`. |
