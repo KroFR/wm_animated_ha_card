@@ -157,6 +157,7 @@ class WashingMachineCard extends HTMLElement {
         power_threshold: 10,
         power_max: 2500,
         hide_status_panel: false,
+        show_raw_status: false,
         confirm_plug_off: true,
         duration_format: "minutes",
     };
@@ -192,6 +193,14 @@ class WashingMachineCard extends HTMLElement {
         return "en";
     }
 
+    static capitalize(value, locale) {
+        const str = String(value ?? "");
+        if (!str)
+            return str;
+        const [first, ...rest] = str;
+        return first.toLocaleUpperCase(locale) + rest.join("");
+    }
+
     static languageDisplayName(code) {
         try {
             const dn = new Intl.DisplayNames([code], {
@@ -199,7 +208,7 @@ class WashingMachineCard extends HTMLElement {
             });
             const name = dn.of(code);
             if (name)
-                return name.charAt(0).toUpperCase() + name.slice(1);
+                return WashingMachineCard.capitalize(name);
         } catch (e) {
             // Intl.DisplayNames unsupported, or code not recognized — fall through.
         }
@@ -304,7 +313,7 @@ class WashingMachineCard extends HTMLElement {
         const c = this._config;
         const status = this._st(c.status_entity);
         const state = status ? String(status.state).toLowerCase() : "";
-        const byStatus = !!status && c.running_states.includes(state);
+        const byStatus = !!status && c.running_states.some((k) => String(k).toLowerCase() === state);
         const byBinaryOn = state === "on";
         return byStatus || byBinaryOn;
     }
@@ -1438,7 +1447,13 @@ class WashingMachineCard extends HTMLElement {
         const ringState = ["running", "idle", "paused"].includes(displayState) ? displayState : "off";
         this._el("ringLabel").textContent = t[`ring_${ringState}`];
         this._el("ringArc").style.display = active ? "" : "none";
-        this._el("stState").textContent = t[`state_${displayState}`];
+        if (c.show_raw_status) {
+            const rawState = status ? String(status.state) : "";
+            const capitalizedRaw = WashingMachineCard.capitalize(rawState, t.locale);
+            this._el("stState").textContent = noData ? t.state_nodata : capitalizedRaw;
+        } else {
+            this._el("stState").textContent = t[`state_${displayState}`];
+        }
         const hideStatus = !!c.hide_status_panel && !active;
         this._el("statusPanel").classList.toggle("hidden", hideStatus);
         this._el("notifyBtn").title = t.tip_notify;
@@ -1529,6 +1544,10 @@ if (!customElements.get("washing-machine-card")) {
  
 class WashingMachineCardEditor extends HTMLElement {
     static AUTO_LANGUAGE = "auto";
+    static _keywordsLangCache = new Map();
+    static _keywordsCacheKey(config) {
+        return config?.status_entity || "";
+    }
 
     static _resolveLanguage(config, hass) {
         const S = WashingMachineCard.STRINGS;
@@ -1560,8 +1579,8 @@ class WashingMachineCardEditor extends HTMLElement {
         this._config = {};
         this._built = false;
         this._fieldEls = {};
+        this._fieldWraps = {};
         this._focusedElements = new Set();
-        this._keywordsLang = null;
     }
 
     setConfig(config) {
@@ -1707,6 +1726,20 @@ class WashingMachineCardEditor extends HTMLElement {
                             boolean: {}
                         },
                     }, {
+                        key: "show_raw_status",
+                        kind: "boolean",
+                        title: "Show raw status value",
+                        description: "Display the raw value of the status entity in the card's status panel.",
+                    default:
+                        D.show_raw_status,
+                        selector: {
+                            boolean: {}
+                        },
+                        visibleIf: (config) => {
+                            const entity = config?.status_entity;
+                            return !!entity && entity.split(".")[0] !== "input_boolean";
+                        },
+                    }, {
                         key: "running_states",
                         kind: "keywords",
                         title: "Running State keywords",
@@ -1845,6 +1878,7 @@ class WashingMachineCardEditor extends HTMLElement {
         :host { display: block; }
         .wm-editor { display: flex; flex-direction: column; gap: 16px; padding: 4px 0 8px; }
         .wm-field { display: flex; flex-direction: column; gap: 6px; }
+        .wm-field.hidden { display: none !important; }
         .wm-field-title {
           font-size: 13px;
           font-weight: 500;
@@ -1968,6 +2002,7 @@ class WashingMachineCardEditor extends HTMLElement {
     _buildField(field) {
         const wrap = document.createElement("div");
         wrap.className = "wm-field" + (field.kind === "boolean" ? " wm-field--row" : "");
+        this._fieldWraps[field.key] = wrap;
 
         if (field.kind === "boolean") {
             const textCol = document.createElement("div");
@@ -2076,6 +2111,11 @@ class WashingMachineCardEditor extends HTMLElement {
                 if (!el)
                     continue;
 
+                const wrap = this._fieldWraps[field.key];
+                if (wrap && typeof field.visibleIf === "function") {
+                    wrap.classList.toggle("hidden", !field.visibleIf(this._config));
+                }
+
                 if (field.kind === "keywords") {
                     if (!this._focusedElements.has(el.input)) {
                         this._migrateKeywordsOnLanguageChange(field);
@@ -2122,31 +2162,37 @@ class WashingMachineCardEditor extends HTMLElement {
         if (field.key === "appliance_type")
             v = WashingMachineCard.normalizeType(v);
         this._commit(field, v);
+        this._syncValues();
     }
 
     // When the selected language changes, a previously-saved custom list is
     // still anchored to the *old* language's defaults. Swap those out for the
     // new language's defaults while keeping any keywords the user added that
-    // aren't part of either language's built-in list.
+    // aren't part of the old language's built-in list.
     _migrateKeywordsOnLanguageChange(field) {
         const lang = WashingMachineCardEditor._resolveLanguage(this._config, this._hass);
-        if (this._keywordsLang === null) {
-            this._keywordsLang = lang;
-            return;
-        }
-        if (this._keywordsLang === lang)
-            return;
         const raw = this._config[field.key];
-        if (Array.isArray(raw)) {
-            const oldDefaults = WashingMachineCardEditor._runningStatesForLang(this._keywordsLang);
-            const newDefaults = WashingMachineCardEditor._runningStatesForLang(lang);
-            const customExtras = raw.filter((word) => !oldDefaults.includes(word));
-            const merged = Array.from(new Set([...newDefaults, ...customExtras]));
-            const sameAsNewDefault = merged.length === newDefaults.length &&
-                newDefaults.every((word) => merged.includes(word));
-            this._commit(field, sameAsNewDefault ? undefined : merged);
+        const cache = WashingMachineCardEditor._keywordsLangCache;
+        const cacheKey = WashingMachineCardEditor._keywordsCacheKey(this._config);
+        if (!Array.isArray(raw)) {
+            cache.delete(cacheKey);
+            return;
         }
-        this._keywordsLang = lang;
+        const storedLang = cache.get(cacheKey);
+        if (storedLang === undefined) {
+            cache.set(cacheKey, lang);
+            return;
+        }
+        if (storedLang === lang)
+            return;
+        const oldDefaults = WashingMachineCardEditor._runningStatesForLang(storedLang);
+        const newDefaults = WashingMachineCardEditor._runningStatesForLang(lang);
+        const customExtras = raw.filter((word) => !oldDefaults.includes(word));
+        const merged = Array.from(new Set([...newDefaults, ...customExtras]));
+        const sameAsNewDefault = merged.length === newDefaults.length &&
+            newDefaults.every((word) => merged.includes(word));
+        this._commit(field, sameAsNewDefault ? undefined : merged);
+        cache.set(cacheKey, lang);
     }
 
     _renderKeywordChips(field, els, words) {
@@ -2198,7 +2244,15 @@ class WashingMachineCardEditor extends HTMLElement {
         const defaults = WashingMachineCardEditor._defaultRunningStates(this._config, this._hass);
         const sameAsDefault = words.length === defaults.length &&
             defaults.every((word) => words.includes(word));
-        this._commit(field, (words.length === 0 || sameAsDefault) ? undefined : words);
+        const isDefault = words.length === 0 || sameAsDefault;
+        const lang = WashingMachineCardEditor._resolveLanguage(this._config, this._hass);
+        const cache = WashingMachineCardEditor._keywordsLangCache;
+        const cacheKey = WashingMachineCardEditor._keywordsCacheKey(this._config);
+        if (isDefault)
+            cache.delete(cacheKey);
+        else
+            cache.set(cacheKey, lang);
+        this._commit(field, isDefault ? undefined : words);
         this._renderKeywordChips(field, this._fieldEls[field.key], words.length === 0 ? defaults : words);
     }
 
@@ -2273,6 +2327,7 @@ currency: "€"
 language: auto                              # auto | en | ru | de | fr (auto = match Home Assistant's language)
 theme: auto                                 # auto | light | dark | ha (ha = native Home Assistant colours)
 hide_status_panel: false                    # true hides the status panel while idle
+show_raw_status: false                      # true shows the raw value of the status entity in the card's status panel (hidden in the editor when status_entity is an input_boolean)
 confirm_plug_off: true                      # true displays a confirmation popup before turning off the `plug_entity`.
 
 # Other appliances — same config, one line changed:
