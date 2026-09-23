@@ -320,13 +320,7 @@ class WashingMachineCard extends HTMLElement {
         const state = status ? String(status.state).toLowerCase() : "";
         const byStatus = !!status && c.running_states.some((k) => String(k).toLowerCase() === state);
         const byBinaryOn = state === "on";
-
-        let byResidualPower = false;
-        if (!byBinaryOn && c.power_entity && WashingMachineCard.isBooleanStatusEntity(c.status_entity)) {
-            const p = parseFloat(this._st(c.power_entity)?.state);
-            byResidualPower = !isNaN(p) && p > 0;
-        }
-        return byStatus || byBinaryOn || byResidualPower;
+        return byStatus || byBinaryOn;
     }
 
     _isRunning() {
