@@ -1547,9 +1547,78 @@ if (!customElements.get("washing-machine-card")) {
  * Custom visual editor
  */
  
+class KeywordsLangCache {
+    constructor() {
+        this._prefix = "wm-card-running-states-lang:";
+        this._memory = new Map();
+        this._storage = null;
+        try {
+            const probeKey = "__wm_card_storage_probe__";
+            window.localStorage.setItem(probeKey, "1");
+            window.localStorage.removeItem(probeKey);
+            this._storage = window.localStorage;
+        } catch (e) {
+            this._storage = null;
+        }
+    }
+    has(key) {
+        if (this._storage) {
+            try {
+                return this._storage.getItem(this._prefix + key) !== null;
+            } catch (e) {
+                // fall through to memory
+            }
+        }
+        return this._memory.has(key);
+    }
+    get(key) {
+        if (this._storage) {
+            try {
+                const v = this._storage.getItem(this._prefix + key);
+                return v === null ? undefined : v;
+            } catch (e) {
+                // fall through to memory
+            }
+        }
+        return this._memory.get(key);
+    }
+    set(key, value) {
+        if (this._storage) {
+            try {
+                this._storage.setItem(this._prefix + key, value);
+                return;
+            } catch (e) {
+                // fall through to memory
+            }
+        }
+        this._memory.set(key, value);
+    }
+    delete(key) {
+        if (this._storage) {
+            try {
+                this._storage.removeItem(this._prefix + key);
+                return;
+            } catch (e) {
+                // fall through to memory
+            }
+        }
+        this._memory.delete(key);
+    }
+    rename(oldKey, newKey) {
+        if (oldKey === newKey)
+            return;
+        if (!this.has(oldKey))
+            return;
+        const value = this.get(oldKey);
+        this.delete(oldKey);
+        if (!this.has(newKey))
+            this.set(newKey, value);
+    }
+}
+
 class WashingMachineCardEditor extends HTMLElement {
     static AUTO_LANGUAGE = "auto";
-    static _keywordsLangCache = new Map();
+    static _keywordsLangCache = new KeywordsLangCache();
     static _keywordsCacheKey(config) {
         return config?.status_entity || "";
     }
@@ -1586,6 +1655,15 @@ class WashingMachineCardEditor extends HTMLElement {
         this._fieldEls = {};
         this._fieldWraps = {};
         this._focusedElements = new Set();
+        this._lastKnownLang = undefined;
+    }
+
+    _hasConfidentLanguageReading() {
+        const cfgLang = this._config?.language;
+        const isAuto = !cfgLang || cfgLang === WashingMachineCardEditor.AUTO_LANGUAGE;
+        if (!isAuto)
+            return true;
+        return !!(this._hass?.locale?.language || this._hass?.language);
     }
 
     setConfig(config) {
@@ -2123,7 +2201,11 @@ class WashingMachineCardEditor extends HTMLElement {
 
                 if (field.kind === "keywords") {
                     if (!this._focusedElements.has(el.input)) {
-                        this._migrateKeywordsOnLanguageChange(field);
+                        if (this._hasConfidentLanguageReading()) {
+                            const lang = WashingMachineCardEditor._resolveLanguage(this._config, this._hass);
+                            this._migrateKeywordsOnLanguageChange(field, this._lastKnownLang);
+                            this._lastKnownLang = lang;
+                        }
                         const raw = this._config[field.key];
                         const words = Array.isArray(raw)
                              ? raw
@@ -2166,15 +2248,22 @@ class WashingMachineCardEditor extends HTMLElement {
         }
         if (field.key === "appliance_type")
             v = WashingMachineCard.normalizeType(v);
+        const oldCacheKey = field.key === "status_entity"
+            ? WashingMachineCardEditor._keywordsCacheKey(this._config)
+            : null;
         this._commit(field, v);
+        if (oldCacheKey !== null) {
+            const newCacheKey = WashingMachineCardEditor._keywordsCacheKey(this._config);
+            WashingMachineCardEditor._keywordsLangCache.rename(oldCacheKey, newCacheKey);
+        }
         this._syncValues();
     }
 
     // When the selected language changes, a previously-saved custom list is
     // still anchored to the *old* language's defaults. Swap those out for the
     // new language's defaults while keeping any keywords the user added that
-    // aren't part of the old language's built-in list.
-    _migrateKeywordsOnLanguageChange(field) {
+    // aren't part of either language's built-in list.																			
+    _migrateKeywordsOnLanguageChange(field, oldLang) {
         const lang = WashingMachineCardEditor._resolveLanguage(this._config, this._hass);
         const raw = this._config[field.key];
         const cache = WashingMachineCardEditor._keywordsLangCache;
@@ -2183,14 +2272,11 @@ class WashingMachineCardEditor extends HTMLElement {
             cache.delete(cacheKey);
             return;
         }
-        const storedLang = cache.get(cacheKey);
-        if (storedLang === undefined) {
-            cache.set(cacheKey, lang);
+        const referenceLang = cache.has(cacheKey) ? cache.get(cacheKey) : oldLang;
+        if (!referenceLang || referenceLang === lang)
+		
             return;
-        }
-        if (storedLang === lang)
-            return;
-        const oldDefaults = WashingMachineCardEditor._runningStatesForLang(storedLang);
+        const oldDefaults = WashingMachineCardEditor._runningStatesForLang(referenceLang);
         const newDefaults = WashingMachineCardEditor._runningStatesForLang(lang);
         const customExtras = raw.filter((word) => !oldDefaults.includes(word));
         const merged = Array.from(new Set([...newDefaults, ...customExtras]));
