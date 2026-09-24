@@ -1275,7 +1275,7 @@ class WashingMachineCard extends HTMLElement {
           box-shadow: var(--wm-panel-shadow);
         }
         .status-panel { display: flex; align-items: center; gap: 16px; }
-        .ring-box { position: relative; width: 96px; height: 96px; flex-shrink: 0; cursor: pointer; }
+        .ring-box { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
         .ring-box svg { width: 100%; height: 100%; }
         .ring-track { stroke: var(--wm-ring-track); }
         .ring-arc   { stroke: var(--wm-accent); stroke-linecap: round; }
@@ -1395,7 +1395,6 @@ class WashingMachineCard extends HTMLElement {
 
         const mi = (ent) => () => this._moreInfo(ent);
         this._el("chartBtn").addEventListener("click", mi(c.power_entity || c.status_entity));
-        this._el("ringBox").addEventListener("click", mi(c.last_wash_entity || c.status_entity));
         if (c.power_entity)
             this._el("powerValue").addEventListener("click", mi(c.power_entity));
         if (c.notify_entity)
