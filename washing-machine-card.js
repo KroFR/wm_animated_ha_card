@@ -1314,8 +1314,11 @@ class WashingMachineCard extends HTMLElement {
           margin-bottom: 10px;
         }
         .lc-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
-        .lc-item { padding: 0 12px; border-left: 1px solid var(--wm-divider); min-width: 0; cursor: pointer; }
-        .lc-item:first-child { border-left: none; padding-left: 0; }
+        .lc-item { padding: 0 12px 0 0; min-width: 0; cursor: pointer; }
+        .lc-item:not(.hidden) ~ .lc-item:not(.hidden) {
+          border-left: 1px solid var(--wm-divider);
+          padding-left: 12px;
+        }
         .lc-label { font-size: 10px; font-weight: 700; letter-spacing: .8px; color: var(--wm-label); }
         .lc-value { font-size: 14.5px; font-weight: 800; margin-top: 5px; overflow-wrap: break-word; }
         .lc-unit { font-size: 11px; font-weight: 700; color: var(--wm-accent); }
