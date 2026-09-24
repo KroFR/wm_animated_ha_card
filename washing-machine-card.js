@@ -356,9 +356,9 @@ class WashingMachineCard extends HTMLElement {
       const tf = this._hass?.locale?.time_format; // "12" | "24" | "language" | "system"
       if (tf === "12") return true;
       if (tf === "24") return false;
-    
+
       const testLocale = tf === "system" ? undefined : this._t.locale;
-    
+
       return new Date(2023, 0, 1, 22, 0, 0)
         .toLocaleTimeString(testLocale)
         .includes("10");
@@ -1546,7 +1546,7 @@ if (!customElements.get("washing-machine-card")) {
 /**
  * Custom visual editor
  */
- 
+
 class KeywordsLangCache {
     constructor() {
         this._prefix = "wm-card-running-states-lang:";
@@ -2262,7 +2262,7 @@ class WashingMachineCardEditor extends HTMLElement {
     // When the selected language changes, a previously-saved custom list is
     // still anchored to the *old* language's defaults. Swap those out for the
     // new language's defaults while keeping any keywords the user added that
-    // aren't part of either language's built-in list.																			
+    // aren't part of the old language's built-in list.
     _migrateKeywordsOnLanguageChange(field, oldLang) {
         const lang = WashingMachineCardEditor._resolveLanguage(this._config, this._hass);
         const raw = this._config[field.key];
@@ -2274,7 +2274,6 @@ class WashingMachineCardEditor extends HTMLElement {
         }
         const referenceLang = cache.has(cacheKey) ? cache.get(cacheKey) : oldLang;
         if (!referenceLang || referenceLang === lang)
-		
             return;
         const oldDefaults = WashingMachineCardEditor._runningStatesForLang(referenceLang);
         const newDefaults = WashingMachineCardEditor._runningStatesForLang(lang);

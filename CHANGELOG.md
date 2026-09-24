@@ -4,7 +4,7 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.4.0] — 2026-09-22
+## [1.4.0] — 2026-09-24
 
 ### Added
 - **Dutch** — the card's fifth UI language, covering every label and all five
@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   [@RienduPre](https://github.com/RienduPre) (#7, #21).
 - **`media/demo_nl.gif`** and **`media/themes_nl.jpg`**, so the Dutch README
   shows the card in Dutch rather than borrowing the English screenshots.
-
 - **A paused cycle now says so.** With a `power_entity` configured the card
   distinguishes three states instead of two: *running* (a cycle is under way and
   the appliance is drawing power), *paused* (the cycle is under way but power has
@@ -22,14 +21,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `ring_paused` strings in all five languages; the elapsed-time ring keeps
   counting through a pause, because the cycle has not ended.
   Thanks to [@KroFR](https://github.com/KroFR) (#19).
+- **`show_raw_status`** — for a smart appliance, shows the state exactly as the
+  integration reports it ("Spin", "Rinse", "Finished") instead of the card's
+  translated label. Ignored for a `binary_sensor` or `input_boolean` status
+  entity, where the raw value would only ever be "on" or "off", and hidden in
+  the visual editor for them. Thanks to [@KroFR](https://github.com/KroFR) (#23).
 - **Numbers follow the Home Assistant number format.** `_fmtNum()` now reads
   `hass.locale.number_format` — `comma_decimal`, `decimal_comma`, `space_comma`,
   `none` and `system` — instead of a decimal separator hardcoded per language,
   and applies a thousands separator. English now reads `1,234.5` where it read
   `1234.5`. Thanks to [@KroFR](https://github.com/KroFR) (#19).
 - **`running_states` is editable from the visual editor** and each language now
-  carries its own keyword list, which is what the card falls back to.
-  Thanks to [@KroFR](https://github.com/KroFR) (#19).
+  carries its own keyword list, which is what the card falls back to. When you
+  switch the card's language, a custom list is migrated to the new language's
+  defaults while keeping the keywords you added yourself; the editor remembers
+  which language a list was saved in across page reloads, in the browser's local
+  storage. Thanks to [@KroFR](https://github.com/KroFR) (#19, #23).
 
 ### Changed
 - **`power_entity` is no longer an independent "running" detector.** It used to
@@ -41,8 +48,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Thanks to [@KroFR](https://github.com/KroFR) (#19).
 - **French: `badge_idle` was "EN PAUSE"**, which now belongs to the paused state.
   Idle became "EN VEILLE" so the two states no longer read identically.
+- The READMEs no longer claim the card is "responsive via CSS container
+  queries". That stopped being true when the container queries were replaced by a
+  `ResizeObserver` (#14); the wording now just describes the behaviour.
 
 ### Fixed
+- **Custom `running_states` were case-sensitive.** The entity state is lowercased
+  before it is compared, so an entry written with a capital letter — `"Spin"`,
+  `"Lavagem"` — could never match, and nothing said so. Matching is now
+  case-insensitive. Thanks to [@KroFR](https://github.com/KroFR) (#23).
 - **The ring label could lose its last pixel column** in the longest
   translations. `.ring-label` was capped at `58px`; Dutch "VERSTREKEN" measures
   59px. The cap is now `64px`, which clears every current label with room to
@@ -54,11 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   present since French was added. The unaccented `sechage` is there too.
 - **`duration_format: hhmm` rendered "1h05 min"** — the value already carries its
   own units, so the separate unit is now empty for that format.
-
-### Changed
-- The READMEs no longer claim the card is "responsive via CSS container
-  queries". That stopped being true when the container queries were replaced by a
-  `ResizeObserver` (#14); the wording now just describes the behaviour.
+- **The German README described `duration_format` in Dutch.** It slipped in with
+  the 1.3.0 documentation and shipped that way; it is German now.
 
 ## [1.3.0] — 2026-09-12
 

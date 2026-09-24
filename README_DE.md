@@ -136,7 +136,7 @@ theme: auto                                        # auto / light / dark / ha
 | `running_states` | nein | on, washing, waschen, run, schleudern, … | Zustände von `status_entity`, die als „laufend“ gelten (deutsche, englische, russische, französische und niederländische Zustände werden erkannt). |
 | `hide_status_panel` | nein | false | Statusanzeige nur ausblenden, wenn inaktiv. |
 | `show_raw_status` | nein | false | Zeigt den Rohwert von `status_entity` im Statusbereich der Karte an. Dies ist nützlich, wenn ein Smart-Gerät seinen Status direkt übermittelt. Der Status muss weiterhin mit einem der in `running_states` definierten Werte übereinstimmen.|
-| `duration_format` | nein | minutes | `minutes`, `hhmm`. Formatteert de duur van de laatste cyclus. Wanneer `duration_format` is ingesteld op `hhmm` en de duur 60 minuten of langer is, wordt de waarde weergegeven in het formaat HHhMM (bijvoorbeeld 1h05). |
+| `duration_format` | nein | minutes | `minutes`, `hhmm`. Formatiert die Dauer des letzten Durchgangs. Ist `duration_format` auf `hhmm` gesetzt und dauert der Durchgang 60 Minuten oder länger, wird der Wert im Format HHhMM angezeigt (zum Beispiel 1h05). |
 | `confirm_plug_off` | nein | true | Zeigt ein Bestätigungs-Popup an, bevor die `plug_entity` ausgeschaltet wird. |
 | `language` | nein | `auto` | `auto`, `de`, `en`, `ru`, `fr` oder `nl`. |
 | `theme` | nein | `auto` | `auto`, `light` und `dark` verwenden das eigene Styling der Karte. `ha` übernimmt stattdessen die Farben deines Home Assistant-Themes. |
