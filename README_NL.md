@@ -110,6 +110,7 @@ duration_entity: input_number.wm_last_duration     # duur cyclus, minuten
 energy_entity: input_number.wm_last_energy         # kWh per cyclus
 cost_entity: input_number.wm_last_cost             # kosten per cyclus
 hide_status_panel: true                            # verbergt het statuspaneel zolang het apparaat inactief is (standaard: false)
+show_raw_status: false                             # Toont de ruwe waarde van de statusentiteit in het statuspaneel van de kaart (standaard: false)
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # toont een bevestigingspopup voordat `plug_entity` wordt uitgeschakeld
 currency: "€"
@@ -134,6 +135,7 @@ theme: auto                                        # auto / light / dark / ha
 | `currency` | nee | `€` | Valutasymbool voor de kostenkolom. |
 | `running_states` | nee | on, washing, wassen, run, centrifugeren, … | Statussen van `status_entity` die als "loopt" worden beschouwd (Nederlandse, Engelse, Russische, Duitse en Franse statussen worden herkend). |
 | `hide_status_panel` | nee | false | Verbergt het statuspaneel zolang het apparaat inactief is, en toont het weer zodra een cyclus start. |
+| `show_raw_status` | nee | false | Toont de ruwe waarde van `status_entity` in het statuspaneel van de kaart. Dit is handig wanneer een slim apparaat zijn status rechtstreeks doorstuurt. De status moet nog steeds overeenkomen met een van de waarden die zijn gedefinieerd in `running_states`.|
 | `duration_format` | nee | minutes | `minutes`, `hhmm`. Bepaalt de opmaak van de duur van de laatste cyclus. Als `duration_format` op `hhmm` staat en de duur 60 minuten of langer is, wordt de waarde weergegeven in HHhMM-formaat (bijvoorbeeld 1h05). |
 | `confirm_plug_off` | nee | true | Toont een bevestigingspopup voordat `plug_entity` wordt uitgeschakeld. |
 | `language` | nee | `auto` | `auto`, `nl`, `en`, `ru`, `de` of `fr`. |
@@ -172,6 +174,7 @@ appliance_type: washer
 status_entity: sensor.washer_operation_state
 plug_entity: switch.washer_power
 running_states: [run]
+show_raw_status: true
 ```
 
 Een droger, vaatwasser, oven of magnetron gebruikt dezelfde configuratie met een andere

@@ -110,6 +110,7 @@ duration_entity: input_number.wm_last_duration     # Dauer des Durchgangs, Minut
 energy_entity: input_number.wm_last_energy         # kWh pro Durchgang
 cost_entity: input_number.wm_last_cost             # Kosten pro Durchgang
 hide_status_panel: true                            # Statusanzeige nur ausblenden, wenn inaktiv (Standard: false)
+show_raw_status: false                             # Zeigt den Rohwert der Statusentität im Statusbereich der Karte an (Standard: false)
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # Zeigt ein Bestätigungs-Popup an, bevor die `plug_entity` ausgeschaltet wird
 currency: "€"
@@ -134,6 +135,7 @@ theme: auto                                        # auto / light / dark / ha
 | `currency` | nein | `€` | Währungssymbol für die Kostenspalte. |
 | `running_states` | nein | on, washing, waschen, run, schleudern, … | Zustände von `status_entity`, die als „laufend“ gelten (deutsche, englische, russische, französische und niederländische Zustände werden erkannt). |
 | `hide_status_panel` | nein | false | Statusanzeige nur ausblenden, wenn inaktiv. |
+| `show_raw_status` | nein | false | Zeigt den Rohwert von `status_entity` im Statusbereich der Karte an. Dies ist nützlich, wenn ein Smart-Gerät seinen Status direkt übermittelt. Der Status muss weiterhin mit einem der in `running_states` definierten Werte übereinstimmen.|
 | `duration_format` | nein | minutes | `minutes`, `hhmm`. Formatteert de duur van de laatste cyclus. Wanneer `duration_format` is ingesteld op `hhmm` en de duur 60 minuten of langer is, wordt de waarde weergegeven in het formaat HHhMM (bijvoorbeeld 1h05). |
 | `confirm_plug_off` | nein | true | Zeigt ein Bestätigungs-Popup an, bevor die `plug_entity` ausgeschaltet wird. |
 | `language` | nein | `auto` | `auto`, `de`, `en`, `ru`, `fr` oder `nl`. |
@@ -173,6 +175,7 @@ appliance_type: washer
 status_entity: sensor.washer_operation_state
 plug_entity: switch.washer_power
 running_states: [run]
+show_raw_status: true
 ```
 
 Für Trockner, Geschirrspüler, Backofen oder Mikrowelle dieselbe Config – nur

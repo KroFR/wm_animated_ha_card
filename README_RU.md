@@ -110,6 +110,7 @@ duration_entity: input_number.wm_last_duration     # длительность ц
 energy_entity: input_number.wm_last_energy         # кВт·ч за цикл
 cost_entity: input_number.wm_last_cost             # стоимость цикла
 hide_status_panel: true                            # Скрывать панель статуса только в режиме ожидания (По умолчанию: false)
+show_raw_status: false                             # Показывает необработанное значение сущности состояния на панели состояния карточки (по умолчанию: false)
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # Отображает всплывающее окно подтверждения перед выключением `plug_entity`
 currency: "₾"
@@ -134,6 +135,7 @@ theme: auto                                        # auto / light / dark / ha
 | `currency` | нет | `€` | Символ валюты для колонки стоимости. |
 | `running_states` | нет | on, washing, стирка, run, spin, … | Состояния `status_entity`, считающиеся «работает» (распознаются русские, английские, немецкие, французские и нидерландские). |
 | `hide_status_panel` | нет | false | Скрывать панель статуса только в режиме ожидания. |
+| `show_raw_status` | нет | false | Отображает необработанное значение `status_entity` на панели состояния карточки. Это полезно, когда умное устройство передаёт своё состояние напрямую. Состояние по-прежнему должно соответствовать одному из значений, указанных в `running_states`. |
 | `duration_format` | нет | minutes | `minutes`, `hhmm`. Форматирует продолжительность последнего цикла. Если параметр `duration_format` установлен в значение `hhmm` и продолжительность составляет 60 минут или более, значение отображается в формате HHhMM (например, 1h05). |
 | `confirm_plug_off` | нет | true | Отображает всплывающее окно подтверждения перед выключением `plug_entity`. |
 | `language` | нет | `auto` | `auto`, `ru`, `en`, `de`, `fr` или `nl`. |
@@ -172,6 +174,7 @@ appliance_type: washer
 status_entity: sensor.washer_operation_state
 plug_entity: switch.washer_power
 running_states: [run]
+show_raw_status: true
 ```
 
 Для сушильной машины, посудомойки, духовки или микроволновки конфигурация та же —

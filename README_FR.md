@@ -110,6 +110,7 @@ duration_entity: input_number.wm_last_duration     # durée du cycle, en minutes
 energy_entity: input_number.wm_last_energy         # kWh par cycle
 cost_entity: input_number.wm_last_cost             # coût par cycle
 hide_status_panel: true                            # Masquer le panneau de statut uniquement lorsque l'appareil est inactif (défaut : false)
+show_raw_status: false                             # Afficher la valeur brute de l'entité de statut dans le panneau de status de la carte (défaut : false)
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # affiche une popup de confirmation avant d'éteindre `plug_entity`
 currency: "€"
@@ -134,6 +135,7 @@ theme: auto                                        # auto / light / dark / ha
 | `currency` | non | `€` | Symbole monétaire de la colonne coût. |
 | `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche » (les états français, anglais, russes, allemands et néerlandais sont reconnus). |
 | `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
+| `show_raw_status` | non | false | Affiche la valeur brute de `status_entity` dans le panneau d’état de la carte. Cette option est utile lorsqu’un appareil connecté fournit directement son état. L’état doit toujours correspondre à l’une des valeurs définies dans `running_states`.|
 | `duration_format` | non | minutes | `minutes`, `hhmm`. Formate la durée du dernier cycle. Lorsque `duration_format` est défini sur `hhmm` et que la durée est égale ou supérieure à 60 minutes, la valeur est affichée au format HHhMM (par exemple, 1h05). |
 | `confirm_plug_off` | non | true | Affiche une popup de confirmation avant d'éteindre `plug_entity`. |
 | `language` | non | `auto` | `auto`, `fr`, `en`, `ru`, `de` ou `nl`. |
@@ -173,6 +175,7 @@ appliance_type: washer
 status_entity: sensor.washer_operation_state
 plug_entity: switch.washer_power
 running_states: [run]
+show_raw_status: true
 ```
 
 Pour un sèche-linge, un lave-vaisselle, un four ou un micro-ondes, la configuration est

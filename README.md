@@ -110,6 +110,7 @@ duration_entity: input_number.wm_last_duration     # cycle duration, minutes
 energy_entity: input_number.wm_last_energy         # kWh per cycle
 cost_entity: input_number.wm_last_cost             # cost per cycle
 hide_status_panel: true                            # Hide status panel only when idle (Default: false)
+show_raw_status: false                             # Shows the raw value of the status entity in the card's status panel (Default: false)
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`
 currency: "€"
@@ -134,6 +135,7 @@ theme: auto                                        # auto / light / dark / ha
 | `currency` | no | `€` | Currency symbol for the cost column. |
 | `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German, French and Dutch states are recognised). |
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
+| `show_raw_status` | no | false | Displays the raw value of `status_entity` in the card's status panel. This is useful when a smart appliance sends its state directly. The state must still match `running_states`.|
 | `duration_format` | no | minutes | `minutes`, `hhmm`. Formats the last cycle duration. When `duration_format` is set to `hhmm` and the duration is 60 minutes or longer, the value is displayed in HHhMM format (for example, 1h05). |
 | `confirm_plug_off` | no | true | Displays a confirmation popup before turning off the `plug_entity`. |
 | `language` | no | `auto` | `auto`, `en`, `ru`, `de`, `fr` or `nl`. |
@@ -172,6 +174,7 @@ appliance_type: washer
 status_entity: sensor.washer_operation_state
 plug_entity: switch.washer_power
 running_states: [run]
+show_raw_status: true
 ```
 
 A dryer, dishwasher, oven or microwave is the same config with a different
