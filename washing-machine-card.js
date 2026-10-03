@@ -9,7 +9,7 @@
  * License: MIT
  * Version: 1.4.0
  *
- * UI languages: en, ru, de, fr (auto-detected from Home Assistant, or set `language:`).
+ * UI languages: en, ru, de, fr, nl, pt (auto-detected from Home Assistant, or set `language:`).
  * Appliances: washer, dryer, dishwasher, oven, microwave (`appliance_type:`).
  * Theme: follows the Home Assistant theme automatically (`theme: auto | light | dark`),
  * or `theme: ha` to adopt the colours of your active Home Assistant theme.
@@ -17,7 +17,7 @@
  * Install:
  *   1. Copy to /config/www/washing-machine-card.js
  *   2. Add a dashboard resource:
- *        url: /local/washing-machine-card.js?v=5
+ *        url: /local/washing-machine-card.js?v=6
  *        type: module
  *   3. Add the card — full example at the bottom of this file.
  *
@@ -145,6 +145,32 @@ class WashingMachineCard extends HTMLElement {
             running_states: [
                 "wassen", "bezig", "centrifugeren", "spoelen", "drogen",
                 "bakken", "verwarmen",
+            ],
+        },
+        pt: {
+            name: "Máquina de lavar",
+            badge_running: "EM ANDAMENTO", badge_idle: "EM ESPERA", badge_paused: "EM PAUSA", badge_off: "DESLIGADO", badge_nodata: "SEM DADOS",
+            state_running: "Lavando", state_idle: "Em espera", state_paused: "Em pausa", state_off: "Desligado", state_nodata: "Sem dados",
+            ring_running: "DECORRIDO", ring_idle: "EM ESPERA", ring_paused: "EM PAUSA", ring_off: "DESLIGADO",
+            power: "Potência atual", current: "Corrente atual",
+            last_cycle: "ÚLTIMO CICLO", start: "INÍCIO", duration: "DURAÇÃO",
+            energy: "ENERGIA", cost: "CUSTO",
+            min: "min", kwh: "kWh", kw: "kW",
+            today: "Hoje", yesterday: "Ontem",
+            tip_notify: "Notificação de conclusão", tip_plug: "Tomada da máquina", tip_history: "Histórico",
+            confirm_plug_off: "Desligar a tomada? Isso pode interromper o ciclo atual.",
+            types: {
+                washer: { name: "Máquina de lavar", state_running: "Lavando" },
+                dryer: { name: "Secadora", state_running: "Secando" },
+                dishwasher: { name: "Lava-louças", state_running: "Lavando louças" },
+                oven: { name: "Forno", state_running: "Assando" },
+                microwave: { name: "Micro-ondas", state_running: "Aquecendo" },
+            },
+            running_states: [
+                "lavando", "lavagem", "lavagem longa", "lavagem normal", "lavagem curta", "em andamento", "rodando",
+                "centrifugação", "centrifugacao", "centrifugando", "enxágue", "enxague", "enxaguando", "enxaguar",
+                "secando", "secagem", "secar",
+                "assando", "assar", "cozinhando", "cozinhar", "aquecendo", "aquecer", "micro-ondas", "forno",
             ],
         },
     };
@@ -2416,7 +2442,7 @@ duration_format: minutes                    # minutes | hhmm (e.g. "1h05" once i
 energy_entity: input_number.wm_last_energy
 cost_entity: input_number.wm_last_cost
 currency: "€"
-language: auto                              # auto | en | ru | de | fr (auto = match Home Assistant's language)
+language: auto                              # auto | en | ru | de | fr | nl | pt (auto = match Home Assistant's language)
 theme: auto                                 # auto | light | dark | ha (ha = native Home Assistant colours)
 hide_status_panel: false                    # true hides the status panel while idle
 show_raw_status: false                      # true shows the raw value of the status entity in the card's status panel (hidden in the editor when status_entity is an input_boolean)

@@ -6,7 +6,7 @@ Een op Oikos geïnspireerde Lovelace-kaart die een *domme* wasmachine, droger, v
 
 ![Demo](media/demo_nl.gif)
 
-<sub>Dezelfde kaart in andere UI-talen: [English](media/demo_en.gif) · [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Français](media/demo_fr.gif)</sub>
+<sub>Dezelfde kaart in andere UI-talen: [English](media/demo_en.gif) · [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Français](media/demo_fr.gif) · [Português](media/demo_pt.gif)</sub>
 
 ## ✨ Functies
 
@@ -16,7 +16,7 @@ Een op Oikos geïnspireerde Lovelace-kaart die een *domme* wasmachine, droger, v
 - **Live status** — een pulserend "BEZIG / INACTIEF"-badge, een ring met verstreken tijd en een vermogensmeter met automatische eenheidsafhandeling (`1950 W` wordt getoond als `1,95 kW`; een sensor in ampère krijgt automatisch het label "Huidig verbruik").
 - **Samenvatting laatste cyclus** — starttijd ("Vandaag, 09:55"), duur, energie en kosten, elke kolom aantikbaar voor meer info.
 - **Snelle acties** — knoppen in de header schakelen de smart plug en de meldingsautomatisering, en openen de vermogensgeschiedenis.
-- **Vijf talen** — Nederlandse, Engelse, Russische, Duitse en Franse labels standaard aanwezig. De taal volgt je Home Assistant-profiel, of stel `language: nl | en | ru | de | fr` expliciet in.
+- **Zes talen** — Nederlandse, Engelse, Russische, Duitse, Franse en Portugese labels standaard aanwezig. De taal volgt je Home Assistant-profiel, of stel `language: nl | en | ru | de | fr | pt` expliciet in.
 - **Visuele editor** — de kaart heeft een configuratieformulier, dus je kunt 'm via de UI instellen zonder YAML aan te raken.
 - **Geen afhankelijkheden** — één vanilla-JS-bestand met Shadow DOM. Elke entiteitsoptie behalve `status_entity` is optioneel: blokken zonder entiteit worden gewoon verborgen. Past zich aan de breedte aan, van een volledige dashboardkolom tot een smalle weergave op een telefoon.
 
@@ -114,7 +114,7 @@ show_raw_status: false                             # Toont de ruwe waarde van de
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # toont een bevestigingspopup voordat `plug_entity` wordt uitgeschakeld
 currency: "€"
-language: nl                                       # auto / nl / en / ru / de / fr (auto = volgt Home Assistant)
+language: nl                                       # auto / nl / en / ru / de / fr / pt (auto = volgt Home Assistant)
 theme: auto                                        # auto / light / dark / ha
 ```
 
@@ -133,12 +133,12 @@ theme: auto                                        # auto / light / dark / ha
 | `energy_entity` | nee | — | Energie per cyclus, kWh. |
 | `cost_entity` | nee | — | Kosten per cyclus. |
 | `currency` | nee | `€` | Valutasymbool voor de kostenkolom. |
-| `running_states` | nee | on, washing, wassen, run, centrifugeren, … | Statussen van `status_entity` die als "loopt" worden beschouwd (Nederlandse, Engelse, Russische, Duitse en Franse statussen worden herkend). |
+| `running_states` | nee | on, washing, wassen, run, centrifugeren, … | Statussen van `status_entity` die als "loopt" worden beschouwd (Nederlandse, Engelse, Russische, Duitse, Franse en Portugese statussen worden herkend). |
 | `hide_status_panel` | nee | false | Verbergt het statuspaneel zolang het apparaat inactief is, en toont het weer zodra een cyclus start. |
 | `show_raw_status` | nee | false | Toont de ruwe waarde van `status_entity` in het statuspaneel van de kaart. Dit is handig wanneer een slim apparaat zijn status rechtstreeks doorstuurt. De status moet nog steeds overeenkomen met een van de waarden die zijn gedefinieerd in `running_states`.|
 | `duration_format` | nee | minutes | `minutes`, `hhmm`. Bepaalt de opmaak van de duur van de laatste cyclus. Als `duration_format` op `hhmm` staat en de duur 60 minuten of langer is, wordt de waarde weergegeven in HHhMM-formaat (bijvoorbeeld 1h05). |
 | `confirm_plug_off` | nee | true | Toont een bevestigingspopup voordat `plug_entity` wordt uitgeschakeld. |
-| `language` | nee | `auto` | `auto`, `nl`, `en`, `ru`, `de` of `fr`. |
+| `language` | nee | `auto` | `auto`, `nl`, `en`, `ru`, `de`, `fr` of `pt`. |
 | `theme` | nee | `auto` | `auto`, `light` en `dark` gebruiken de eigen styling van de kaart. `ha` neemt in plaats daarvan de kleuren van je Home Assistant-thema over. |
 
 ## 🧺 Apparaattypen
@@ -151,7 +151,7 @@ theme: auto                                        # auto / light / dark / ha
 | `oven` | Oven | Bakt |
 | `microwave` | Magnetron | Verwarmt |
 
-Titels en labels zijn vertaald naar alle vijf de talen; `name` overschrijft de titel.
+Titels en labels zijn vertaald naar alle zes de talen; `name` overschrijft de titel.
 
 ## 🧠 Hoe het werkt met een dom apparaat
 

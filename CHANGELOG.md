@@ -4,7 +4,7 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.4.0] — 2026-09-24
+## [1.4.0] — 2026-10-03
 
 ### Added
 - **Dutch** — the card's fifth UI language, covering every label and all five
@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   [@RienduPre](https://github.com/RienduPre) (#7, #21).
 - **`media/demo_nl.gif`** and **`media/themes_nl.jpg`**, so the Dutch README
   shows the card in Dutch rather than borrowing the English screenshots.
+- **Portuguese** — the sixth UI language, covering every label and all five
+  appliance types, plus Portuguese entries in `running_states`. A `pt-BR`
+  Home Assistant profile gets Brazilian date formatting, a `pt-PT` one European.
+  Based on the translation by [@Pmoshbr](https://github.com/Pmoshbr) (#18), with
+  the strings added since then filled in and the idle label made gender-neutral
+  ("EM ESPERA" instead of "OCIOSA"), since the same badge is shown for
+  *o forno* and *o micro-ondas*. `media/demo_pt.gif` shows it.
 - **A paused cycle now says so.** With a `power_entity` configured the card
   distinguishes three states instead of two: *running* (a cycle is under way and
   the appliance is drawing power), *paused* (the cycle is under way but power has
@@ -48,11 +55,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Thanks to [@KroFR](https://github.com/KroFR) (#19).
 - **French: `badge_idle` was "EN PAUSE"**, which now belongs to the paused state.
   Idle became "EN VEILLE" so the two states no longer read identically.
+- **Tapping the elapsed-time ring no longer opens anything.** It used to open the
+  more-info dialog of `last_wash_entity` — an `input_datetime`, whose dialog is an
+  editable date and time picker, so one stray tap on the largest element of the
+  card could change the recorded cycle start. The start time is still one tap
+  away in the START column. Thanks to [@KroFR](https://github.com/KroFR) (#25).
 - The READMEs no longer claim the card is "responsive via CSS container
   queries". That stopped being true when the container queries were replaced by a
   `ResizeObserver` (#14); the wording now just describes the behaviour.
 
 ### Fixed
+- **A stray divider appeared in the "Last cycle" panel** whenever its first
+  column was hidden — for example without a `last_wash_entity`, which is common
+  for smart appliances. The divider used to be removed only from the first
+  column in the markup; now it is removed from the first *visible* one.
+  Thanks to [@KroFR](https://github.com/KroFR) (#25).
 - **Custom `running_states` were case-sensitive.** The entity state is lowercased
   before it is compared, so an entry written with a capital letter — `"Spin"`,
   `"Lavagem"` — could never match, and nothing said so. Matching is now

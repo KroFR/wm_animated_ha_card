@@ -6,7 +6,7 @@ Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschi
 
 ![Demo](media/demo_de.gif)
 
-<sub>Dieselbe Karte in anderen Oberflächensprachen: [English](media/demo_en.gif) · [Русский](media/demo_ru.gif) · [Français](media/demo_fr.gif) · [Nederlands](media/demo_nl.gif)</sub>
+<sub>Dieselbe Karte in anderen Oberflächensprachen: [English](media/demo_en.gif) · [Русский](media/demo_ru.gif) · [Français](media/demo_fr.gif) · [Nederlands](media/demo_nl.gif) · [Português](media/demo_pt.gif)</sub>
 
 ## ✨ Funktionen
 
@@ -16,7 +16,7 @@ Eine Oikos-inspirierte Lovelace-Karte, die aus einer *nicht smarten* Waschmaschi
 - **Live-Status** – ein pulsierendes „LÄUFT / BEREIT“-Badge, ein Ring mit der verstrichenen Zeit und eine Leistungsanzeige, die die Einheit selbst wählt (`1950 W` erscheint als `1,95 kW`; hängt ein Stromsensor dran, heißt die Beschriftung automatisch „Stromaufnahme“).
 - **Letzter Durchgang** – Startzeit („Heute, 09:55“), Dauer, Verbrauch und Kosten. Jede Spalte öffnet per Tippen den More-Info-Dialog.
 - **Schnellzugriffe** – Buttons in der Kopfzeile schalten die Steckdose und die Benachrichtigungs-Automatisierung und öffnen den Leistungsverlauf.
-- **Fünf Sprachen** – Deutsch, Englisch, Russisch, Französisch und Niederländisch von Haus aus. Die Sprache folgt deinem Home-Assistant-Profil oder wird mit `language: de | en | ru | fr | nl` fest gesetzt.
+- **Sechs Sprachen** – Deutsch, Englisch, Russisch, Französisch, Niederländisch und Portugiesisch von Haus aus. Die Sprache folgt deinem Home-Assistant-Profil oder wird mit `language: de | en | ru | fr | nl | pt` fest gesetzt.
 - **Visueller Editor** – die Karte liefert ein Konfigurationsformular mit, lässt sich also ohne YAML über die Oberfläche einrichten.
 - **Keine Abhängigkeiten** – eine einzige Vanilla-JS-Datei mit Shadow DOM. Alle Entity-Optionen außer `status_entity` sind optional, Blöcke ohne Entity werden einfach ausgeblendet. Passt sich der Breite an – von der vollen Dashboard-Spalte bis zum schmalen Handy-Layout.
 
@@ -114,7 +114,7 @@ show_raw_status: false                             # Zeigt den Rohwert der Statu
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # Zeigt ein Bestätigungs-Popup an, bevor die `plug_entity` ausgeschaltet wird
 currency: "€"
-language: de                                       # auto / de / en / ru / fr / nl (auto = HA-Sprache folgen)
+language: de                                       # auto / de / en / ru / fr / nl / pt (auto = HA-Sprache folgen)
 theme: auto                                        # auto / light / dark / ha
 ```
 
@@ -133,12 +133,12 @@ theme: auto                                        # auto / light / dark / ha
 | `energy_entity` | nein | – | Energie pro Durchgang, kWh. |
 | `cost_entity` | nein | – | Kosten pro Durchgang. |
 | `currency` | nein | `€` | Währungssymbol für die Kostenspalte. |
-| `running_states` | nein | on, washing, waschen, run, schleudern, … | Zustände von `status_entity`, die als „laufend“ gelten (deutsche, englische, russische, französische und niederländische Zustände werden erkannt). |
+| `running_states` | nein | on, washing, waschen, run, schleudern, … | Zustände von `status_entity`, die als „laufend“ gelten (deutsche, englische, russische, französische, niederländische und portugiesische Zustände werden erkannt). |
 | `hide_status_panel` | nein | false | Statusanzeige nur ausblenden, wenn inaktiv. |
 | `show_raw_status` | nein | false | Zeigt den Rohwert von `status_entity` im Statusbereich der Karte an. Dies ist nützlich, wenn ein Smart-Gerät seinen Status direkt übermittelt. Der Status muss weiterhin mit einem der in `running_states` definierten Werte übereinstimmen.|
 | `duration_format` | nein | minutes | `minutes`, `hhmm`. Formatiert die Dauer des letzten Durchgangs. Ist `duration_format` auf `hhmm` gesetzt und dauert der Durchgang 60 Minuten oder länger, wird der Wert im Format HHhMM angezeigt (zum Beispiel 1h05). |
 | `confirm_plug_off` | nein | true | Zeigt ein Bestätigungs-Popup an, bevor die `plug_entity` ausgeschaltet wird. |
-| `language` | nein | `auto` | `auto`, `de`, `en`, `ru`, `fr` oder `nl`. |
+| `language` | nein | `auto` | `auto`, `de`, `en`, `ru`, `fr`, `nl` oder `pt`. |
 | `theme` | nein | `auto` | `auto`, `light` und `dark` verwenden das eigene Styling der Karte. `ha` übernimmt stattdessen die Farben deines Home Assistant-Themes. |
 
 ## 🧺 Gerätetypen
@@ -151,7 +151,7 @@ theme: auto                                        # auto / light / dark / ha
 | `oven` | Backofen | Backt |
 | `microwave` | Mikrowelle | Erwärmt |
 
-Titel und Texte sind in alle fünf Sprachen übersetzt; `name` überschreibt den Titel.
+Titel und Texte sind in alle sechs Sprachen übersetzt; `name` überschreibt den Titel.
 
 ## 🧠 So funktioniert es mit einem nicht smarten Gerät
 

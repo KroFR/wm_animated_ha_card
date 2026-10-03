@@ -6,7 +6,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 
 ![Demo](media/demo_en.gif)
 
-<sub>Same card in other UI languages: [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Français](media/demo_fr.gif) · [Nederlands](media/demo_nl.gif)</sub>
+<sub>Same card in other UI languages: [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Français](media/demo_fr.gif) · [Nederlands](media/demo_nl.gif) · [Português](media/demo_pt.gif)</sub>
 
 ## ✨ Features
 
@@ -16,7 +16,7 @@ An Oikos-inspired Lovelace card that turns a *dumb* washer, dryer, dishwasher, o
 - **Live status** — a pulsing "RUNNING / IDLE" badge, an elapsed-time ring and a power gauge with automatic unit handling (`1950 W` is shown as `1.95 kW`; an ampere sensor is labelled "Current draw" automatically).
 - **Last cycle summary** — start time ("Today, 09:55"), duration, energy and cost, each column tappable for more-info.
 - **Quick actions** — header buttons toggle the smart plug and the finish-notification automation, and open the power history.
-- **Five languages** — English, Russian, German, French and Dutch labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de | fr | nl` explicitly.
+- **Six languages** — English, Russian, German, French, Dutch and Portuguese labels out of the box. The language follows your Home Assistant profile, or set `language: en | ru | de | fr | nl | pt` explicitly.
 - **Visual editor** — the card ships a config form, so it can be set up from the UI without touching YAML.
 - **Zero dependencies** — a single vanilla-JS file with Shadow DOM. Every entity option except `status_entity` is optional: blocks without an entity are simply hidden. Responsive from a full-width dashboard column down to a narrow phone layout.
 
@@ -114,7 +114,7 @@ show_raw_status: false                             # Shows the raw value of the 
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # displays a confirmation popup before turning off the `plug_entity`
 currency: "€"
-language: en                                       # auto / en / ru / de / fr / nl (auto = follow Home Assistant)
+language: en                                       # auto / en / ru / de / fr / nl / pt (auto = follow Home Assistant)
 theme: auto                                        # auto / light / dark / ha
 ```
 
@@ -133,12 +133,12 @@ theme: auto                                        # auto / light / dark / ha
 | `energy_entity` | no | — | Energy per cycle, kWh. |
 | `cost_entity` | no | — | Cost per cycle. |
 | `currency` | no | `€` | Currency symbol for the cost column. |
-| `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German, French and Dutch states are recognised). |
+| `running_states` | no | on, washing, run, spin, rinse, … | States of `status_entity` treated as "running" (English, Russian, German, French, Dutch and Portuguese states are recognised). |
 | `hide_status_panel` | no | false | Hide status panel only when idle. |
 | `show_raw_status` | no | false | Displays the raw value of `status_entity` in the card's status panel. This is useful when a smart appliance sends its state directly. The state must still match `running_states`.|
 | `duration_format` | no | minutes | `minutes`, `hhmm`. Formats the last cycle duration. When `duration_format` is set to `hhmm` and the duration is 60 minutes or longer, the value is displayed in HHhMM format (for example, 1h05). |
 | `confirm_plug_off` | no | true | Displays a confirmation popup before turning off the `plug_entity`. |
-| `language` | no | `auto` | `auto`, `en`, `ru`, `de`, `fr` or `nl`. |
+| `language` | no | `auto` | `auto`, `en`, `ru`, `de`, `fr`, `nl` or `pt`. |
 | `theme` | no | `auto` | `auto`, `light` and `dark` use the card's own styling. `ha` adopts your Home Assistant theme colors instead. |
 
 ## 🧺 Appliance types
@@ -151,7 +151,7 @@ theme: auto                                        # auto / light / dark / ha
 | `oven` | Oven | Baking |
 | `microwave` | Microwave | Heating |
 
-Titles and labels are translated into all five languages; `name` overrides the title.
+Titles and labels are translated into all six languages; `name` overrides the title.
 
 ## 🧠 How it works with a dumb appliance
 

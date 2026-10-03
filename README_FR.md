@@ -6,7 +6,7 @@ Une carte Lovelace inspirée d'Oikos qui transforme un lave-linge, sèche-linge,
 
 ![Démo](media/demo_fr.gif)
 
-<sub>La même carte dans d'autres langues d'interface : [English](media/demo_en.gif) · [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Nederlands](media/demo_nl.gif)</sub>
+<sub>La même carte dans d'autres langues d'interface : [English](media/demo_en.gif) · [Русский](media/demo_ru.gif) · [Deutsch](media/demo_de.gif) · [Nederlands](media/demo_nl.gif) · [Português](media/demo_pt.gif)</sub>
 
 ## ✨ Fonctionnalités
 
@@ -16,7 +16,7 @@ Une carte Lovelace inspirée d'Oikos qui transforme un lave-linge, sèche-linge,
 - **État en direct** — un badge clignotant « EN MARCHE / INACTIF », un anneau avec le temps écoulé et une jauge de puissance qui choisit son unité toute seule (`1950 W` s'affiche `1,95 kW` ; avec un capteur de courant, le libellé devient « Courant instantané »).
 - **Résumé du dernier cycle** — heure de départ (« Aujourd'hui, 09:55 »), durée, énergie et coût ; chaque colonne ouvre la fenêtre more-info d'une simple pression.
 - **Actions rapides** — les boutons de l'en-tête commutent la prise connectée et l'automatisation de notification de fin, et ouvrent l'historique de puissance.
-- **Cinq langues** — français, anglais, russe, allemand et néerlandais d'origine. La langue suit votre profil Home Assistant, ou se force avec `language: fr | en | ru | de | nl`.
+- **Six langues** — français, anglais, russe, allemand, néerlandais et portugais d'origine. La langue suit votre profil Home Assistant, ou se force avec `language: fr | en | ru | de | nl | pt`.
 - **Éditeur visuel** — la carte fournit un formulaire de configuration : elle se règle depuis l'interface, sans toucher au YAML.
 - **Aucune dépendance** — un seul fichier JavaScript natif avec Shadow DOM. Toutes les options d'entité sauf `status_entity` sont facultatives : les blocs sans entité sont simplement masqués. S'adapte à la largeur, de la colonne complète du tableau de bord à l'affichage étroit d'un téléphone.
 
@@ -114,7 +114,7 @@ show_raw_status: false                             # Afficher la valeur brute de
 duration_format: minutes                           # minutes / hhmm
 confirm_plug_off: true                             # affiche une popup de confirmation avant d'éteindre `plug_entity`
 currency: "€"
-language: fr                                       # auto / fr / en / ru / de / nl (auto = langue de HA)
+language: fr                                       # auto / fr / en / ru / de / nl / pt (auto = langue de HA)
 theme: auto                                        # auto / light / dark / ha
 ```
 
@@ -133,12 +133,12 @@ theme: auto                                        # auto / light / dark / ha
 | `energy_entity` | non | — | Énergie par cycle, en kWh. |
 | `cost_entity` | non | — | Coût par cycle. |
 | `currency` | non | `€` | Symbole monétaire de la colonne coût. |
-| `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche » (les états français, anglais, russes, allemands et néerlandais sont reconnus). |
+| `running_states` | non | on, washing, lavage, run, essorage, … | États de `status_entity` considérés comme « en marche » (les états français, anglais, russes, allemands, néerlandais et portugais sont reconnus). |
 | `hide_status_panel` | non | false | Masquer le panneau de statut uniquement lorsque l'appareil est inactif. |
 | `show_raw_status` | non | false | Affiche la valeur brute de `status_entity` dans le panneau d’état de la carte. Cette option est utile lorsqu’un appareil connecté fournit directement son état. L’état doit toujours correspondre à l’une des valeurs définies dans `running_states`.|
 | `duration_format` | non | minutes | `minutes`, `hhmm`. Formate la durée du dernier cycle. Lorsque `duration_format` est défini sur `hhmm` et que la durée est égale ou supérieure à 60 minutes, la valeur est affichée au format HHhMM (par exemple, 1h05). |
 | `confirm_plug_off` | non | true | Affiche une popup de confirmation avant d'éteindre `plug_entity`. |
-| `language` | non | `auto` | `auto`, `fr`, `en`, `ru`, `de` ou `nl`. |
+| `language` | non | `auto` | `auto`, `fr`, `en`, `ru`, `de`, `nl` ou `pt`. |
 | `theme` | non | `auto` | `auto`, `light` et `dark` utilisent le style propre de la carte. `ha` adopte à la place les couleurs de votre thème Home Assistant. |
 
 ## 🧺 Types d'appareils
@@ -151,7 +151,7 @@ theme: auto                                        # auto / light / dark / ha
 | `oven` | Four | Cuisson en cours |
 | `microwave` | Micro-ondes | Réchauffage en cours |
 
-Les titres et libellés sont traduits dans les cinq langues ; `name` remplace le titre.
+Les titres et libellés sont traduits dans les six langues ; `name` remplace le titre.
 
 ## 🧠 Comment ça marche avec un appareil ordinaire
 
